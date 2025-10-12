@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>BotForge.Analyzers</PackageId>
+    <PackageVersion>1.0.0.0</PackageVersion>
+    <Authors>IOExcept10n</Authors>
+    <PackageLicenseUrl>https://github.com/IOExcept10n/BotForge/blob/main/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/IOExcept10n/BotForge/blob/main/src/MyBots.Analyzers</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/IOExcept10n/BotForge/main/res/icon.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/IOExcept10n/BotForge</RepositoryUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Description>Analyzer package for BotForge framework</Description>
+    <PackageReleaseNotes>Summary of changes made in this release of the package.</PackageReleaseNotes>
+    <Copyright>Copyright © 2025 Ivan Olyanishin</Copyright>
+    <PackageTags>BotForge.Analyzers, analyzers</PackageTags>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);_AddAnalyzersToOutput</TargetsForTfmSpecificContentInPackage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BotForge.Analyzers\BotForge.Analyzers.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="tools\*.ps1" CopyToOutputDirectory="PreserveNewest" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <Target Name="_AddAnalyzersToOutput">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="$(OutputPath)\MyBots.Analyzers.dll" PackagePath="analyzers/dotnet/cs" />
+      <TfmSpecificPackageFile Include="$(OutputPath)\MyBots.Analyzers.CodeFixes.dll" PackagePath="analyzers/dotnet/cs" />
+    </ItemGroup>
+  </Target>
+
+</Project>

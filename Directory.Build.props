@@ -1,0 +1,34 @@
+<Project>
+  <PropertyGroup>
+    <!-- Target framework and nullable/implicit usings -->
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- NuGet package defaults -->
+    <Company>IOExcept10n</Company>
+    <Authors>Ivan Olyanishin</Authors>
+    <RepositoryUrl>https://github.com/IOExcept10n/BotForge</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageVersion>0.1.0</PackageVersion>
+    <PackageReleaseNotes>Initial pre-release</PackageReleaseNotes>
+
+    <!-- Build output -->
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <Deterministic>true</Deterministic>
+
+    <!-- Treat warnings as errors for CI -->
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+
+    <!-- Enable analyzers for all projects -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+  </PropertyGroup>
+
+  <!-- Make internals visible to tests automatically -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="*.Tests" />
+  </ItemGroup>
+</Project>

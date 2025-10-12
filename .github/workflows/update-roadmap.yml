@@ -1,0 +1,25 @@
+name: Update Roadmap Status
+
+on:
+  issues:
+    types: [opened, edited, closed, labeled, unlabeled]
+
+jobs:
+  update-roadmap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Update roadmap
+        run: python .github/scripts/update_roadmap.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

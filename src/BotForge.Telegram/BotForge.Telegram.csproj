@@ -1,0 +1,7 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\BotForge.Core\BotForge.Core.csproj" />
+    <ProjectReference Include="..\BotForge.Modules\BotForge.Modules.csproj" />
+  </ItemGroup>
+</Project>

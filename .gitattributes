@@ -1,0 +1,27 @@
+# Ensure consistent line endings across OS
+* text=auto eol=lf
+
+# Treat C# files as text and normalize diffs
+*.cs     text diff=csharp
+*.csproj text diff=xml
+*.sln    text diff=msbuild
+*.props  text diff=xml
+*.targets text diff=xml
+
+# Handle markdown and documentation files
+*.md     text diff=markdown
+*.yml    text diff=yaml
+*.json   text diff=json
+*.xml    text diff=xml
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.exe binary
+*.dll binary
+*.pdb binary
+
+# Prevent diffing and automatic CRLF normalization for binaries

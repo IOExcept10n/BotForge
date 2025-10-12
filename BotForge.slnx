@@ -1,0 +1,24 @@
+<Solution>
+  <Folder Name="/samples/" />
+  <Folder Name="/samples/Telegram/">
+    <Project Path="samples/Telegram/BotForge.Telegram.PingPongBot/BotForge.Telegram.PingPongBot.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/BotForge.Analyzers.Package/BotForge.Analyzers.Package.csproj" />
+    <Project Path="src/BotForge.Analyzers/BotForge.Analyzers.csproj" />
+    <Project Path="src/BotForge.Core/BotForge.Core.csproj" />
+    <Project Path="src/BotForge.Modules/BotForge.Modules.csproj" />
+    <Project Path="src/BotForge.Persistence/BotForge.Persistence.csproj" />
+    <Project Path="src/BotForge.Telegram/BotForge.Telegram.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BotForge.Core.Tests/BotForge.Core.Tests.csproj" />
+    <Project Path="tests/BotForge.Modules.Tests/BotForge.Modules.Tests.csproj" />
+    <Project Path="tests/BotForge.Telegram.Tests/BotForge.Telegram.Tests.csproj" />
+  </Folder>
+</Solution>

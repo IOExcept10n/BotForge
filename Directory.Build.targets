@@ -1,0 +1,17 @@
+<Project>
+  <!-- Custom build steps -->
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Message Importance="high" Text="Built project $(MSBuildProjectName) $(Configuration) $(TargetFramework)" />
+  </Target>
+
+  <!-- Optionally, copy output of libraries to a central folder -->
+  <Target Name="CopyLibs" AfterTargets="Build">
+    <PropertyGroup>
+      <LibOutput>$(SolutionDir)artifacts\lib\$(MSBuildProjectName)</LibOutput>
+    </PropertyGroup>
+    <MakeDir Directories="$(LibOutput)" />
+    <Copy SourceFiles="$(OutputPath)$(MSBuildProjectName).dll"
+          DestinationFolder="$(LibOutput)"
+          SkipUnchangedFiles="true" />
+  </Target>
+</Project>
