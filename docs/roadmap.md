@@ -20,7 +20,6 @@ Each milestone links to GitHub issues tracking its progress.
 
 **Stretch Goals:**
 - [ ] FSM visualization tool (`botforge fsm graph`)
-- [ ] Unit tests for state transitions
 
 ---
 
@@ -57,7 +56,6 @@ Each milestone links to GitHub issues tracking its progress.
 
 **Stretch Goals:**
 - [ ] JSON-based serialization for complex states
-- [ ] Schema versioning and migration helpers
 
 ---
 
@@ -113,16 +111,5 @@ Each milestone links to GitHub issues tracking its progress.
 - [ ] Discord & WebSocket adapters
 - [ ] Community extension registry
 
----
-
-## 🧭 Future Ideas (Post-1.0)
-- Visual FSM designer (web/CLI)
-- Live monitoring dashboard
-- OpenAI/LLM integration
-- Multi-tenant hosting model
-- Plugin runtime system
-
----
-
 **Last updated:** October 2025
-**Maintainer:** [@YourGitHubUsername](https://github.com/YourGitHubUsername)
+**Maintainer:** [@IOExcept10n](https://github.com/IOExcept10n)
