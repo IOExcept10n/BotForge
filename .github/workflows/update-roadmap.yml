@@ -17,7 +17,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
-        run: pip install pyyaml
+        run: pip install pyyaml PyGitHub
 
       - name: Update roadmap
         run: python .github/scripts/update_roadmap.py
