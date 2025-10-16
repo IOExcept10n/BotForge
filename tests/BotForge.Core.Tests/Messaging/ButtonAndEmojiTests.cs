@@ -1,7 +1,7 @@
 using BotForge.Core.Messaging;
 using Xunit;
 
-namespace BotForge.Core.Tests;
+namespace BotForge.Core.Tests.Messaging;
 
 public class ButtonAndEmojiTests
 {
