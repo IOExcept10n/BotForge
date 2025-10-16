@@ -1,4 +1,4 @@
-namespace BotForge.Core.Fsm;
+namespace BotForge.Fsm;
 
 public interface IStateHandler
 {

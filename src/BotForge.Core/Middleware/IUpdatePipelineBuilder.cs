@@ -1,4 +1,4 @@
-namespace BotForge.Core.Middleware;
+namespace BotForge.Middleware;
 
 public interface IUpdatePipelineBuilder
 {

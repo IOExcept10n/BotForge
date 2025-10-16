@@ -1,6 +1,5 @@
-using BotForge.Core.Messaging;
+namespace BotForge.Fsm.Handling;
 
-namespace BotForge.Core.Fsm.Handling;
 public interface ICommandHandler
 {
     string CommandName { get; }

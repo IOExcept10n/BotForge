@@ -1,7 +1,7 @@
 using System.Collections.Frozen;
 using System.Reflection;
 
-namespace BotForge.Core.Messaging;
+namespace BotForge.Messaging;
 
 internal sealed class LabelStore : ILabelStore
 {

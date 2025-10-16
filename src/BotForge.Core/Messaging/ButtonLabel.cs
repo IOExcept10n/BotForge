@@ -1,9 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Numerics;
-using BotForge.Core.Localization;
+using BotForge.Localization;
 
-namespace BotForge.Core.Messaging;
+namespace BotForge.Messaging;
 
 /// <summary>
 /// Represents information about label on interactive menu button for chatbot.

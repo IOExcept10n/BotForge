@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace BotForge.Core.Localization;
+namespace BotForge.Localization;
 
 /// <summary>
 /// Provides methods for retrieving localized strings and managing a user's language preference.

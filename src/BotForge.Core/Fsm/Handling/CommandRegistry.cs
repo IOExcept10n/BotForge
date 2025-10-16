@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace BotForge.Core.Fsm.Handling;
+namespace BotForge.Fsm.Handling;
 
 internal class CommandRegistry : IRegistry<ICommandHandler>
 {

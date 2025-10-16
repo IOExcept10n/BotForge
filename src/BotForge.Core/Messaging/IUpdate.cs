@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace BotForge.Core.Messaging;
+namespace BotForge.Messaging;
 
 public interface IUpdate
 {

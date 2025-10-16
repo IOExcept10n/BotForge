@@ -1,7 +1,7 @@
-using BotForge.Core.Fsm.Handling;
-using BotForge.Core.Messaging;
+using BotForge.Fsm.Handling;
+using BotForge.Messaging;
 
-namespace BotForge.Core.Fsm;
+namespace BotForge.Fsm;
 
 public sealed class FsmEngine(IMessageHandler? messageHandler, IInteractionHandler? interactionHandler, IRawUpdateHandler? updateHandler)
 {

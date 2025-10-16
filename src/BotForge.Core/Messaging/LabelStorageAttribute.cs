@@ -1,4 +1,4 @@
-namespace BotForge.Core.Messaging;
+namespace BotForge.Messaging;
 
 [AttributeUsage(AttributeTargets.Class)]
 public class LabelStorageAttribute : Attribute;

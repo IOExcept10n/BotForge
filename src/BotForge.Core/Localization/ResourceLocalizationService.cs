@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Resources;
 
-namespace BotForge.Core.Localization;
+namespace BotForge.Localization;
 
 /// <summary>
 /// Implements the localization service using a resource manager to provide localized strings.

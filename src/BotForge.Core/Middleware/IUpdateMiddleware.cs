@@ -1,6 +1,7 @@
-using BotForge.Core.Messaging;
+using BotForge.Messaging;
 
-namespace BotForge.Core.Middleware;
+namespace BotForge.Middleware;
+
 public interface IUpdateMiddleware
 {
     Task InvokeAsync(UpdateContext context, Func<Task> next, CancellationToken ct);

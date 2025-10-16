@@ -1,4 +1,4 @@
-namespace BotForge.Core.Fsm;
+namespace BotForge.Fsm;
 
 public record StateDefinition(string Name, string? ParentStateId, string? Category, IStateLayout Layout)
 {

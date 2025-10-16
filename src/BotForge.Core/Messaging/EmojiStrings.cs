@@ -1,4 +1,4 @@
-namespace BotForge.Core.Messaging;
+namespace BotForge.Messaging;
 
 #pragma warning disable CA1707 // Remove undescores from member name
 
@@ -613,12 +613,12 @@ public static class EmojiStrings
     public static readonly string CIRCLED_LATIN_CAPITAL_LETTER_M = char.ConvertFromUtf32(0x24C2);
 
     /// <summary>
-    /// Negative squared Latin capital letter A — example: 🅐 (often displayed as 🅰️) 
+    /// Negative squared Latin capital letter A — example: 🅐 (often displayed as 🅰️)
     /// </summary>
     public static readonly string NEGATIVE_SQUARED_LATIN_CAPITAL_LETTER_A = char.ConvertFromUtf32(0x1F170);
 
     /// <summary>
-    /// Negative squared Latin capital letter B — example: 🅑 (often displayed as 🅱️) 
+    /// Negative squared Latin capital letter B — example: 🅑 (often displayed as 🅱️)
     /// </summary>
     public static readonly string NEGATIVE_SQUARED_LATIN_CAPITAL_LETTER_B = char.ConvertFromUtf32(0x1F171);
 
@@ -811,6 +811,7 @@ public static class EmojiStrings
     /// Circled ideograph accept — example: 🉑
     /// </summary>
     public static readonly string CIRCLED_IDEOGRAPH_ACCEPT = char.ConvertFromUtf32(0x1F251);
+
     /// <summary>
     /// Copyright sign — example: ©
     /// </summary>
@@ -2677,7 +2678,7 @@ public static class EmojiStrings
     public static readonly string ALIEN_MONSTER = char.ConvertFromUtf32(0x1F47E);
 
     /// <summary>
-    /// Imp — example: 🙈 (Note: imp emoji looks like small monster: 👿) 
+    /// Imp — example: 🙈 (Note: imp emoji looks like small monster: 👿)
     /// </summary>
     public static readonly string IMP = char.ConvertFromUtf32(0x1F47F);
 
@@ -4045,6 +4046,7 @@ public static class EmojiStrings
     /// Pig — example: 🐖
     /// </summary>
     public static readonly string PIG = char.ConvertFromUtf32(0x1F416);
+
     /// <summary>
     /// Dromedary Camel — example: 🐪
     /// </summary>

@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace BotForge.Core.Fsm;
+namespace BotForge.Fsm;
 
 internal class StateRegistry : IRegistry<StateDefinition>
 {

@@ -1,6 +1,4 @@
-using System.Globalization;
-
-namespace BotForge.Core.Messaging;
+namespace BotForge.Messaging;
 
 public interface ILabelStore
 {

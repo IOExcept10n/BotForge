@@ -1,10 +1,9 @@
 using System.Collections.Concurrent;
-using System.Threading;
-using BotForge.Core.Fsm;
-using BotForge.Core.Messaging;
-using BotForge.Core.Middleware;
+using BotForge.Fsm;
+using BotForge.Messaging;
+using BotForge.Middleware;
 
-namespace BotForge.Core;
+namespace BotForge;
 
 /// <summary>
 /// Represents a thread-safe per-user implementation of the bot updates processing pipeline. It asynchronously handles all updates from users

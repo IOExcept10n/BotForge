@@ -1,4 +1,4 @@
-namespace BotForge.Core.Messaging;
+namespace BotForge.Messaging;
 
 /// <summary>
 /// Represents a list of predefined two-codepoints long emojis that can be used in any web application.

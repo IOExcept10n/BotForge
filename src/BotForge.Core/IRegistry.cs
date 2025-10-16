@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace BotForge.Core;
+namespace BotForge;
 
 /// <summary>
 /// Provides registration and lookup of items of type <typeparamref name="T"/>.

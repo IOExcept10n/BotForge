@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
-using BotForge.Core.Messaging;
+using BotForge.Messaging;
 
-namespace BotForge.Core.Fsm;
+namespace BotForge.Fsm;
 
 internal class InMemoryUserStateStore : IUserStateStore
 {

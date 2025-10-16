@@ -1,6 +1,6 @@
-using BotForge.Core.Messaging;
+using BotForge.Messaging;
 
-namespace BotForge.Core.Fsm.Handling;
+namespace BotForge.Fsm.Handling;
 
 public interface IInteractionHandler
 {

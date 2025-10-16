@@ -1,4 +1,4 @@
-namespace BotForge.Core.Messaging;
+namespace BotForge.Messaging;
 
 public record ReplyContext(string Message, ReplyKeyboard Keyboard);
 

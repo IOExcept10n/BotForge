@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace BotForge.Core.Middleware;
+namespace BotForge.Middleware;
 
 internal sealed class UpdatePipelineBuilder : IUpdatePipelineBuilder
 {

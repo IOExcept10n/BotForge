@@ -1,6 +1,6 @@
-using BotForge.Core.Messaging;
+using BotForge.Messaging;
 
-namespace BotForge.Core.Fsm;
+namespace BotForge.Fsm;
 
 public record StateResult(string NextStateId, string NextStateData, ReplyContext? OverrideNextStateMessage = null)
 {

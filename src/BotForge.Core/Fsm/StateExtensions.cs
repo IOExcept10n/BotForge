@@ -1,10 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
-using BotForge.Core.Localization;
-using BotForge.Core.Messaging;
+using BotForge.Localization;
+using BotForge.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace BotForge.Core.Fsm;
+namespace BotForge.Fsm;
 
 public static class StateExtensions
 {
