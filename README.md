@@ -39,7 +39,7 @@ It started as an internal tool for a university hackathon and evolved into an op
 ## 🗺️ Roadmap
 
 - [x] Prepare repository and solution structure
-- [ ] Implement FSM core (`BotForge.Core`)
+- [X] Implement FSM core (`BotForge.Core`)
 - [ ] Add Telegram adapter
 - [ ] Build modular system
 - [ ] Create sample bots (`PingPongBot`)
