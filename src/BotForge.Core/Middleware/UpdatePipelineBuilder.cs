@@ -6,6 +6,8 @@ internal sealed class UpdatePipelineBuilder : IUpdatePipelineBuilder
 {
     private readonly List<Func<UpdateDelegate, UpdateDelegate>> _middlewares = [];
 
+    public UpdatePipelineConfig Config { get; set; } = new(10000, TimeSpan.FromSeconds(15));
+
     public UpdateDelegate Build(UpdateDelegate terminal)
     {
         var pipeline = terminal;

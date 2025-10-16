@@ -1,11 +1,11 @@
-using BotForge.Core.Fsm;
-using BotForge.Core.Fsm.Handling;
-using BotForge.Core.Messaging;
-using BotForge.Core.Middleware;
+using BotForge.Fsm;
+using BotForge.Fsm.Handling;
+using BotForge.Messaging;
+using BotForge.Middleware;
 using System.Threading;
 using Xunit;
 
-namespace BotForge.Core.Tests.Fsm;
+namespace BotForge.Tests.Fsm;
 
 public class FsmEngineAndPipelineTests
 {

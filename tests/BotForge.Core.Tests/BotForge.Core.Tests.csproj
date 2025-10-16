@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <IsPackable>false</IsPackable>
@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\BotForge.Core\BotForge.Core.csproj" />
+    <ProjectReference Include="..\..\src\BotForge\BotForge.csproj" />
   </ItemGroup>
 
 </Project>

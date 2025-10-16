@@ -1,7 +1,7 @@
-using BotForge.Core.Fsm;
+using BotForge.Fsm;
 using Xunit;
 
-namespace BotForge.Core.Tests.Fsm;
+namespace BotForge.Tests.Fsm;
 
 public class StateRegistryTests
 {
@@ -20,6 +20,6 @@ public class StateRegistryTests
 
     private class TestLayout : IStateLayout
     {
-        public Task SendLayoutMessageAsync(BotForge.Core.Messaging.IReplyChannel channel, BotForge.Core.Messaging.ChatId chatId, BotForge.Core.Messaging.ReplyContext? overrideMessage = null, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task SendLayoutMessageAsync(BotForge.Messaging.IReplyChannel channel, BotForge.Messaging.ChatId chatId, BotForge.Messaging.ReplyContext? overrideMessage = null, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 }

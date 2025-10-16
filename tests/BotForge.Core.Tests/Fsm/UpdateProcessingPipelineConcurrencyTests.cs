@@ -2,13 +2,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using BotForge.Core.Fsm;
-using BotForge.Core.Fsm.Handling;
-using BotForge.Core.Messaging;
+using BotForge.Fsm;
+using BotForge.Fsm.Handling;
+using BotForge.Messaging;
 using Moq;
 using Xunit;
 
-namespace BotForge.Core.Tests.Fsm;
+namespace BotForge.Tests.Fsm;
 
 public class UpdateProcessingPipelineConcurrencyTests
 {
@@ -20,7 +20,7 @@ public class UpdateProcessingPipelineConcurrencyTests
         rawHandlerMock.Setup(h => h.HandleAsync(It.IsAny<IUpdate>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         var engine = new FsmEngine(null, null, rawHandlerMock.Object);
-        using var pipeline = new UpdateProcessingPipeline(engine, new ServiceProviderStub(null), maxTrackedUsers: 100);
+        using var pipeline = new UpdateProcessingPipeline(engine, new ServiceProviderStub(null));
 
         var tasks = new List<Task>();
         for (int i = 0; i < 20; i++)

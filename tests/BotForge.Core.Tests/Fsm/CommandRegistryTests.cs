@@ -1,10 +1,10 @@
-using BotForge.Core.Fsm;
-using BotForge.Core.Fsm.Handling;
-using BotForge.Core.Messaging;
+using BotForge.Fsm;
+using BotForge.Fsm.Handling;
+using BotForge.Messaging;
 using System.Threading;
 using Xunit;
 
-namespace BotForge.Core.Tests.Fsm;
+namespace BotForge.Tests.Fsm;
 
 public class CommandRegistryTests
 {

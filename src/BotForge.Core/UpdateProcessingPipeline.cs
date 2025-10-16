@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using BotForge.Fsm;
 using BotForge.Messaging;
 using BotForge.Middleware;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BotForge;
 
@@ -21,24 +22,21 @@ public sealed partial class UpdateProcessingPipeline : IDisposable
     /// <param name="fsm">An instance of the finite state machine engine to handle updates.</param>
     /// <param name="services">An instance of the service provider to get services from.</param>
     /// <param name="configure">Action for pipeline configuration.</param>
-    /// <param name="maxTrackedUsers">Maximal number of users for synchronization caching.</param>
-    /// <param name="lockExpiration">Minimal lifetime of a single user lock cache entry.</param>
+    
     public UpdateProcessingPipeline(
         FsmEngine fsm,
         IServiceProvider services,
-        Action<IUpdatePipelineBuilder>? configure = null,
-        int maxTrackedUsers = 10_000,
-        TimeSpan? lockExpiration = null)
+        Action<IUpdatePipelineBuilder>? configure = null)
     {
         _fsm = fsm;
         _services = services;
-        _maxTrackedUsers = maxTrackedUsers;
-        _lockExpiration = lockExpiration ?? TimeSpan.FromMinutes(15);
 
         // Build the pipeline.
         var builder = new UpdatePipelineBuilder();
         configure?.Invoke(builder);
-        _pipeline = builder.Build(async (ctx, ct) => await _fsm.HandleAsync(ctx.Update, ct).ConfigureAwait(false));
+        _maxTrackedUsers = builder.Config.MaxTrackedUsers;
+        _lockExpiration = builder.Config.LockExpiration;
+        _pipeline = builder.Build(async (ctx, ct) => await _fsm.HandleAsync(ctx.Update, ctx.Services, ct).ConfigureAwait(false));
     }
 
     /// <summary>
@@ -57,7 +55,10 @@ public sealed partial class UpdateProcessingPipeline : IDisposable
         await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            var ctx = new UpdateContext(update, _services);
+#pragma warning disable CA2007
+            await using var scope = _services.CreateAsyncScope();
+#pragma warning restore CA2007
+            var ctx = new UpdateContext(update, scope.ServiceProvider);
             await _pipeline(ctx, cancellationToken).ConfigureAwait(false);
         }
         finally

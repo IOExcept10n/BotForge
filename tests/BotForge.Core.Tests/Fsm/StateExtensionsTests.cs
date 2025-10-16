@@ -1,9 +1,9 @@
-using BotForge.Core.Fsm;
-using BotForge.Core.Messaging;
-using BotForge.Core.Localization;
+using BotForge.Fsm;
+using BotForge.Messaging;
+using BotForge.Localization;
 using Xunit;
 
-namespace BotForge.Core.Tests.Fsm;
+namespace BotForge.Tests.Fsm;
 
 public class StateExtensionsTests
 {

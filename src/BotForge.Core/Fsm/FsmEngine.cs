@@ -1,18 +1,15 @@
 using BotForge.Fsm.Handling;
 using BotForge.Messaging;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BotForge.Fsm;
 
-public sealed class FsmEngine(IMessageHandler? messageHandler, IInteractionHandler? interactionHandler, IRawUpdateHandler? updateHandler)
+public sealed class FsmEngine
 {
-    private readonly IMessageHandler? _messageHandler = messageHandler;
-    private readonly IInteractionHandler? _interactionHandler = interactionHandler;
-    private readonly IRawUpdateHandler? _updateHandler = updateHandler;
-
-    public async Task HandleAsync(IUpdate update, CancellationToken cancellationToken) => await (update switch
+    public async Task HandleAsync(IUpdate update, IServiceProvider services, CancellationToken cancellationToken) => await (update switch
     {
-        { IsMessage: true } when _messageHandler is not null => _messageHandler.HandleMessageAsync(update.Message, cancellationToken),
-        { IsInteraction: true } when _interactionHandler is not null => _interactionHandler.HandleInteractionAsync(update.Interaction, cancellationToken),
-        _ => _updateHandler?.HandleAsync(update, cancellationToken) ?? Task.CompletedTask,
+        { IsMessage: true } when services.GetService<IMessageHandler>() is IMessageHandler messageHandler => messageHandler.HandleMessageAsync(update.Message, cancellationToken),
+        { IsInteraction: true } when services.GetService<IInteractionHandler>() is IInteractionHandler interactionHandler => interactionHandler.HandleInteractionAsync(update.Interaction, cancellationToken),
+        _ => services.GetService<IRawUpdateHandler>()?.HandleAsync(update, cancellationToken) ?? Task.CompletedTask,
     }).ConfigureAwait(false);
 }
