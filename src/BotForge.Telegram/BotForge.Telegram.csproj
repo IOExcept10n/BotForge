@@ -2,7 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BotForge.Core\BotForge.Core.csproj" />
+    <ProjectReference Include="..\BotForge.Hosting\BotForge.Hosting.csproj" />
     <ProjectReference Include="..\BotForge.Modules\BotForge.Modules.csproj" />
-    <ProjectReference Include="..\BotForge.Modules\BotForge.Hosting.csproj" />
   </ItemGroup>
 </Project>

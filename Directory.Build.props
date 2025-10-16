@@ -18,6 +18,7 @@
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <Deterministic>true</Deterministic>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
 
     <!-- Treat warnings as errors for CI -->
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>

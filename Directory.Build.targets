@@ -7,7 +7,12 @@
   <!-- Optionally, copy output of libraries to a central folder -->
   <Target Name="CopyLibs" AfterTargets="Build">
     <PropertyGroup>
-      <LibOutput>$(SolutionDir)artifacts\lib\$(MSBuildProjectName)</LibOutput>
+      <!-- Use SolutionDir when available, otherwise fall back to a path relative to the project folder
+           so building single projects (dotnet test on a test project) works without a loaded solution. -->
+   <!-- Some MSBuild environments set SolutionDir to the literal value '*Undefined*' when a solution isn't loaded.
+     Treat that the same as undefined. -->
+   <LibOutput Condition="'$(SolutionDir)' != '' and '$(SolutionDir)' != '*Undefined*'">$(SolutionDir)artifacts\lib\$(MSBuildProjectName)</LibOutput>
+   <LibOutput Condition="'$(SolutionDir)' == '' or '$(SolutionDir)' == '*Undefined*'">$(MSBuildProjectDirectory)\..\..\artifacts\lib\$(MSBuildProjectName)</LibOutput>
     </PropertyGroup>
     <MakeDir Directories="$(LibOutput)" />
     <Copy SourceFiles="$(OutputPath)$(MSBuildProjectName).dll"

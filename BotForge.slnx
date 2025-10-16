@@ -12,6 +12,7 @@
     <Project Path="src/BotForge.Analyzers.Package/BotForge.Analyzers.Package.csproj" />
     <Project Path="src/BotForge.Analyzers/BotForge.Analyzers.csproj" />
     <Project Path="src/BotForge.Core/BotForge.Core.csproj" />
+    <Project Path="src/BotForge.Hosting/BotForge.Hosting.csproj" Id="cd56aed9-324d-4012-bab2-1ba24a119674" />
     <Project Path="src/BotForge.Modules/BotForge.Modules.csproj" />
     <Project Path="src/BotForge.Persistence/BotForge.Persistence.csproj" />
     <Project Path="src/BotForge.Telegram/BotForge.Telegram.csproj" />
