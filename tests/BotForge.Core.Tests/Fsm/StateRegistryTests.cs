@@ -1,7 +1,7 @@
 using BotForge.Core.Fsm;
 using Xunit;
 
-namespace BotForge.Core.Tests;
+namespace BotForge.Core.Tests.Fsm;
 
 public class StateRegistryTests
 {

@@ -1,5 +1,5 @@
 namespace BotForge.Core.Messaging;
-#pragma warning disable CS1591
+
 public enum Emoji
 {
     None,

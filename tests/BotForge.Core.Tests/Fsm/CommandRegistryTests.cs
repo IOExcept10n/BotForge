@@ -4,7 +4,7 @@ using BotForge.Core.Messaging;
 using System.Threading;
 using Xunit;
 
-namespace BotForge.Core.Tests;
+namespace BotForge.Core.Tests.Fsm;
 
 public class CommandRegistryTests
 {
