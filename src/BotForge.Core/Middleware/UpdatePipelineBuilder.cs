@@ -4,11 +4,11 @@ namespace BotForge.Middleware;
 
 internal sealed class UpdatePipelineBuilder : IUpdatePipelineBuilder
 {
-    private readonly List<Func<UpdateDelegate, UpdateDelegate>> _middlewares = [];
+    private readonly List<Func<UpdateHandler, UpdateHandler>> _middlewares = [];
 
     public UpdatePipelineConfig Config { get; set; } = new(10000, TimeSpan.FromSeconds(15));
 
-    public UpdateDelegate Build(UpdateDelegate terminal)
+    public UpdateHandler Build(UpdateHandler terminal)
     {
         var pipeline = terminal;
         for (int i = _middlewares.Count - 1; i >= 0; --i)
@@ -18,7 +18,7 @@ internal sealed class UpdatePipelineBuilder : IUpdatePipelineBuilder
         return pipeline;
     }
 
-    public IUpdatePipelineBuilder Use(Func<UpdateDelegate, UpdateDelegate> middleware)
+    public IUpdatePipelineBuilder Use(Func<UpdateHandler, UpdateHandler> middleware)
     {
         _middlewares.Add(middleware);
         return this;

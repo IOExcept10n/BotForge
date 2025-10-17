@@ -1,12 +1,7 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using BotForge.Fsm;
 using BotForge.Fsm.Handling;
 using BotForge.Messaging;
+using BotForge.Middleware;
 using Moq;
-using Xunit;
 
 namespace BotForge.Tests.Fsm;
 
@@ -19,8 +14,7 @@ public class UpdateProcessingPipelineConcurrencyTests
         var rawHandlerMock = new Mock<IRawUpdateHandler>();
         rawHandlerMock.Setup(h => h.HandleAsync(It.IsAny<IUpdate>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
-        var engine = new FsmEngine(null, null, rawHandlerMock.Object);
-        using var pipeline = new UpdateProcessingPipeline(engine, new ServiceProviderStub(null));
+        using var pipeline = new UpdateProcessingPipeline(new ServiceProviderStub(rawHandlerMock.Object));
 
         var tasks = new List<Task>();
         for (int i = 0; i < 20; i++)
@@ -44,9 +38,7 @@ public class UpdateProcessingPipelineConcurrencyTests
         var interactionHandlerMock = new Mock<IInteractionHandler>();
         var rawHandlerMock = new Mock<IRawUpdateHandler>();
 
-        var engine = new FsmEngine(messageHandlerMock.Object, interactionHandlerMock.Object, rawHandlerMock.Object);
-
-        using var pipeline = new UpdateProcessingPipeline(engine, new ServiceProviderStub(null), maxTrackedUsers: 100);
+        using var pipeline = new UpdateProcessingPipeline(new ServiceProviderStub(rawHandlerMock.Object), b => b.WithMaxUsers(100));
 
         var userId = 123L;
         var concurrentCalls = 10;
@@ -57,8 +49,8 @@ public class UpdateProcessingPipelineConcurrencyTests
             .Returns(async () =>
             {
                 // wait until all tasks are started
-                await startBarrier.Task;
-                await Task.Delay(10);
+                await startBarrier.Task.ConfigureAwait(false);
+                await Task.Delay(10).ConfigureAwait(false);
             });
 
         // Act: schedule many updates for the same user
@@ -92,13 +84,17 @@ public class UpdateProcessingPipelineConcurrencyTests
         public UserIdentity From { get; }
         public ChatId ChatId { get; }
         public MessageContent Content { get; }
-        public TestMessage(UserIdentity from, MessageContent content) { From = from; Content = content; ChatId = new ChatId(1); }
+
+        public TestMessage(UserIdentity from, MessageContent content)
+        { From = from; Content = content; ChatId = new ChatId(1); }
     }
 
     private class ServiceProviderStub : IServiceProvider
     {
         private readonly object? _svc;
+
         public ServiceProviderStub(object? svc) => _svc = svc;
-        public object? GetService(Type serviceType) => _svc;
+
+        public object? GetService(Type serviceType) => serviceType == _svc?.GetType() ? _svc : null;
     }
 }

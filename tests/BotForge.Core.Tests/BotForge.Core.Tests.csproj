@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\BotForge\BotForge.csproj" />
+    <ProjectReference Include="..\..\src\BotForge.Core\BotForge.Core.csproj" />
   </ItemGroup>
 
 </Project>

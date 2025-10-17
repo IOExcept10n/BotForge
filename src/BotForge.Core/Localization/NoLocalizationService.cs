@@ -2,7 +2,7 @@ using System.Globalization;
 
 namespace BotForge.Localization;
 
-public class NoLocalizationService : ILocalizationService
+internal class NoLocalizationService : ILocalizationService
 {
     public string GetString(CultureInfo culture, string key) => key;
 

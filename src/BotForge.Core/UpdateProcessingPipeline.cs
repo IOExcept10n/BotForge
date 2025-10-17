@@ -11,24 +11,20 @@ namespace BotForge;
 /// </summary>
 public sealed partial class UpdateProcessingPipeline : IDisposable
 {
-    private readonly FsmEngine _fsm;
     private readonly ConcurrentDictionary<long, (SemaphoreSlim, DateTime)> _userLocks = new();
     private readonly int _maxTrackedUsers;
     private readonly TimeSpan _lockExpiration;
     private readonly object _cleanupLock = new();
-    private readonly UpdateDelegate _pipeline;
+    private readonly UpdateHandler _pipeline;
     private readonly IServiceProvider _services;
 
-    /// <param name="fsm">An instance of the finite state machine engine to handle updates.</param>
+    /// <summary>
+    /// Initializes a new instance of the <see cref="UpdateProcessingPipeline"/> class.
+    /// </summary>
     /// <param name="services">An instance of the service provider to get services from.</param>
     /// <param name="configure">Action for pipeline configuration.</param>
-    
-    public UpdateProcessingPipeline(
-        FsmEngine fsm,
-        IServiceProvider services,
-        Action<IUpdatePipelineBuilder>? configure = null)
+    public UpdateProcessingPipeline(IServiceProvider services, Action<IUpdatePipelineBuilder>? configure = null)
     {
-        _fsm = fsm;
         _services = services;
 
         // Build the pipeline.
@@ -36,12 +32,13 @@ public sealed partial class UpdateProcessingPipeline : IDisposable
         configure?.Invoke(builder);
         _maxTrackedUsers = builder.Config.MaxTrackedUsers;
         _lockExpiration = builder.Config.LockExpiration;
-        _pipeline = builder.Build(async (ctx, ct) => await _fsm.HandleAsync(ctx.Update, ctx.Services, ct).ConfigureAwait(false));
+        _pipeline = builder.Build(async (ctx, ct) => await FsmEngine.HandleAsync(ctx.Update, ctx.Services, ct).ConfigureAwait(false));
     }
 
     /// <summary>
     /// Main pipeline entry point. Allows parallel handling for messages from different users.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2007:Consider calling ConfigureAwait on the awaited task", Justification = "Async scope doesn't need ConfigureAwait")]
     public async Task HandleUpdateAsync(IUpdate update, CancellationToken cancellationToken = default)
     {
         if (update?.Sender == null)
@@ -55,9 +52,7 @@ public sealed partial class UpdateProcessingPipeline : IDisposable
         await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-#pragma warning disable CA2007
             await using var scope = _services.CreateAsyncScope();
-#pragma warning restore CA2007
             var ctx = new UpdateContext(update, scope.ServiceProvider);
             await _pipeline(ctx, cancellationToken).ConfigureAwait(false);
         }

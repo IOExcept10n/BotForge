@@ -14,10 +14,9 @@ public class FsmEngineAndPipelineTests
     {
         var called = false;
         var msgHandler = new FakeMessageHandler(() => called = true);
-        var engine = new FsmEngine(msgHandler, null, null);
 
         var update = new TestUpdate(UpdateType.MessageCreated, new UserIdentity(1), new TestMessage(new UserIdentity(1), new TextMessageContent("x")));
-        await engine.HandleAsync(update, CancellationToken.None);
+        await FsmEngine.HandleAsync(update, new ServiceProviderStub(msgHandler), CancellationToken.None);
 
         Assert.True(called);
     }
@@ -25,8 +24,7 @@ public class FsmEngineAndPipelineTests
     [Fact]
     public async Task UpdateProcessingPipeline_IgnoresNullSender()
     {
-        var engine = new FsmEngine(null, null, null);
-        var pipeline = new UpdateProcessingPipeline(engine, new ServiceProviderStub(null));
+        var pipeline = new UpdateProcessingPipeline(new ServiceProviderStub(null));
 
         var update = new TestUpdate(UpdateType.MessageCreated, null, null);
         await pipeline.HandleUpdateAsync(update);
@@ -67,6 +65,6 @@ public class FsmEngineAndPipelineTests
     {
         private readonly object? _svc;
         public ServiceProviderStub(object? svc) => _svc = svc;
-        public object? GetService(Type serviceType) => _svc;
+        public object? GetService(Type serviceType) => serviceType == _svc?.GetType() ? _svc : null;
     }
 }

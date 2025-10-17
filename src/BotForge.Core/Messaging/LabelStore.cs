@@ -3,6 +3,8 @@ using System.Reflection;
 
 namespace BotForge.Messaging;
 
+#pragma warning disable CA1031
+
 internal sealed class LabelStore : ILabelStore
 {
     private readonly FrozenDictionary<string, ButtonLabel> _labels = LoadLabelsFromAssembly(Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly());
