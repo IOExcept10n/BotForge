@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\BotForge.Telegram\BotForge.Telegram.csproj" />
     <ProjectReference Include="..\..\..\src\BotForge.Persistence\BotForge.Persistence.csproj" />
   </ItemGroup>
 

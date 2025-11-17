@@ -14,7 +14,7 @@ public sealed partial class UpdateProcessingPipeline : IDisposable
     private readonly ConcurrentDictionary<long, (SemaphoreSlim, DateTime)> _userLocks = new();
     private readonly int _maxTrackedUsers;
     private readonly TimeSpan _lockExpiration;
-    private readonly object _cleanupLock = new();
+    private readonly Lock _cleanupLock = new();
     private readonly UpdateHandler _pipeline;
     private readonly IServiceProvider _services;
 

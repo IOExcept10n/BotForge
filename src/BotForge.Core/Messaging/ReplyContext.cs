@@ -11,5 +11,16 @@ public record ReplyContext(string? Message, ReplyKeyboard? Keyboard);
 /// Represents a keyboard layout composed of rows of button labels.
 /// Each inner <see cref="IEnumerable{T}"/> represents a row; the outer <see cref="IEnumerable{T}"/> represents the full keyboard.
 /// </summary>
-/// <param name="buttons">Rows of <see cref="ButtonLabel"/> that make up the keyboard.</param>
-public record ReplyKeyboard(IEnumerable<IEnumerable<ButtonLabel>> buttons);
+/// <param name="Buttons">Rows of <see cref="ButtonLabel"/> that make up the keyboard.</param>
+public record ReplyKeyboard(IEnumerable<IEnumerable<ButtonLabel>> Buttons)
+{
+    /// <summary>
+    /// Gets or sets a value indicating whether the keyboard should be removed after first interaction.
+    /// </summary>
+    public bool OneTime { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the keyboard should be resized depending on content.
+    /// </summary>
+    public bool Resize { get; set; } = true;
+}
