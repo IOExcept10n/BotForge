@@ -21,7 +21,7 @@ public record MessageStateContext(IMessage Message, StateRecord currentState, IS
     : StateContext(currentState, services);
 
 /// <summary>
-/// Context passed to state handlers that process interactions (for example, button presses).
+/// Context passed to state handlers that process interactions (for example, inline button presses).
 /// Inherits from <see cref="StateContext"/> and adds the incoming <see cref="IInteraction"/>.
 /// </summary>
 /// <param name="Interaction">The incoming interaction to process.</param>

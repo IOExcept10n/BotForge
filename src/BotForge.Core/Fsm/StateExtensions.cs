@@ -74,6 +74,34 @@ public static class StateExtensions
         return result with { NextStateData = JsonSerializer.Serialize(ToJsonElement(data)) };
     }
 
+    /// <summary>
+    /// Asynchronously sends a reply using the specified reply context.
+    /// </summary>
+    /// <param name="ctx">The message state context from which the reply is sent.</param>
+    /// <param name="replyContext">The context of the reply to be sent.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation if needed (optional).</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="ctx"/> is null.</exception>
+    public static async Task ReplyAsync(this MessageStateContext ctx, ReplyContext replyContext, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(ctx);
+        await ctx.Services.GetRequiredService<IReplyChannel>().SendAsync(ctx.Message.From, replyContext, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Asynchronously sends a reply with the specified message.
+    /// </summary>
+    /// <param name="ctx">The message state context from which the reply is sent.</param>
+    /// <param name="message">The content of the message to be sent as a reply.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation if needed (optional).</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="ctx"/> is null.</exception>
+    public static async Task ReplyAsync(this MessageStateContext ctx, string message, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(ctx);
+        await ctx.ReplyAsync(new ReplyContext(message, null), cancellationToken).ConfigureAwait(false);
+    }
+
     private static JsonElement ToJsonElement(object? obj)
     {
         if (obj is null)
