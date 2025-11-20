@@ -1,0 +1,43 @@
+namespace BotForge.Modules.Roles;
+
+internal class RoleCatalogBuilder(IRegistry<ModuleDescriptor> moduleRegistry) : IRoleCatalogBuilder
+{
+    private readonly RoleCatalog _catalog = new(moduleRegistry);
+
+    public IRoleCatalogBuilder AddRole(Role role, string welcomeMessageKey)
+    {
+        _catalog.Add(role, welcomeMessageKey);
+        return this;
+    }
+
+    public IRoleCatalog Build() => _catalog;
+
+    public IRoleCatalogBuilder SetDefaultRole(Role role)
+    {
+        _catalog.DefaultRole = role;
+        return this;
+    }
+
+    private class RoleCatalog(IRegistry<ModuleDescriptor> moduleRegistry) : IRoleCatalog
+    {
+        private readonly IRegistry<ModuleDescriptor> _moduleRegistry = moduleRegistry;
+        private readonly Dictionary<Role, List<ModuleDescriptor>> _availableModules = [];
+        private readonly Dictionary<Role, string> _messages = [];
+        private readonly List<Role> _definedRoles = [];
+
+        public Role DefaultRole { get; set; } = Role.Unknown;
+
+        IEnumerable<Role> IRoleCatalog.DefinedRoles => _definedRoles;
+
+        public void Add(Role role, string welcome)
+        {
+            _definedRoles.Add(role);
+            _availableModules[role] = [.. _moduleRegistry.Where(x => x.AllowedRoles.Contains(role))];
+            _messages[role] = welcome;
+        }
+
+        public string GetWelcomeMessage(Role role) => _messages[role];
+
+        public IReadOnlyCollection<ModuleDescriptor> ListAvailableModules(Role role) => _availableModules[role];
+    }
+}

@@ -3,7 +3,7 @@ root = true
 # Global settings
 [*]
 charset = utf-8
-end_of_line = crlf
+end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
 indent_style = space
@@ -69,7 +69,7 @@ dotnet_naming_style.underscore_prefix.required_prefix = _
 dotnet_naming_style.underscore_prefix.capitalization = camel_case
 csharp_prefer_simple_using_statement = true:suggestion
 csharp_prefer_braces = true:silent
-csharp_style_namespace_declarations = block_scoped:silent
+csharp_style_namespace_declarations = file_scoped:silent
 csharp_style_prefer_method_group_conversion = true:silent
 csharp_style_prefer_top_level_statements = false:silent
 csharp_style_prefer_primary_constructors = true:suggestion

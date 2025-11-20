@@ -5,7 +5,7 @@ namespace BotForge.Modules.Attributes;
 /// </summary>
 /// <param name="inputType">The type of input expected for the model prompt.</param>
 [AttributeUsage(AttributeTargets.Method)]
-public abstract class ModelPromptStateAttribute(Type inputType) : FsmStateAttribute(string.Empty)
+public abstract class ModelPromptAttribute(Type inputType) : FsmStateAttribute(string.Empty)
 {
     /// <summary>
     /// Gets the expected input type for the model prompt.
@@ -23,4 +23,4 @@ public abstract class ModelPromptStateAttribute(Type inputType) : FsmStateAttrib
 /// </summary>
 /// <typeparam name="T">The type of input expected for the model prompt.</typeparam>
 [AttributeUsage(AttributeTargets.Method)]
-public sealed class ModelPromptStateAttribute<T>() : ModelPromptStateAttribute(typeof(T)) where T : new();
+public sealed class ModelPromptAttribute<T>() : ModelPromptAttribute(typeof(T)) where T : new();

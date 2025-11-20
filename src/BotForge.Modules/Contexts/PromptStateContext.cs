@@ -10,7 +10,7 @@ namespace BotForge.Modules.Contexts;
 /// <typeparam name="T">The type of input expected from the user.</typeparam>
 /// <param name="User">The identity of the user.</param>
 /// <param name="Chat">The chat identifier.</param>
-/// <param name="Role">The role of the user.</param>
+/// <param name="UserRole">The role of the user.</param>
 /// <param name="Message">The message that initiated state handling.</param>
 /// <param name="Input">The optional input provided by the user.</param>
 /// <param name="CurrentState">The current state record of the context.</param>
@@ -18,10 +18,10 @@ namespace BotForge.Modules.Contexts;
 public record PromptStateContext<T>(
     UserIdentity User,
     ChatId Chat,
-    Role Role,
+    Role UserRole,
     IMessage Message,
     Optional<T> Input,
     StateRecord CurrentState,
     IServiceProvider Services) :
-    ModuleStateContext(User, Chat, Role, Message, CurrentState, Services)
+    ModuleStateContext(User, Chat, UserRole, Message, CurrentState, Services)
     where T : IParsable<T>;

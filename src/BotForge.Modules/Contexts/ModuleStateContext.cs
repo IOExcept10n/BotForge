@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using BotForge.Fsm;
 using BotForge.Messaging;
 using BotForge.Modules.Roles;
@@ -19,4 +20,25 @@ public record ModuleStateContext(UserIdentity User,
                                  Role UserRole,
                                  IMessage Message,
                                  StateRecord CurrentState,
-                                 IServiceProvider Services) : RoleStateContext(User, UserRole, Message, CurrentState, Services);
+                                 IServiceProvider Services) : RoleStateContext(User, UserRole, Message, CurrentState, Services)
+{
+    public SelectionStateContext ToSelectionContext(IEnumerable<(string Name, ButtonLabel Button)> selectionButtons) => new(User, Chat, UserRole, selectionButtons, Message, CurrentState, Services);
+
+    public bool TryToPromptContext<T>(bool allowTextInput, bool allowFileInput, [NotNullWhen(true)] out PromptStateContext<T>? context) where T : IParsable<T>
+    {
+        context = null;
+
+        (Optional<T> data, bool invalidContent) = Message.Content switch
+        {
+            TextMessageContent text when allowTextInput && T.TryParse(text.Text, null, out var d) => (d, false),
+            FileMessageContent when allowFileInput => (Optional<T>.None, false),
+            _ => (Optional<T>.None, true),
+        };
+
+        if (invalidContent)
+            return false;
+
+        context = new(User, Chat, UserRole, Message, data, CurrentState, Services);
+        return true;
+    }
+}

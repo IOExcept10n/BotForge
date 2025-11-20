@@ -20,7 +20,7 @@ namespace BotForge.Modules.Contexts;
 public record SelectionStateContext(UserIdentity User,
                                     ChatId Chat,
                                     Role UserRole,
-                                    IReadOnlyCollection<(string Name, ButtonLabel Button)> SelectionButtons,
+                                    IEnumerable<(string Name, ButtonLabel Button)> SelectionButtons,
                                     IMessage Message,
                                     StateRecord CurrentState,
                                     IServiceProvider Services) : ModuleStateContext(User, Chat, UserRole, Message, CurrentState, Services)

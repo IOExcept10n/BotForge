@@ -9,6 +9,16 @@ internal sealed class LabelStore : ILabelStore
 {
     private readonly FrozenDictionary<string, ButtonLabel> _labels = LoadLabelsFromAssembly(Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly());
 
+    public ButtonLabel BackButton { get; } = new(Emoji.BackWithLeftwardsArrowAbove, "Back");
+
+    public ButtonLabel CancelButton { get; } = new(Emoji.NegativeSquaredCrossMark, "Cancel");
+
+    public ButtonLabel OkButton { get; } = new(Emoji.WhiteHeavyCheckMark, "OK");
+
+    public ButtonLabel NoButton { get; } = new(Emoji.CrossMark, "No");
+
+    public ButtonLabel YesButton { get; } = new(Emoji.HeavyCheckMark, "Yes");
+
     public ButtonLabel GetLabel(string key)
     {
         ArgumentNullException.ThrowIfNull(key);

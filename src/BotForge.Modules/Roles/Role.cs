@@ -5,7 +5,7 @@ namespace BotForge.Modules.Roles;
 /// Provides equality comparison based on the role's name.
 /// </summary>
 /// <param name="Name">The name of the role.</param>
-public abstract record Role(string Name)
+public record Role(string Name)
 {
     /// <summary>
     /// Gets a special instance of <see cref="Role"/> representing an unknown role.

@@ -6,7 +6,7 @@ namespace BotForge;
 /// Provides registration and lookup of items of type <typeparamref name="T"/>.
 /// </summary>
 /// <typeparam name="T">Type of the registered item.</typeparam>
-public interface IRegistry<T> where T : class
+public interface IRegistry<T> : IEnumerable<T> where T : class
 {
     /// <summary>
     /// Registers a new instance of <typeparamref name="T"/>.

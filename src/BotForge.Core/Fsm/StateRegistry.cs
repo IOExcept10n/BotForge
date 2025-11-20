@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 
 namespace BotForge.Fsm;
@@ -14,4 +15,8 @@ internal class StateRegistry : IRegistry<StateDefinition>
 
     public bool TryGet(string stateId, [NotNullWhen(true)] out StateDefinition? def)
         => _registry.TryGetValue(stateId, out def);
+
+    public IEnumerator<StateDefinition> GetEnumerator() => _registry.Values.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

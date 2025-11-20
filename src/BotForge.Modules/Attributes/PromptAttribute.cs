@@ -4,9 +4,9 @@ namespace BotForge.Modules.Attributes;
 /// Abstract attribute class for prompt states, inheriting from <see cref="FsmStateAttribute"/>.
 /// </summary>
 /// <param name="inputType">The type of input expected for the prompt state.</param>
-/// <param name="messageResourceKey">The resource key for messages associated with the prompt state.</param>
+/// <param name="promptLocalizationKey">The resource key for prompt messages associated with the state.</param>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-public abstract class PromptStateAttribute(Type inputType, string messageResourceKey) : FsmStateAttribute(messageResourceKey)
+public abstract class PromptAttribute(Type inputType, string promptLocalizationKey) : FsmStateAttribute(promptLocalizationKey)
 {
     /// <summary>
     /// Gets or sets a value indicating whether file input is allowed.
@@ -33,6 +33,6 @@ public abstract class PromptStateAttribute(Type inputType, string messageResourc
 /// Attribute for prompt states with a generic input type.
 /// </summary>
 /// <typeparam name="T">The type of input expected for the prompt state.</typeparam>
-/// <param name="messageResourceKey">The resource key for messages associated with the prompt state.</param>
+/// <param name="promptLocalizationKey">The resource key for prompt messages associated with the state.</param>
 [AttributeUsage(AttributeTargets.Method)]
-public sealed class PromptStateAttribute<T>(string messageResourceKey) : PromptStateAttribute(typeof(T), messageResourceKey);
+public sealed class PromptAttribute<T>(string promptLocalizationKey) : PromptAttribute(typeof(T), promptLocalizationKey);

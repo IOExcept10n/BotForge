@@ -4,7 +4,7 @@ namespace BotForge.Modules.Attributes;
 /// Base class for attributes representing finite state machine (FSM) states.
 /// </summary>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-public abstract class FsmStateAttribute(string messageResourceKey) : Attribute
+public abstract class FsmStateAttribute(string promptLocalizationKey) : Attribute
 {
     /// <summary>
     /// Gets or sets the name of the state.
@@ -17,7 +17,7 @@ public abstract class FsmStateAttribute(string messageResourceKey) : Attribute
     public string? ParentStateName { get; init; } = "root";
 
     /// <summary>
-    /// Gets the resource key for messages associated with the state.
+    /// Gets the resource key for prompt messages associated with the state.
     /// </summary>
-    public string MessageResourceKey { get; } = messageResourceKey;
+    public string PromptLocalizationKey { get; } = promptLocalizationKey;
 }

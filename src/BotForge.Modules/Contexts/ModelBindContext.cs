@@ -8,9 +8,14 @@ using BotForge.Modules.Roles;
 namespace BotForge.Modules.Contexts;
 
 /// <summary>
-/// Represents the context for model binding, facilitating the binding of user input
+/// Represents the intermediate context for model binding, facilitating the binding of user input
 /// to a model based on predefined descriptors.
 /// </summary>
+/// <remarks>
+/// This context is handled internally, and you should not write custom handlers targeting such context.
+/// However, for example, you can override method <see cref="ModuleBase.ValidateModelAsync(ModelBindContext, ModelBindingBuilder, ICollection{ValidationResult})"/> that relies on this context,
+/// to customize model binding process.
+/// </remarks>
 /// <typeparam name="T">The type of model being bound.</typeparam>
 /// <param name="User">The identity of the user.</param>
 /// <param name="Chat">The chat identifier.</param>
@@ -19,7 +24,7 @@ namespace BotForge.Modules.Contexts;
 /// <param name="Binding">The binding descriptor containing model metadata.</param>
 /// <param name="CurrentState">The current state record of the context.</param>
 /// <param name="Services">The service provider for dependency injection.</param>
-public record ModelBindContext<T>(
+public record ModelBindContext(
     UserIdentity User,
     ChatId Chat,
     Role Role,
@@ -27,11 +32,10 @@ public record ModelBindContext<T>(
     ModelBindingDescriptor Binding,
     StateRecord CurrentState,
     IServiceProvider Services) :
-    ModuleStateContext(User, Chat, Role, Message, CurrentState, Services)
-    where T : IParsable<T>;
+    ModuleStateContext(User, Chat, Role, Message, CurrentState, Services);
 
 /// <summary>
-/// Represents the context for a model prompt, including a model and its state.
+/// Represents the context for a model prompt, including a model that's been input by user.
 /// </summary>
 /// <typeparam name="TModel">The type of the model being manipulated.</typeparam>
 /// <param name="User">The identity of the user.</param>
@@ -49,23 +53,23 @@ public record ModelPromptContext<TModel>(
     TModel Model,
     StateRecord CurrentState,
     IServiceProvider Services) :
-    ModuleStateContext(User, Chat, Role, Message, CurrentState, Services);
+    ModuleStateContext(User, Chat, Role, Message, CurrentState, Services)
+    where TModel : new();
 
 /// <summary>
 /// Represents a model property with metadata such as display name and reflection information.
 /// </summary>
 /// <param name="Name">The name of the property.</param>
-/// <param name="DisplayName">The display name of the property for user interfaces.</param>
+/// <param name="PromptKey">The localization key for the display name of the property for user interfaces.</param>
 /// <param name="Property">The reflection information for the associated property.</param>
-public record ModelProperty(string Name, string DisplayName, PropertyInfo Property);
+public record ModelProperty(string Name, string PromptKey, PropertyInfo Property);
 
 /// <summary>
-/// Describes the details for model binding, including the name of the module and the properties involved.
+/// Describes the details for model binding, including the properties involved.
 /// </summary>
-/// <param name="ModuleName">The name of the module associated with the binding.</param>
 /// <param name="RequestedModelType">The type of the model being requested for binding.</param>
 /// <param name="ModelProperties">The properties of the model that can be bound.</param>
-public record ModelBindingDescriptor(string ModuleName, Type RequestedModelType, ModelProperty[] ModelProperties)
+public record ModelBindingDescriptor(Type RequestedModelType, ModelProperty[] ModelProperties)
 {
     /// <summary>
     /// Gets the next property in the binding descriptor after the current property.
@@ -117,7 +121,7 @@ public record ModelBindingBuilder(ModelBindingDescriptor Descriptor, ModelProper
             new(model, services, null)
             {
                 MemberName = property.Name,
-                DisplayName = property.DisplayName,
+                DisplayName = property.PromptKey,
             },
             model);
     }

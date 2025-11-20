@@ -1,0 +1,25 @@
+using System.Reflection;
+using BotForge.Fsm;
+using BotForge.Messaging;
+using BotForge.Modules.Attributes;
+using BotForge.Modules.Contexts;
+
+namespace BotForge.Modules.Handlers.Async;
+
+internal class AsyncMenuHandler<TModule>(MethodInfo method, ILabelStore labelStore) : ModuleHandlerBase<TModule> where TModule : ModuleBase
+{
+    private readonly Func<TModule, SelectionStateContext, Task<StateResult>> _expression = method.CreateDelegate<Func<TModule, SelectionStateContext, Task<StateResult>>>();
+    private readonly List<(string, ButtonLabel)> _buttons = [.. from menuRow in method.GetCustomAttributes<MenuRowAttribute>() from key in menuRow.LabelKeys select (key, labelStore.GetLabel(key))];
+
+    public override async Task<StateResult> ExecuteAsync(MessageStateContext ctx, CancellationToken cancellationToken = default)
+    {
+        using var module = CreateModule(ctx);
+
+        var moduleContext = await GetModuleStateContextAsync(ctx, cancellationToken).ConfigureAwait(false);
+        if (CheckBack(moduleContext, module, out var back))
+            return back;
+        var inputContext = moduleContext.ToSelectionContext(_buttons);
+
+        return await _expression(module, inputContext).ConfigureAwait(false);
+    }
+}
