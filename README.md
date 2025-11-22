@@ -42,7 +42,7 @@ It started as an internal tool for a university hackathon and evolved into an op
 - [X] Implement FSM core (`BotForge.Core`)
 - [X] Add Telegram adapter
 - [X] Build modular system
-- [ ] Create sample bots (`PingPongBot`)
+- [X] Create sample bots (`PingPongBot`)
 - [ ] Write documentation and guides
 - [ ] Publish first release to NuGet
 
