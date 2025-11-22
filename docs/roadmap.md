@@ -30,7 +30,7 @@ Each milestone links to GitHub issues tracking its progress.
 **Deliverables:**
 | Feature | Status | Issue |
 |----------|--------|--------|
-| Telegram adapter (`BotForge.Telegram`) | ❌ Planned | [#6](../../../issues/6) |
+| Telegram adapter (`BotForge.Telegram`) | ✅ Done | [#6](../../../issues/6) |
 | BotListener & Update Dispatcher | ✅ Done | [#7](../../../issues/7) |
 | Middleware for error handling | ❌ Planned | [#8](../../../issues/8) |
 | Webhook support | ❌ Planned | [#9](../../../issues/9) |
@@ -65,10 +65,10 @@ Each milestone links to GitHub issues tracking its progress.
 **Deliverables:**
 | Feature | Status | Issue |
 |----------|--------|--------|
-| Module base (`ModuleBase`) | ❌ Planned | [#15](../../../issues/15) |
-| Attribute-based FSM states | ❌ Planned | [#16](../../../issues/16) |
-| Role-based access control | ❌ Planned | [#17](../../../issues/17) |
-| Module auto-discovery | ❌ Planned | [#18](../../../issues/18) |
+| Module base (`ModuleBase`) | ✅ Done | [#15](../../../issues/15) |
+| Attribute-based FSM states | ✅ Done | [#16](../../../issues/16) |
+| Role-based access control | ✅ Done | [#17](../../../issues/17) |
+| Module auto-discovery | ✅ Done | [#18](../../../issues/18) |
 
 **Stretch Goals:**
 - [ ] Sample modules: `PingModule`, `FeedbackModule`
@@ -84,8 +84,8 @@ Each milestone links to GitHub issues tracking its progress.
 | Feature | Status | Issue |
 |----------|--------|--------|
 | CLI templates (`dotnet new botforge-bot`) | ❌ Planned | [#19](../../../issues/19) |
-| Hosting integration (`BotForge.Hosting`) | ❌ Planned | [#20](../../../issues/20) |
-| Logging and telemetry defaults | ❌ Planned | [#21](../../../issues/21) |
+| Hosting integration (`BotForge.Hosting`) | ✅ Done | [#20](../../../issues/20) |
+| Logging and telemetry defaults | ✅ Done | [#21](../../../issues/21) |
 | Roslyn analyzers (`BotForge.Analyzers`) | ❌ Planned | [#22](../../../issues/22) |
 
 **Stretch Goals:**
@@ -104,7 +104,7 @@ Each milestone links to GitHub issues tracking its progress.
 | Documentation site | ❌ Planned | [#23](../../../issues/23) |
 | CI/CD with GitHub Actions | ❌ Planned | [#24](../../../issues/24) |
 | NuGet publishing (`BotForge.*`) | ❌ Planned | [#25](../../../issues/25) |
-| Example bots and tutorials | ❌ Planned | [#26](../../../issues/26) |
+| Example bots and tutorials | ⏳ In Progress | [#26](../../../issues/26) |
 
 **Stretch Goals:**
 - [ ] Discord & WebSocket adapters
