@@ -53,12 +53,12 @@ public abstract class ModuleBase : IDisposable
     }
 
     /// <summary>
-    /// Asynchronously handles the root state of the module.
+    /// Handles the root state of the module.
     /// </summary>
     /// <param name="ctx">The context for the module state.</param>
     /// <returns>A task representing the asynchronous operation, with a <see cref="StateResult"/> result.</returns>
     [Menu(SelectRootMenuKey, StateName = RootStateName)]
-    public abstract Task<StateResult> OnModuleRootAsync(ModuleStateContext ctx);
+    public abstract StateResult OnModuleRoot(ModuleStateContext ctx);
 
     internal async Task<ModelBindingBuilder.BindingResult> OnBindModelAsync(ModelBindContext ctx)
     {

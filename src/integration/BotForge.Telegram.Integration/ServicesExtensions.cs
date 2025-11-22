@@ -1,3 +1,4 @@
+using BotForge.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -18,9 +19,9 @@ public static class ServicesExtensions
         /// <returns>The same instance of the <see cref="IServiceCollection"/> for fluent initialization.</returns>
         public IServiceCollection AddTelegramTransport()
         {
-            services.TryAddSingleton<TelegramReplyChannel>();
-            services.TryAddSingleton<TelegramUpdateChannel>();
-            services.AddSingleton<TelegramTransport>();
+            services.TryAddSingleton<IReplyChannel, TelegramReplyChannel>();
+            services.TryAddSingleton<IUpdateChannel, TelegramUpdateChannel>();
+            services.TryAddSingleton<ITransport, TelegramTransport>();
             return services;
         }
     }

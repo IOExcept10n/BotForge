@@ -36,6 +36,6 @@ internal sealed class InteractionHandler(
         }
 
         await _stateStore.SaveAsync(user, result, cancellationToken).ConfigureAwait(false);
-        await _replies.SendAsync(result, context, cancellationToken).ConfigureAwait(false);
+        await _replies.SendAsync(user, result, context, cancellationToken).ConfigureAwait(false);
     }
 }

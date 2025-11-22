@@ -55,6 +55,13 @@ public readonly record struct Unit : IEquatable<Unit>, IComparable<Unit>, IEqual
     public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, out Unit result) => true;
 
     /// <inheritdoc/>
+    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+    {
+        charsWritten = 0;
+        return true;
+    }
+
+    /// <inheritdoc/>
     public static bool operator >(Unit left, Unit right) => false;
 
     /// <inheritdoc/>

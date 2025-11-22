@@ -2,10 +2,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\BotForge.Persistence\BotForge.Persistence.csproj" />
+    <ProjectReference Include="..\..\..\src\integration\BotForge.Telegram\BotForge.Telegram.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <UserSecretsId>79c42c91-03f6-4242-8901-6753b15a1060</UserSecretsId>
   </PropertyGroup>
 
 </Project>

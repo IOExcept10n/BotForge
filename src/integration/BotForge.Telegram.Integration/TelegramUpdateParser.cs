@@ -79,7 +79,7 @@ public static class TelegramUpdateParser
                 var query = parts.Length > 1 ? parts[1].Trim() : null;
                 Type = UpdateType.Command;
                 Interaction = new TelegramInteraction(Sender, InteractionType.Command, cmd, options: null, query: query, raw: m);
-                return new TelegramUpdate(Timestamp, Type, Sender, Message, null, raw);
+                return new TelegramUpdate(Timestamp, Type, Sender, Message, Interaction, raw);
             }
 
             Type = UpdateType.MessageCreated;
@@ -126,7 +126,7 @@ public static class TelegramUpdateParser
             Sender = FromTelegramUser(cb.From);
             Type = UpdateType.CallbackQuery;
             Interaction = new TelegramInteraction(Sender, InteractionType.CallbackQuery, commandName: null, options: null, query: cb.Data, raw: cb);
-            return new TelegramUpdate(Timestamp, Type, Sender, null, null, raw);
+            return new TelegramUpdate(Timestamp, Type, Sender, null, Interaction, raw);
         }
 
         // Inline query
@@ -137,7 +137,7 @@ public static class TelegramUpdateParser
             Sender = FromTelegramUser(iq.From);
             Type = UpdateType.Interaction;
             Interaction = new TelegramInteraction(Sender, InteractionType.Command, commandName: null, options: null, query: iq.Query, raw: iq);
-            return new TelegramUpdate(Timestamp, Type, Sender, null, null, raw);
+            return new TelegramUpdate(Timestamp, Type, Sender, null, Interaction, raw);
         }
 
         // Chosen inline result
@@ -148,7 +148,7 @@ public static class TelegramUpdateParser
             Sender = FromTelegramUser(cir.From);
             Type = UpdateType.Interaction;
             Interaction = new TelegramInteraction(Sender, InteractionType.Command, commandName: null, options: null, query: cir.ResultId, raw: cir);
-            return new TelegramUpdate(Timestamp, Type, Sender, null, null, raw);
+            return new TelegramUpdate(Timestamp, Type, Sender, null, Interaction, raw);
         }
 
         // MyChatMember / ChatMember / Poll / PollAnswer -> system events

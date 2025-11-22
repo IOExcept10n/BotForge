@@ -32,6 +32,7 @@ public static class ServiceExtensions
         {
             services.TryAddScoped<IMessageHandler, MessageHandler>();
             services.TryAddScoped<IInteractionHandler, InteractionHandler>();
+            services.TryAddScoped<IStateReplyDispatcher, StateReplyDispatcher>();
             return services;
         }
 

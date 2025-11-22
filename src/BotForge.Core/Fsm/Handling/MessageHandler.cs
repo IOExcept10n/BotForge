@@ -28,7 +28,7 @@ internal sealed class MessageHandler(
         StateResult result = await handler.ExecuteAsync(context, cancellationToken).ConfigureAwait(false);
 
         await _stateStore.SaveAsync(user, result, cancellationToken).ConfigureAwait(false);
-        await _replies.SendAsync(result, context, cancellationToken).ConfigureAwait(false);
+        await _replies.SendAsync(user, result, context, cancellationToken).ConfigureAwait(false);
     }
 
     private async Task<IStateHandler?> TryGetUserRootStateHandlerAsync(UserIdentity user, CancellationToken cancellationToken)

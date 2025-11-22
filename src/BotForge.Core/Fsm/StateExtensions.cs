@@ -85,7 +85,7 @@ public static class StateExtensions
     public static async Task ReplyAsync(this MessageStateContext ctx, ReplyContext replyContext, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(ctx);
-        await ctx.Services.GetRequiredService<IReplyChannel>().SendAsync(ctx.Message.ChatId, replyContext, cancellationToken).ConfigureAwait(false);
+        await ctx.Services.GetRequiredService<IReplyChannel>().SendAsync(ctx.Message.From, replyContext, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>

@@ -1,6 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
+    </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\BotForge.Core\BotForge.Core.csproj" />
+        <ProjectReference Include="..\BotForge.Modules\BotForge.Modules.csproj" />
     </ItemGroup>
 </Project>
 
