@@ -14,7 +14,7 @@ internal class AsyncModelBindingHandlerWithCancellationToken<TModule, TModel>(Me
     private readonly Func<TModule, ModelPromptContext<TModel>, CancellationToken, Task<StateResult>> _expression = method.CreateDelegate<Func<TModule, ModelPromptContext<TModel>, CancellationToken, Task<StateResult>>>();
     private readonly ModelBindingDescriptor _modelDescriptor = GetDescriptor(modelRegistry);
 
-    public override async Task<StateResult> ExecuteAsync(MessageStateContext ctx, CancellationToken cancellationToken = default)
+    protected override async Task<StateResult> ExecuteInternalAsync(MessageStateContext ctx, CancellationToken cancellationToken = default)
     {
         using var module = CreateModule(ctx);
 

@@ -7,7 +7,7 @@ namespace BotForge.Telegram.Integration;
 /// <summary>
 /// Provides extension methods for <see cref="IServiceCollection"/> class.
 /// </summary>
-public static class ServicesExtensions
+public static class ServiceExtensions
 {
     /// <param name="services">A collection of services to configure.</param>
     extension(IServiceCollection services)

@@ -11,7 +11,7 @@ internal class PromptHandler<TModule, TData>(MethodInfo method, PromptAttribute<
     private readonly bool _allowTextInput = attribute.AllowTextInput;
     private readonly bool _allowFileInput = attribute.AllowFileInput;
 
-    public override async Task<StateResult> ExecuteAsync(MessageStateContext ctx, CancellationToken cancellationToken = default)
+    protected override async Task<StateResult> ExecuteInternalAsync(MessageStateContext ctx, CancellationToken cancellationToken = default)
     {
         using var module = CreateModule(ctx);
 

@@ -1,4 +1,6 @@
+using BotForge.Messaging;
 using BotForge.Modules;
+using BotForge.Modules.Handlers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -41,8 +43,8 @@ internal class BotBuilder : IBotBuilder
 
     public IHost Build()
     {
+        _builder.Services.TryAddSingleton<UpdateProcessingPipeline>(p => new(p));
         ConfigureDefaultServices(_builder.Services);
-        _builder.Services.TryAddSingleton<UpdateProcessingPipeline>(s => new(s));
         return _builder.Build();
     }
 
@@ -52,9 +54,11 @@ internal class BotBuilder : IBotBuilder
     }
 
     private static void ConfigureDefaultServices(IServiceCollection services) =>
-        services.AddDefaultStorages()
+        services.TryConfigureCommands(builder => builder.AddCommand<StartCommandHandler>())
+                .AddDefaultStorages()
                 .AddDefaultUpdateHandlers()
                 .AddFallbackModuleConfiguration()
                 .AddFallbackRoleConfiguration()
+                .AddDefaultRolesStorage()
                 .AddHostedService<BotHost>();
 }

@@ -13,6 +13,8 @@ internal class TelegramTransport(ITelegramBotClient client, IReplyChannel replyC
 
     public IUpdateChannel UpdateChannel { get; } = updateChannel;
 
+    public string? ClientName { get; private set; }
+
     public async Task StartAsync(CancellationToken ct = default)
     {
         if (UpdateChannel is not IUpdateHandler updateHandler)
@@ -20,6 +22,10 @@ internal class TelegramTransport(ITelegramBotClient client, IReplyChannel replyC
             ThrowHelper.ThrowInvalidOperationException("Couldn't target updates listening to the selected update handler.");
             return;
         }
+
+        var me = await client.GetMe(ct).ConfigureAwait(false);
+        ClientName = me.Username;
+
         client.StartReceiving(updateHandler, cancellationToken: ct);
     }
 }

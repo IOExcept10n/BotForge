@@ -8,5 +8,5 @@ namespace BotForge.Telegram.PingPongBot;
 internal class PingPongModule : ModuleBase
 {
     [MenuItem("Ping")]
-    public override StateResult OnModuleRoot(ModuleStateContext ctx) => RetryWithMessage(ctx, "Pong!");
+    public override StateResult OnModuleRoot(SelectionStateContext ctx) => RetryWithMessage(ctx, "Pong!");
 }

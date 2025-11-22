@@ -72,5 +72,26 @@ public static class ServiceExtensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IServiceCollection ConfigureUpdatePipeline(Action<IUpdatePipelineBuilder> configure)
             => services.AddSingleton<UpdateProcessingPipeline>(p => new(p, configure));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IServiceCollection ConfigureCommands(Action<ICommandRegistryBuilder> configure)
+            => services.AddSingleton(p =>
+            {
+                var builder = new CommandRegistryBuilder();
+                configure(builder);
+                return builder.Build();
+            });
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IServiceCollection TryConfigureCommands(Action<ICommandRegistryBuilder> configure)
+        {
+            services.TryAddSingleton(p =>
+                {
+                    var builder = new CommandRegistryBuilder();
+                    configure(builder);
+                    return builder.Build();
+                });
+            return services;
+        }
     }
 }

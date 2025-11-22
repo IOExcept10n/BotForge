@@ -11,7 +11,17 @@ internal abstract class ModuleHandlerBase<TModule> : IStateHandler where TModule
 {
     public string ModuleName { get; set; }
 
-    public abstract Task<StateResult> ExecuteAsync(MessageStateContext ctx, CancellationToken cancellationToken = default);
+    public async Task<StateResult> ExecuteAsync(MessageStateContext ctx, CancellationToken cancellationToken = default)
+    {
+        var result = await ExecuteInternalAsync(ctx, cancellationToken).ConfigureAwait(false);
+        if (result.NextStateId == StateRecord.StartStateId)
+        {
+            result = result with { NextStateId = $"{(await ctx.Services.GetRequiredService<IRoleProvider>().GetRoleAsync(ctx.Message.From)).Name}:{StateRecord.StartStateId}" };
+        }
+        return result;
+    }
+
+    protected abstract Task<StateResult> ExecuteInternalAsync(MessageStateContext ctx, CancellationToken cancellationToken = default);
 
     protected async Task<ModuleStateContext> GetModuleStateContextAsync(MessageStateContext ctx, CancellationToken cancellationToken = default)
     {

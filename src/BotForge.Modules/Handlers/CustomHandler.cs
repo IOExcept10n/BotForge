@@ -8,7 +8,7 @@ internal class CustomHandler<TModule>(MethodInfo method) : ModuleHandlerBase<TMo
 {
     private readonly Func<TModule, ModuleStateContext, StateResult> _expression = method.CreateDelegate<Func<TModule, ModuleStateContext, StateResult>>();
 
-    public override async Task<StateResult> ExecuteAsync(MessageStateContext ctx, CancellationToken cancellationToken = default)
+    protected override async Task<StateResult> ExecuteInternalAsync(MessageStateContext ctx, CancellationToken cancellationToken = default)
     {
         using var module = CreateModule(ctx);
 

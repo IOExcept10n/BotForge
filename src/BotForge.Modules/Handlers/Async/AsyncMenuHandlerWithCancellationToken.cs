@@ -11,7 +11,7 @@ internal class AsyncMenuHandlerWithCancellationToken<TModule>(MethodInfo method,
     private readonly Func<TModule, SelectionStateContext, CancellationToken, Task<StateResult>> _expression = method.CreateDelegate<Func<TModule, SelectionStateContext, CancellationToken, Task<StateResult>>>();
     private readonly List<(string, ButtonLabel)> _buttons = [.. from menuRow in method.GetCustomAttributes<MenuRowAttribute>() from key in menuRow.LabelKeys select (key, labelStore.GetLabel(key))];
 
-    public override async Task<StateResult> ExecuteAsync(MessageStateContext ctx, CancellationToken cancellationToken = default)
+    protected override async Task<StateResult> ExecuteInternalAsync(MessageStateContext ctx, CancellationToken cancellationToken = default)
     {
         using var module = CreateModule(ctx);
 

@@ -12,6 +12,11 @@ public interface ITransport
     object RawClient { get; }
 
     /// <summary>
+    /// Gets the identifier of the transport client. If the name is not available, returns <see langword="null"/>.
+    /// </summary>
+    string? ClientName { get; }
+
+    /// <summary>
     /// Channel used to send replies back to users.
     /// </summary>
     IReplyChannel ReplyChannel { get; }

@@ -1,8 +1,9 @@
 namespace BotForge.Modules.Roles;
 
-internal class RoleCatalogBuilder(IRegistry<ModuleDescriptor> moduleRegistry) : IRoleCatalogBuilder
+internal class RoleCatalogBuilder(IRegistry<ModuleDescriptor> moduleRegistry, IMainMenuConfigurator mainMenuConfigurator) : IRoleCatalogBuilder
 {
     private readonly RoleCatalog _catalog = new(moduleRegistry);
+    private readonly IMainMenuConfigurator _mainMenuConfigurator = mainMenuConfigurator;
 
     public IRoleCatalogBuilder AddRole(Role role, string welcomeMessageKey)
     {
@@ -10,7 +11,14 @@ internal class RoleCatalogBuilder(IRegistry<ModuleDescriptor> moduleRegistry) : 
         return this;
     }
 
-    public IRoleCatalog Build() => _catalog;
+    public IRoleCatalog Build()
+    {
+        foreach (var role in _catalog.DefinedRoles)
+        {
+            _mainMenuConfigurator.AddMainMenu(_catalog, role);
+        }
+        return _catalog;
+    }
 
     public IRoleCatalogBuilder SetDefaultRole(Role role)
     {
@@ -27,7 +35,7 @@ internal class RoleCatalogBuilder(IRegistry<ModuleDescriptor> moduleRegistry) : 
 
         public Role DefaultRole { get; set; } = Role.Unknown;
 
-        IEnumerable<Role> IRoleCatalog.DefinedRoles => _definedRoles;
+        public IEnumerable<Role> DefinedRoles => _definedRoles;
 
         public void Add(Role role, string welcome)
         {

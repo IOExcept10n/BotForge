@@ -8,7 +8,7 @@ internal class AsyncCustomHandlerWithCancellationToken<TModule>(MethodInfo metho
 {
     private readonly Func<TModule, ModuleStateContext, CancellationToken, Task<StateResult>> _expression = method.CreateDelegate<Func<TModule, ModuleStateContext, CancellationToken, Task<StateResult>>>();
 
-    public override async Task<StateResult> ExecuteAsync(MessageStateContext ctx, CancellationToken cancellationToken = default)
+    protected override async Task<StateResult> ExecuteInternalAsync(MessageStateContext ctx, CancellationToken cancellationToken = default)
     {
         using var module = CreateModule(ctx);
 
