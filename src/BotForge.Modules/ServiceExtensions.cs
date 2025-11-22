@@ -148,13 +148,13 @@ namespace BotForge.Modules
             }
 
             /// <summary>
-            /// Removes main menu with modules selection by binding start command with first module directly.
+            /// Removes main menu with modules selection by binding start command with the single module directly.
             /// </summary>
             /// <remarks>
             /// To use this method you should ensure that you have only one module in your application, or the initialization process will throw an exception.
             /// </remarks>
             /// <returns>The updated service collection.</returns>
-            public IServiceCollection SkipModulesSelection() => services.AddSingleton<IMainMenuConfigurator, SingleModuleMainMenuConfigurator>();
+            public IServiceCollection SkipModuleSelection() => services.AddSingleton<IMainMenuConfigurator, SingleModuleMainMenuConfigurator>();
         }
     }
 }

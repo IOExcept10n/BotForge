@@ -8,7 +8,7 @@ var builder = BotApp.CreateBuilder(args).WithTelegramBot();
 builder.Configuration.AddUserSecrets<Program>();
 // Because our app is single-module, we can simplify menu by removing module selection state
 // (Actually this state remains, but it just binds to a single module root state to perform the same logic).
-builder.Services.SkipModulesSelection();
+builder.Services.SkipModuleSelection();
 
 var host = builder.Build();
 await host.RunAsync().ConfigureAwait(false);
