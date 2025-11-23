@@ -449,7 +449,7 @@ public abstract class ModuleBase : IDisposable
     protected static string Localize(ModuleStateContext ctx, string text)
     {
         ArgumentNullException.ThrowIfNull(ctx);
-        return ctx.Services.GetRequiredService<ILocalizationService>().GetString(ctx.User.Locale ?? CultureInfo.InvariantCulture, text);
+        return ctx.Services.GetRequiredService<ILocalizationService>().GetString(ctx.User.TargetLocale, text);
     }
 
     /// <summary>
@@ -462,7 +462,7 @@ public abstract class ModuleBase : IDisposable
     protected static string Localize(ModuleStateContext ctx, string text, params object[] args)
     {
         ArgumentNullException.ThrowIfNull(ctx);
-        return ctx.Services.GetRequiredService<ILocalizationService>().GetString(ctx.User.Locale ?? CultureInfo.InvariantCulture, text, args);
+        return ctx.Services.GetRequiredService<ILocalizationService>().GetString(ctx.User.TargetLocale, text, args);
     }
 
     /// <summary>
@@ -487,7 +487,7 @@ public abstract class ModuleBase : IDisposable
 
         var (ok, val) = bindingBuilder.InputProperty.Property.PropertyType == typeof(string) ?
             (true, msg.Text) :
-            ParsableInvoker.TryParseAsObject(bindingBuilder.InputProperty.Property.PropertyType, msg.Text, ctx.User.Locale);
+            ParsableInvoker.TryParseAsObject(bindingBuilder.InputProperty.Property.PropertyType, msg.Text, ctx.User.TargetLocale);
         if (!ok)
             return new(false, [new(Localize(ctx, InvalidInputKey))]);
 

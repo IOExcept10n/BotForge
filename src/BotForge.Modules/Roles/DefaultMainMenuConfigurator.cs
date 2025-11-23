@@ -32,7 +32,7 @@ internal class DefaultMainMenuConfigurator(IRegistry<StateDefinition> registry, 
             var module = modules.FirstOrDefault(m => ctx.Matches(m.ModuleButton));
             if (module == null)
             {
-                string invalidInputMessage = ctx.Services.GetRequiredService<ILocalizationService>().GetString(ctx.Message.From.Locale ?? CultureInfo.InvariantCulture, ModuleBase.InvalidInputKey);
+                string invalidInputMessage = ctx.Services.GetRequiredService<ILocalizationService>().GetString(ctx.Message.From.TargetLocale, ModuleBase.InvalidInputKey);
                 return Task.FromResult(new StateResult(ctx.CurrentState.Id, ModuleBase.InvalidInputKey, new(invalidInputMessage, null)));
             }
             return Task.FromResult(new StateResult($"{module.ModuleName}:{ModuleBase.RootStateName}"));

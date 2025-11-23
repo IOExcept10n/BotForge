@@ -47,7 +47,7 @@ internal class AsyncModelBindingHandler<TModule, TModel>(MethodInfo method, IReg
         }
 
         var localization = ctx.Services.GetRequiredService<ILocalizationService>();
-        return ModuleBase.RetryWith(moduleContext, result.Data, localization.GetString(moduleContext.User.Locale ?? CultureInfo.InvariantCulture, _modelDescriptor.PropertyByName(result.Data.PropertyName)?.PromptKey ?? string.Empty));
+        return ModuleBase.RetryWith(moduleContext, result.Data, localization.GetString(moduleContext.User.TargetLocale, _modelDescriptor.PropertyByName(result.Data.PropertyName)?.PromptKey ?? string.Empty));
     }
 
     private static ModelBindingDescriptor GetDescriptor(IRegistry<ModelBindingDescriptor> modelRegistry)

@@ -53,7 +53,7 @@ public static class StateExtensions
             return false;
         if (ctx.Message.Content is not TextMessageContent msg)
             return false;
-        string text = label.Localize(ctx.Services.GetRequiredService<ILocalizationService>(), ctx.Message.From.Locale ?? System.Globalization.CultureInfo.InvariantCulture);
+        string text = label.Localize(ctx.Services.GetRequiredService<ILocalizationService>(), ctx.Message.From.TargetLocale);
         return msg.Text == text;
     }
 

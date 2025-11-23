@@ -1,3 +1,4 @@
+using System.Resources;
 using System.Runtime.CompilerServices;
 using BotForge.Fsm;
 using BotForge.Fsm.Handling;
@@ -43,6 +44,7 @@ public static class ServiceExtensions
         /// <item><see cref="IRegistry{StateDefinition}"/> -> <see cref="StateRegistry"/></item>
         /// <item><see cref="ILabelStore"/> -> <see cref="LabelStore"/></item>
         /// <item><see cref="IUserStateStore"/> -> <see cref="InMemoryUserStateStore"/></item>
+        /// <item><see cref="IUserLocaleProvider"/> -> <see cref="InMemoryUserLocaleProvider"/></item>
         /// <item><see cref="ILocalizationService"/> -> <see cref="NoLocalizationService"/></item>
         /// </list>
         /// These are registered as singletons and can be replaced by callers prior to building the provider.
@@ -55,9 +57,13 @@ public static class ServiceExtensions
             services.TryAddSingleton<IRegistry<StateDefinition>, StateRegistry>();
             services.TryAddSingleton<ILabelStore, LabelStore>();
             services.TryAddSingleton<IUserStateStore, InMemoryUserStateStore>();
+            services.TryAddSingleton<IUserLocaleProvider, InMemoryUserLocaleProvider>();
             services.TryAddSingleton<ILocalizationService, NoLocalizationService>();
             return services;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IServiceCollection UseLocalization(ResourceManager resources) => services.AddSingleton<ILocalizationService, ResourceLocalizationService>(p => new(resources));
 
         /// <summary>
         /// Configures and registers the update processing pipeline as a singleton.

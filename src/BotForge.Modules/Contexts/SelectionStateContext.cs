@@ -39,7 +39,7 @@ public record SelectionStateContext(UserIdentity User,
         var localization = Services.GetRequiredService<ILocalizationService>();
         foreach (var (name, button) in SelectionButtons)
         {
-            if (button.Localize(localization, User.Locale ?? CultureInfo.InvariantCulture) == textMessage.Text)
+            if (button.Localize(localization, User.TargetLocale) == textMessage.Text)
             {
                 return name;
             }

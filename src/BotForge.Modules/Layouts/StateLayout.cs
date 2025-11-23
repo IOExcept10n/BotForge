@@ -12,6 +12,6 @@ internal abstract class StateLayout : IStateLayout
     public abstract Task SendLayoutMessageAsync(IReplyChannel channel, UserIdentity user, ILocalizationService localization, ReplyContext? overrideMessage = null, CancellationToken cancellationToken = default);
 
     protected ReplyContext BuildReply(UserIdentity user, ILocalizationService localization, ReplyKeyboard? keyboard, ReplyContext? overrideMessage) =>
-        new(overrideMessage?.Message ?? localization.GetString(user.Locale ?? CultureInfo.InvariantCulture, MessageKey),
+        new(overrideMessage?.Message ?? localization.GetString(user.TargetLocale, MessageKey),
                 overrideMessage?.Keyboard ?? keyboard);
 }
