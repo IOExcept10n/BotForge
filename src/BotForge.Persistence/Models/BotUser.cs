@@ -4,7 +4,7 @@ public class BotUser
 {
     public Guid Id { get; set; }
 
-    public Guid RoleId { get; set; }
+    public long RoleId { get; set; }
 
     public long PlatformUserId { get; set; }
 
