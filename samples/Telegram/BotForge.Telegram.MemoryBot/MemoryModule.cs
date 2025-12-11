@@ -23,7 +23,7 @@ internal class MemoryModule : ModuleBase
         nameof(Labels.ShowCounter) => ShowCounter(ctx),
         nameof(Labels.IncrementCounter) => IncrementCounter(ctx),
         nameof(Labels.ResetCounter) => ResetCounter(ctx),
-        _ => InvalidInput(ctx) // Basiaclly unreachable
+        _ => InvalidInput(ctx) // Basically unreachable
     };
 
     /// <summary>
@@ -42,7 +42,7 @@ internal class MemoryModule : ModuleBase
 
         // Save the new counter value - this will be persisted automatically
         return RetryWith(ctx, counter,
-            $"✅ Counter incremented!\n\n📊 Current value: **{counter}**\n\n" +
+            $"✅ Counter incremented!\n\n📊 Current value: {counter}\n\n" +
             "💾 This value is stored in the database and will persist across bot restarts!");
     }
 
@@ -51,7 +51,7 @@ internal class MemoryModule : ModuleBase
     /// </summary>
     private static StateResult ResetCounter(SelectionStateContext ctx)
     {
-        return RetryWith(ctx, 0, "🔄 Counter reset to **0**!");
+        return RetryWith(ctx, 0, "🔄 Counter reset to 0!");
     }
 
     /// <summary>
@@ -62,7 +62,7 @@ internal class MemoryModule : ModuleBase
         int counter = GetCounter(ctx);
 
         return RetryWithMessage(ctx,
-            $"📊 Current counter value: **{counter}**\n\n" +
+            $"📊 Current counter value: {counter}\n\n" +
             "💾 This value is stored in the database and persists across restarts!\n\n" +
             "🔄 Try restarting the bot - your counter will still be here!");
     }

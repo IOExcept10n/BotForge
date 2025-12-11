@@ -1,10 +1,8 @@
-using System.Globalization;
 using BotForge.Fsm;
 using BotForge.Messaging;
 using BotForge.Modules.Roles;
 using BotForge.Persistence.Models;
 using BotForge.Persistence.Repositories;
-using Microsoft.EntityFrameworkCore;
 
 namespace BotForge.Persistence.Services;
 
@@ -33,47 +31,40 @@ internal class PersistentUserStateStore(IBotUserRepository users, IRoleCatalog r
 
     public async Task SaveAsync(UserIdentity user, StateResult result, CancellationToken ct = default)
     {
-        int attempts = 0;
-        while (true)
+        var botUser = await GetOrRegisterAsync(user, ct).ConfigureAwait(false);
+
+        // update or create user state
+        var now = DateTimeOffset.UtcNow;
+        if (botUser.State == null)
         {
-            var botUser = await GetOrRegisterAsync(user, ct).ConfigureAwait(false);
-
-            // update or create user state
-            var now = DateTimeOffset.UtcNow;
-            if (botUser.State == null)
+            // Create new state and assign through navigation property
+            // EF Core will automatically set the FK when saving
+            // Important: Don't set UserId explicitly - let EF Core handle it through navigation property
+            botUser.State = new UserState
             {
-                var state = new UserState
-                {
-                    Id = Guid.NewGuid(),
-                    UserId = botUser.Id,
-                    StateId = result.NextStateId,
-                    StateData = result.NextStateData,
-                    UpdatedAt = now
-                };
-                botUser.State = state;
-            }
-            else
-            {
-                botUser.State.StateId = result.NextStateId;
-                botUser.State.StateData = result.NextStateData;
-                botUser.State.UpdatedAt = now;
-            }
-
-            botUser.LastSeen = now;
-
-            try
-            {
-                await _users.UpdateAsync(botUser, ct).ConfigureAwait(false);
-                await _users.SaveChangesAsync(ct).ConfigureAwait(false);
-                return;
-            }
-            catch (DbUpdateConcurrencyException) when (attempts == 0)
-            {
-                // Retry once with freshly loaded data
-                attempts++;
-                continue;
-            }
+                StateId = result.NextStateId,
+                StateData = result.NextStateData,
+                UpdatedAt = now
+            };
         }
+        else
+        {
+            // Update existing state - EF Core will track changes automatically
+            botUser.State.StateId = result.NextStateId;
+            botUser.State.StateData = result.NextStateData;
+            botUser.State.UpdatedAt = now;
+        }
+
+        // This is needed to prevent PostgreSQL jsonb from throwing an error in case state don't have a value to save.
+        // Note that this can break user logic.
+        if (string.IsNullOrWhiteSpace(botUser.State.StateData))
+        {
+            botUser.State.StateData = "\"\"";
+        }
+
+        botUser.LastSeen = now;
+
+        await _users.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<BotUser> GetOrRegisterAsync(UserIdentity user, CancellationToken ct = default)

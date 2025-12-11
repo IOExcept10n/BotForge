@@ -31,7 +31,7 @@ public record SelectionStateContext(UserIdentity User,
     /// <returns>The name of the selected button, or an empty string if none was selected.</returns>
     public string Selection()
     {
-        if (Message is not TextMessageContent textMessage)
+        if (Message.Content is not TextMessageContent textMessage)
         {
             return string.Empty;
         }

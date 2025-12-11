@@ -1,6 +1,7 @@
+using System.Xml;
 using BotForge.Messaging;
-using Microsoft.EntityFrameworkCore;
 using BotForge.Persistence.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BotForge.Persistence.Repositories;
 
@@ -61,7 +62,6 @@ internal class BotUserRepository(BotForgeDbContext context) : Repository<BotForg
         // Create new user
         var newUser = new BotUser
         {
-            Id = Guid.NewGuid(),
             PlatformUserId = user.Id,
             Username = user.NormalizedName,
             Discriminator = user.Discriminator,
@@ -93,7 +93,6 @@ internal class BotUserRepository(BotForgeDbContext context) : Repository<BotForg
             try
             {
                 MergeUserData(botUser, user, now);
-                await UpdateAsync(botUser, cancellationToken).ConfigureAwait(false);
                 await SaveChangesAsync(cancellationToken).ConfigureAwait(false);
                 return botUser;
             }

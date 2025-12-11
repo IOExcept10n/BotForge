@@ -34,7 +34,6 @@ internal class PersistentRoleStorage(IBotRoleRepository roles, IBotUserRepositor
             user.RoleId = dbRole.Id;
             try
             {
-                await _users.UpdateAsync(user, cancellationToken).ConfigureAwait(false);
                 await _users.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
                 return;
             }
@@ -67,7 +66,6 @@ internal class PersistentRoleStorage(IBotRoleRepository roles, IBotUserRepositor
             user.RoleId = dbRole.Id;
             try
             {
-                await _users.UpdateAsync(user, cancellationToken).ConfigureAwait(false);
                 await _users.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
                 return;
             }

@@ -27,7 +27,6 @@ internal class PersistentUserLocaleProvider(IBotUserRepository users) : IUserLoc
             botUser.PreferredLocale = preferredLocale?.Name;
             try
             {
-                await _users.UpdateAsync(botUser, cancellationToken).ConfigureAwait(false);
                 await _users.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
                 return;
             }
