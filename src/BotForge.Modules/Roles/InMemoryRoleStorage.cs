@@ -17,20 +17,20 @@ internal class InMemoryRoleStorage(IRoleCatalog roleCatalog) : IRoleProvider, IR
         return Task.FromResult(_rolesMap.GetOrAdd(user.Id, _roleCatalog.DefaultRole));
     }
 
-    public Task SetRoleByUserIdAsync(long userId, Role role)
+    public Task SetRoleByUserIdAsync(long userId, Role role, CancellationToken cancellationToken = default)
     {
         _rolesMap[userId] = role;
         return Task.CompletedTask;
     }
 
-    public Task SetRoleByUserIdentityAsync(UserIdentity user, Role role)
+    public Task SetRoleByUserIdentityAsync(UserIdentity user, Role role, CancellationToken cancellationToken = default)
     {
         EnsureMapped(user);
         _rolesMap[user.Id] = role;
         return Task.CompletedTask;
     }
 
-    public Task SetRoleByUsernameAsync(string username, string? discriminator, Role role)
+    public Task SetRoleByUsernameAsync(string username, string? discriminator, Role role, CancellationToken cancellationToken = default)
     {
         if (_usersMapping.TryGetValue(username, out var user))
         {

@@ -5,8 +5,6 @@ namespace BotForge.Persistence.Repositories;
 
 public class UserStateRepository(BotForgeDbContext context) : Repository<BotForgeDbContext, Guid, UserState>(context), IUserStateRepository
 {
-    public UserStateRepository(BotForgeDbContext context) : base(context) { }
-
     public async Task<UserState?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
         => await Context.States.FirstOrDefaultAsync(s => s.UserId == userId, cancellationToken).ConfigureAwait(false);
 }

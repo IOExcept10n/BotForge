@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text.Json;
 using BotForge.Fsm;
 using BotForge.Localization;
+using BotForge.Messaging;
 using BotForge.Modules.Contexts;
 using Microsoft.Extensions.DependencyInjection;
 

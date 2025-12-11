@@ -1,7 +1,4 @@
-using System;
 using System.Globalization;
-using System.Threading;
-using System.Threading.Tasks;
 using BotForge.Messaging;
 using BotForge.Modules.Roles;
 using BotForge.Persistence.Repositories;
@@ -23,45 +20,35 @@ internal class PersistentRoleStorage(IBotRoleRepository roles, IBotUserRepositor
         return _roleCatalog.DefaultRole;
     }
 
-    public Task SetRoleByUserIdAsync(long userId, Role role)
+    public async Task SetRoleByUserIdAsync(long userId, Role role, CancellationToken cancellationToken = default)
     {
-        return SetRoleByUserIdAsync(userId, role, CancellationToken.None);
-    }
+        var dbRole = await _roles.RegisterAsync(role, cancellationToken).ConfigureAwait(false);
 
-    public Task SetRoleByUserIdentityAsync(UserIdentity user, Role role)
-    {
-        return SetRoleByUserIdAsync(user.Id, role, CancellationToken.None);
-    }
-
-    public Task SetRoleByUsernameAsync(string username, string? discriminator, Role role)
-    {
-        return SetRoleByUsernameAsync(username, discriminator, role, CancellationToken.None);
-    }
-
-    private async Task SetRoleByUserIdAsync(long userId, Role role, CancellationToken ct)
-    {
-        var dbRole = await _roles.RegisterAsync(role, ct).ConfigureAwait(false);
-
-        var userIdentity = new BotForge.Messaging.UserIdentity(userId);
-        var user = await _users.GetOrRegisterAsync(userIdentity, ct).ConfigureAwait(false);
+        var userIdentity = new UserIdentity(userId);
+        var user = await _users.GetOrRegisterAsync(userIdentity, cancellationToken).ConfigureAwait(false);
 
         user.RoleId = dbRole.Id;
-        await _users.UpdateAsync(user, ct).ConfigureAwait(false);
-        await _users.SaveChangesAsync(ct).ConfigureAwait(false);
+        await _users.UpdateAsync(user, cancellationToken).ConfigureAwait(false);
+        await _users.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task SetRoleByUsernameAsync(string username, string? discriminator, Role role, CancellationToken ct)
+    public async Task SetRoleByUserIdentityAsync(UserIdentity user, Role role, CancellationToken cancellationToken = default)
+    {
+        await SetRoleByUserIdAsync(user.Id, role, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task SetRoleByUsernameAsync(string username, string? discriminator, Role role, CancellationToken cancellationToken = default)
     {
         int disc = 0;
         if (!string.IsNullOrWhiteSpace(discriminator))
             int.TryParse(discriminator, NumberStyles.Integer, CultureInfo.InvariantCulture, out disc);
 
-        var userIdentity = new BotForge.Messaging.UserIdentity(0, username, null, disc);
-        var user = await _users.GetOrRegisterAsync(userIdentity, ct).ConfigureAwait(false);
-        var dbRole = await _roles.RegisterAsync(role, ct).ConfigureAwait(false);
+        var userIdentity = new UserIdentity(0, username, null, disc);
+        var user = await _users.GetOrRegisterAsync(userIdentity, cancellationToken).ConfigureAwait(false);
+        var dbRole = await _roles.RegisterAsync(role, cancellationToken).ConfigureAwait(false);
 
         user.RoleId = dbRole.Id;
-        await _users.UpdateAsync(user, ct).ConfigureAwait(false);
-        await _users.SaveChangesAsync(ct).ConfigureAwait(false);
+        await _users.UpdateAsync(user, cancellationToken).ConfigureAwait(false);
+        await _users.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

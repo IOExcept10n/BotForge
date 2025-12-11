@@ -27,7 +27,7 @@ builder.UseWelcomeMessage(
         "📋 Choose an action:");
 
 // To persist bot data between runs, just add this call:
-builder.Services.AddPersistenceServices();
+builder.AddPersistence();
 
 // These two lines run our bot
 var host = builder.Build();
