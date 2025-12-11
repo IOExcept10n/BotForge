@@ -4,6 +4,7 @@ using BotForge.Messaging;
 using BotForge.Modules.Roles;
 using BotForge.Persistence.Models;
 using BotForge.Persistence.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace BotForge.Persistence.Services;
 
@@ -32,33 +33,47 @@ internal class PersistentUserStateStore(IBotUserRepository users, IRoleCatalog r
 
     public async Task SaveAsync(UserIdentity user, StateResult result, CancellationToken ct = default)
     {
-        var botUser = await GetOrRegisterAsync(user, ct).ConfigureAwait(false);
-
-        // update or create user state
-        var now = DateTimeOffset.UtcNow;
-        if (botUser.State == null)
+        int attempts = 0;
+        while (true)
         {
-            var state = new UserState
+            var botUser = await GetOrRegisterAsync(user, ct).ConfigureAwait(false);
+
+            // update or create user state
+            var now = DateTimeOffset.UtcNow;
+            if (botUser.State == null)
             {
-                Id = Guid.NewGuid(),
-                UserId = botUser.Id,
-                StateId = result.NextStateId,
-                StateData = result.NextStateData,
-                UpdatedAt = now
-            };
-            botUser.State = state;
-        }
-        else
-        {
-            botUser.State.StateId = result.NextStateId;
-            botUser.State.StateData = result.NextStateData;
-            botUser.State.UpdatedAt = now;
-        }
+                var state = new UserState
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = botUser.Id,
+                    StateId = result.NextStateId,
+                    StateData = result.NextStateData,
+                    UpdatedAt = now
+                };
+                botUser.State = state;
+            }
+            else
+            {
+                botUser.State.StateId = result.NextStateId;
+                botUser.State.StateData = result.NextStateData;
+                botUser.State.UpdatedAt = now;
+            }
 
-        botUser.LastSeen = now;
+            botUser.LastSeen = now;
 
-        await _users.UpdateAsync(botUser, ct).ConfigureAwait(false);
-        await _users.SaveChangesAsync(ct).ConfigureAwait(false);
+            try
+            {
+                await _users.UpdateAsync(botUser, ct).ConfigureAwait(false);
+                await _users.SaveChangesAsync(ct).ConfigureAwait(false);
+                return;
+            }
+            catch (DbUpdateConcurrencyException) when (attempts == 0)
+            {
+                // Retry once with freshly loaded data
+                attempts++;
+                continue;
+            }
+        }
     }
 
     public async Task<BotUser> GetOrRegisterAsync(UserIdentity user, CancellationToken ct = default)

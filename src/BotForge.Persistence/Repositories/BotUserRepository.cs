@@ -6,6 +6,8 @@ namespace BotForge.Persistence.Repositories;
 
 internal class BotUserRepository(BotForgeDbContext context) : Repository<BotForgeDbContext, Guid, BotUser>(context), IBotUserRepository
 {
+    private const int ConcurrencyRetryCount = 1;
+
     public virtual async Task<BotUser?> GetByPlatformIdAsync(long platformId, CancellationToken cancellationToken = default)
     {
         return await DbSet.Include(u => u.Role).Include(u => u.State)
@@ -38,11 +40,9 @@ internal class BotUserRepository(BotForgeDbContext context) : Repository<BotForg
             botUser = await GetByPlatformIdAsync(user.Id, cancellationToken).ConfigureAwait(false);
             if (botUser != null)
             {
-                // Merge missing fields
-                MergeUserData(botUser, user, now);
-                await UpdateAsync(botUser, cancellationToken).ConfigureAwait(false);
-                await SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-                return botUser;
+                return await SaveWithRetryAsync(botUser, user, now,
+                    async () => await GetByPlatformIdAsync(user.Id, cancellationToken).ConfigureAwait(false),
+                    cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -52,11 +52,9 @@ internal class BotUserRepository(BotForgeDbContext context) : Repository<BotForg
             botUser = await GetByUsernameAsync(user.NormalizedName, user.Discriminator, cancellationToken).ConfigureAwait(false);
             if (botUser != null)
             {
-                // Merge missing fields
-                MergeUserData(botUser, user, now);
-                await UpdateAsync(botUser, cancellationToken).ConfigureAwait(false);
-                await SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-                return botUser;
+                return await SaveWithRetryAsync(botUser, user, now,
+                    async () => await GetByUsernameAsync(user.NormalizedName!, user.Discriminator, cancellationToken).ConfigureAwait(false),
+                    cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -80,6 +78,35 @@ internal class BotUserRepository(BotForgeDbContext context) : Repository<BotForg
         // reload including navigations
         var registered = await GetByPlatformIdAsync(user.Id, cancellationToken).ConfigureAwait(false);
         return registered ?? newUser;
+    }
+
+    private async Task<BotUser> SaveWithRetryAsync(
+        BotUser botUser,
+        UserIdentity user,
+        DateTimeOffset now,
+        Func<Task<BotUser?>> reload,
+        CancellationToken cancellationToken)
+    {
+        int attempts = 0;
+        while (true)
+        {
+            try
+            {
+                MergeUserData(botUser, user, now);
+                await UpdateAsync(botUser, cancellationToken).ConfigureAwait(false);
+                await SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                return botUser;
+            }
+            catch (DbUpdateConcurrencyException) when (attempts < ConcurrencyRetryCount)
+            {
+                attempts++;
+                // Reload entity and retry
+                var fresh = await reload().ConfigureAwait(false);
+                if (fresh == null)
+                    throw;
+                botUser = fresh;
+            }
+        }
     }
 
     private static void MergeUserData(BotUser botUser, UserIdentity user, DateTimeOffset now)
