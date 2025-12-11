@@ -1,10 +1,31 @@
-using BotForge.Persistence.Models;
 using Microsoft.EntityFrameworkCore;
+using BotForge.Modules.Roles;
+using BotForge.Persistence.Models;
 
 namespace BotForge.Persistence.Repositories;
 
-public class BotRoleRepository(BotForgeDbContext context) : Repository<BotForgeDbContext, long, BotRole>(context), IBotRoleRepository
+internal class BotRoleRepository(BotForgeDbContext context) : Repository<BotForgeDbContext, long, BotRole>(context), IBotRoleRepository
 {
-    public async Task<BotRole?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
-        => await Context.Roles.FirstOrDefaultAsync(r => r.Name == name, cancellationToken).ConfigureAwait(false);
+    public virtual async Task<BotRole> RegisterAsync(Role role, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(role);
+
+        var existing = await DbSet.FirstOrDefaultAsync(r => r.Name == role.Name, cancellationToken).ConfigureAwait(false);
+        if (existing != null)
+            return existing;
+
+        var entity = new BotRole { Name = role.Name };
+        await DbSet.AddAsync(entity, cancellationToken).ConfigureAwait(false);
+        await Context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        return entity;
+    }
+
+    public virtual async Task<BotRole> GetRoleAsync(Role role, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(role);
+        var existing = await DbSet.FirstOrDefaultAsync(r => r.Name == role.Name, cancellationToken).ConfigureAwait(false);
+        if (existing == null)
+            throw new InvalidOperationException($"Role '{role.Name}' is not registered in database.");
+        return existing;
+    }
 }

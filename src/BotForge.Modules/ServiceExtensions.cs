@@ -154,7 +154,7 @@ namespace BotForge.Modules
             /// To use this method you should ensure that you have only one module in your application, or the initialization process will throw an exception.
             /// </remarks>
             /// <returns>The updated service collection.</returns>
-            public IServiceCollection SkipModuleSelection() => services.AddSingleton<IMainMenuConfigurator, SingleModuleMainMenuConfigurator>();
+            public IServiceCollection ConfigureSingleModuleMenu() => services.AddSingleton<IMainMenuConfigurator, SingleModuleMainMenuConfigurator>();
         }
     }
 }

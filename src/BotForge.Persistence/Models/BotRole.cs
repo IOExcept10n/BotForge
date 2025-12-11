@@ -13,4 +13,6 @@ public class BotRole
     public string? Description { get; set; }
 
     public string? WelcomeMessageKey { get; set; }
+
+    public ICollection<BotUser> Users { get; set; } = [];
 }

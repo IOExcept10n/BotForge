@@ -4,15 +4,15 @@ public class BotUser
 {
     public Guid Id { get; set; }
 
-    public long RoleId { get; set; }
+    public long? RoleId { get; set; }
 
-    public long PlatformUserId { get; set; }
+    public long? PlatformUserId { get; set; }
 
     public string Username { get; set; } = string.Empty;
 
     public int Discriminator { get; set; }
 
-    public string PlatformName { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
 
     public string? PreferredLocale { get; set; }
 

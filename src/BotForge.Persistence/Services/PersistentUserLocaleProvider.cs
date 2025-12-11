@@ -1,30 +1,25 @@
 using System.Globalization;
+using BotForge.Localization;
 using BotForge.Messaging;
 using BotForge.Persistence.Repositories;
-using BotForge.Localization;
 
 namespace BotForge.Persistence.Services;
 
-public class PersistentUserLocaleProvider(IBotUserRepository _users) : IUserLocaleProvider
+internal class PersistentUserLocaleProvider(IBotUserRepository users) : IUserLocaleProvider
 {
+    private readonly IBotUserRepository _users = users;
+
     public async Task<CultureInfo?> GetPreferredLocaleAsync(UserIdentity user, CancellationToken cancellationToken)
     {
-        var botUser = await _users.GetByPlatformIdAsync(user.Id, cancellationToken).ConfigureAwait(false);
-        if (botUser is null || string.IsNullOrEmpty(botUser.PreferredLocale))
+        var botUser = await _users.GetOrRegisterAsync(user, cancellationToken).ConfigureAwait(false);
+        if (string.IsNullOrWhiteSpace(botUser.PreferredLocale))
             return null;
-        try
-        {
-            return new CultureInfo(botUser.PreferredLocale!);
-        }
-        catch
-        {
-            return null;
-        }
+        return new CultureInfo(botUser.PreferredLocale!);
     }
 
     public async Task SetPreferredLocaleAsync(UserIdentity user, CultureInfo? preferredLocale, CancellationToken cancellationToken)
     {
-        var botUser = await _users.GetOrCreateByPlatformIdAsync(user.Id, cancellationToken).ConfigureAwait(false);
+        var botUser = await _users.GetOrRegisterAsync(user, cancellationToken).ConfigureAwait(false);
         botUser.PreferredLocale = preferredLocale?.Name;
         await _users.UpdateAsync(botUser, cancellationToken).ConfigureAwait(false);
         await _users.SaveChangesAsync(cancellationToken).ConfigureAwait(false);

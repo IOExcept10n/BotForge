@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "BotForge.Telegram.MemoryBot": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
