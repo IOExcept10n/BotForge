@@ -1,289 +1,569 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 using System.Linq;
 
-[DiagnosticAnalyzer(LanguageNames.CSharp)]
-public sealed class FsmStateAnalyzer : DiagnosticAnalyzer
+namespace BotForge.Analyzers
 {
-    private const string Category = "Usage";
-    
-    private readonly static DiagnosticDescriptor MenuSig = new DiagnosticDescriptor(
-        id: "FSM001",
-        title: "Menu state method signature",
-        messageFormat: "Method '{0}' has incorrect signature for [MenuState]. Expected: public instance Task<StateResult> Method(ModuleStateContext).",
-        category: Category,
-        defaultSeverity: DiagnosticSeverity.Warning,
-        isEnabledByDefault: true);
-
-    private readonly static DiagnosticDescriptor PromptSig = new DiagnosticDescriptor(
-        id: "FSM002",
-        title: "Prompt state method signature",
-        messageFormat: "Method '{0}' has incorrect signature for [PromptState<T>]. Expected: public instance Task<StateResult> Method(PromptStateContext<T>).",
-        category: Category,
-        defaultSeverity: DiagnosticSeverity.Warning,
-        isEnabledByDefault: true);
-
-    private readonly static DiagnosticDescriptor PromptGenericMismatch = new DiagnosticDescriptor(
-        id: "FSM003",
-        title: "Prompt state generic mismatch",
-        messageFormat: "Generic argument of [PromptState<{0}>] does not match method parameter PromptStateContext<{1}>",
-        category: Category,
-        defaultSeverity: DiagnosticSeverity.Warning,
-        isEnabledByDefault: true);
-
-    private readonly static DiagnosticDescriptor MenuItemWithoutMenu = new DiagnosticDescriptor(
-        id: "FSM004",
-        title: "MenuItem or MenuRow without MenuState",
-        messageFormat: "[MenuItem] or [MenuRow] used on method '{0}' without [MenuState]",
-        category: Category,
-        defaultSeverity: DiagnosticSeverity.Warning,
-        isEnabledByDefault: true);
-
-    private readonly static DiagnosticDescriptor MenuItemLabelNotFound = new DiagnosticDescriptor(
-        id: "FSM005",
-        title: "MenuItem or MenuRow label not found",
-        messageFormat: "MenuItem or MenuRow label '{0}' is not a public static readonly ButtonLabel member of a class marked with [LabelsStorage]",
-        category: Category,
-        defaultSeverity: DiagnosticSeverity.Warning,
-        isEnabledByDefault: true);
-
-    private readonly static DiagnosticDescriptor LocalizationKeyNotFound = new DiagnosticDescriptor(
-        id: "FSM006",
-        title: "Localization key not found",
-        messageFormat: "Localization key '{0}' not found in project resources or string members",
-        category: Category,
-        defaultSeverity: DiagnosticSeverity.Warning,
-        isEnabledByDefault: true);
-
-    private readonly static DiagnosticDescriptor NullabilityMismatch = new DiagnosticDescriptor(
-        id: "FSM007",
-        title: "Nullability mismatch",
-        messageFormat: "Nullability mismatch between attribute generic argument and method parameter: '{0}' vs '{1}'",
-        category: Category,
-        defaultSeverity: DiagnosticSeverity.Warning,
-        isEnabledByDefault: true);
-
-    private readonly static DiagnosticDescriptor KeyboardInstructionWithoutMenu = new DiagnosticDescriptor(
-        id: "FSM008",
-        title: "Keyboard instruction without MenuState",
-        messageFormat: "Keyboard instruction [{0}] is used on method {1} without [MenuState]",
-        category: Category,
-        defaultSeverity: DiagnosticSeverity.Warning,
-        isEnabledByDefault: true);
-
-    public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
-        ImmutableArray.Create(MenuSig, PromptSig, PromptGenericMismatch, MenuItemWithoutMenu, MenuItemLabelNotFound, LocalizationKeyNotFound, NullabilityMismatch, KeyboardInstructionWithoutMenu);
-
-    public override void Initialize(AnalysisContext context)
+    [DiagnosticAnalyzer(LanguageNames.CSharp)]
+    public sealed class FsmStateAnalyzer : DiagnosticAnalyzer
     {
-        context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
-        context.EnableConcurrentExecution();
+        private const string Category = "Usage";
 
-        context.RegisterSymbolAction(AnalyzeMethod, SymbolKind.Method);
-        context.RegisterSyntaxNodeAction(AnalyzeAttributeSyntax, Microsoft.CodeAnalysis.CSharp.SyntaxKind.Attribute);
-    }
+        #region Diagnostic Descriptors
 
-    private void AnalyzeMethod(SymbolAnalysisContext context)
-    {
-        var method = (IMethodSymbol)context.Symbol;
+        // Method signature diagnostics
+        private readonly static DiagnosticDescriptor MenuSig = new DiagnosticDescriptor(
+            id: "FSM001",
+            title: "Menu state method signature",
+            messageFormat: "Method '{0}' has incorrect signature for [Menu]. Expected: (a)sync (StateResult|Task<StateResult>) Method(SelectionStateContext [, CancellationToken]).",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true);
 
-        var attrs = method.GetAttributes();
-        if (attrs.Length == 0) return;
+        private readonly static DiagnosticDescriptor PromptSig = new DiagnosticDescriptor(
+            id: "FSM002",
+            title: "Prompt state method signature",
+            messageFormat: "Method '{0}' has incorrect signature for [Prompt<T>]. Expected: (a)sync (StateResult|Task<StateResult>) Method(PromptStateContext<T> [, CancellationToken]).",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true);
 
-        var menuAttr = attrs.FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == "MyBots.Modules.Common.MenuStateAttribute");
-        var promptAttr = attrs.FirstOrDefault(a => a.AttributeClass?.OriginalDefinition?.ToDisplayString() == "MyBots.Modules.Common.PromptStateAttribute<T>");
-        var menuItemAttrs = attrs.Where(a => a.AttributeClass?.ToDisplayString() == "MyBots.Modules.Common.MenuItemAttribute").ToImmutableArray();
-        var menuRowAttrs = attrs.Where(a => a.AttributeClass?.ToDisplayString() == "MyBots.Modules.Common.MenuRowAttribute").ToImmutableArray();
-        var keyboardAttrs = attrs.Where(a => a.AttributeClass?.ToDisplayString() == "MyBots.Modules.Common.InheritKeyboardAttribute" ||
-                                             a.AttributeClass?.ToDisplayString() == "MyBots.Modules.Common.RemoveKeyboardAttribute").ToImmutableArray();
+        private readonly static DiagnosticDescriptor ModelPromptSig = new DiagnosticDescriptor(
+            id: "FSM009",
+            title: "ModelPrompt state method signature",
+            messageFormat: "Method '{0}' has incorrect signature for [ModelPrompt<T>]. Expected: (a)sync (StateResult|Task<StateResult>) Method(ModelPromptContext<T> [, CancellationToken]).",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true);
 
-        // Check access and instance requirement if any of the relevant attributes present
-        if (menuAttr != null || promptAttr != null || menuItemAttrs.Length > 0 || menuRowAttrs.Length > 0 || keyboardAttrs.Length > 0)
+        private readonly static DiagnosticDescriptor CustomStateSig = new DiagnosticDescriptor(
+            id: "FSM010",
+            title: "CustomState method signature",
+            messageFormat: "Method '{0}' has incorrect signature for [CustomState]. Expected: (a)sync (StateResult|Task<StateResult>) Method(ModuleStateContext [, CancellationToken]).",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true);
+
+        // Type mismatch diagnostics
+        private readonly static DiagnosticDescriptor PromptGenericMismatch = new DiagnosticDescriptor(
+            id: "FSM003",
+            title: "Prompt state generic mismatch",
+            messageFormat: "Generic argument of [Prompt<{0}>] does not match method parameter PromptStateContext<{1}>",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true);
+
+        private readonly static DiagnosticDescriptor ModelPromptGenericMismatch = new DiagnosticDescriptor(
+            id: "FSM011",
+            title: "ModelPrompt state generic mismatch",
+            messageFormat: "Generic argument of [ModelPrompt<{0}>] does not match method parameter ModelPromptContext<{1}>",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true);
+
+        // Menu items and buttons diagnostics
+        private readonly static DiagnosticDescriptor MenuItemWithoutMenu = new DiagnosticDescriptor(
+            id: "FSM004",
+            title: "MenuItem or MenuRow without Menu/CustomState",
+            messageFormat: "[MenuItem] or [MenuRow] used on method '{0}' without [Menu] or [CustomState]",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true);
+
+        private readonly static DiagnosticDescriptor MenuItemLabelNotFound = new DiagnosticDescriptor(
+            id: "FSM005",
+            title: "MenuItem or MenuRow label not found",
+            messageFormat: "MenuItem or MenuRow label '{0}' is not a public static readonly ButtonLabel member of a class marked with [LabelStorage]",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true);
+
+        // Resource and localization diagnostics
+        private readonly static DiagnosticDescriptor LocalizationKeyNotFound = new DiagnosticDescriptor(
+            id: "FSM006",
+            title: "Localization key not found",
+            messageFormat: "Localization key '{0}' not found in project resources or string members",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true);
+
+        private readonly static DiagnosticDescriptor SuggestAddResources = new DiagnosticDescriptor(
+            id: "FSM012",
+            title: "Missing resource files",
+            messageFormat: "Consider adding resource files for localization to support keys like '{0}'",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Info,
+            isEnabledByDefault: true);
+
+        private readonly static DiagnosticDescriptor SuggestAddLabelStorage = new DiagnosticDescriptor(
+            id: "FSM013",
+            title: "Missing label storage",
+            messageFormat: "Consider adding a class with [LabelStorage] attribute to define button labels",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Info,
+            isEnabledByDefault: true);
+
+        // Type nullability diagnostics
+        private readonly static DiagnosticDescriptor NullabilityMismatch = new DiagnosticDescriptor(
+            id: "FSM007",
+            title: "Nullability mismatch",
+            messageFormat: "Nullability mismatch between attribute generic argument and method parameter: '{0}' vs '{1}'",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true);
+
+        // Keyboard diagnostics
+        private readonly static DiagnosticDescriptor KeyboardInstructionWithoutMenu = new DiagnosticDescriptor(
+            id: "FSM008",
+            title: "Keyboard instruction without Menu/CustomState",
+            messageFormat: "Keyboard instruction [{0}] is used on method {1} without [Menu] or [CustomState]",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true);
+
+        // Multiple state attributes
+        private readonly static DiagnosticDescriptor MultipleStateAttributes = new DiagnosticDescriptor(
+            id: "FSM014",
+            title: "Multiple state attributes",
+            messageFormat: "Method '{0}' has multiple state attributes. Only one of [Menu], [Prompt<T>], [ModelPrompt<T>] or [CustomState] should be used.",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true);
+
+        #endregion
+
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
+            ImmutableArray.Create(
+                MenuSig,
+                PromptSig,
+                ModelPromptSig,
+                CustomStateSig,
+                PromptGenericMismatch,
+                ModelPromptGenericMismatch,
+                MenuItemWithoutMenu,
+                MenuItemLabelNotFound,
+                LocalizationKeyNotFound,
+                NullabilityMismatch,
+                KeyboardInstructionWithoutMenu,
+                SuggestAddResources,
+                SuggestAddLabelStorage,
+                MultipleStateAttributes);
+
+        public override void Initialize(AnalysisContext context)
         {
-            if (method.IsStatic || method.DeclaredAccessibility != Accessibility.Public)
-            {
-                if (menuAttr != null)
-                    context.ReportDiagnostic(Diagnostic.Create(MenuSig, method.Locations.FirstOrDefault() ?? method.Locations[0], method.Name));
-                if (promptAttr != null)
-                    context.ReportDiagnostic(Diagnostic.Create(PromptSig, method.Locations.FirstOrDefault() ?? method.Locations[0], method.Name));
-            }
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
+            context.EnableConcurrentExecution();
+
+            context.RegisterSymbolAction(AnalyzeMethod, SymbolKind.Method);
+            context.RegisterSyntaxNodeAction(AnalyzeAttributeSyntax, Microsoft.CodeAnalysis.CSharp.SyntaxKind.Attribute);
         }
 
-        // MenuState signature checks
-        if (menuAttr != null)
+        private void AnalyzeMethod(SymbolAnalysisContext context)
         {
-            // Return type must be Task<StateResult>
-            if (!IsTaskOfStateResult(method.ReturnType, context.Compilation))
+            var method = (IMethodSymbol)context.Symbol;
+
+            var attrs = method.GetAttributes();
+            if (attrs.Length == 0) return;
+
+            var menuAttr = attrs.FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == "BotForge.Modules.Attributes.MenuAttribute");
+            var promptAttr = attrs.FirstOrDefault(a => a.AttributeClass?.OriginalDefinition?.ToDisplayString() == "BotForge.Modules.Attributes.PromptAttribute`1");
+            var modelPromptAttr = attrs.FirstOrDefault(a => a.AttributeClass?.OriginalDefinition?.ToDisplayString() == "BotForge.Modules.Attributes.ModelPromptAttribute`1");
+            var customStateAttr = attrs.FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == "BotForge.Modules.Attributes.CustomStateAttribute");
+
+            var menuItemAttrs = attrs.Where(a => a.AttributeClass?.ToDisplayString() == "BotForge.Modules.Attributes.MenuItemAttribute").ToImmutableArray();
+            var menuRowAttrs = attrs.Where(a => a.AttributeClass?.ToDisplayString() == "BotForge.Modules.Attributes.MenuRowAttribute").ToImmutableArray();
+            var keyboardAttrs = attrs.Where(a =>
+                a.AttributeClass?.ToDisplayString() == "BotForge.Modules.Attributes.InheritKeyboardAttribute" ||
+                a.AttributeClass?.ToDisplayString() == "BotForge.Modules.Attributes.RemoveKeyboardAttribute")
+                .ToImmutableArray();
+
+            // Check for multiple state attributes
+            var stateAttributes = new[] { menuAttr, promptAttr, modelPromptAttr, customStateAttr }.Where(a => a != null).ToArray();
+            if (stateAttributes.Length > 1)
             {
-                context.ReportDiagnostic(Diagnostic.Create(MenuSig, method.Locations.FirstOrDefault() ?? method.Locations[0], method.Name));
+                context.ReportDiagnostic(Diagnostic.Create(MultipleStateAttributes, method.Locations.FirstOrDefault() ?? method.Locations[0], method.Name));
             }
 
-            // Parameters: single ModuleStateContext
-            if (method.Parameters.Length != 1 || !SymbolEqualityComparer.Default.Equals(method.Parameters[0].Type, context.Compilation.GetTypeByMetadataName("MyBots.Modules.Common.ModuleStateContext")))
+            // Check access and instance requirement if any of the relevant attributes present
+            if (menuAttr != null || promptAttr != null || modelPromptAttr != null || customStateAttr != null ||
+                menuItemAttrs.Length > 0 || menuRowAttrs.Length > 0 || keyboardAttrs.Length > 0)
             {
-                context.ReportDiagnostic(Diagnostic.Create(MenuSig, method.Locations.FirstOrDefault() ?? method.Locations[0], method.Name));
+                if (method.IsStatic || method.DeclaredAccessibility != Accessibility.Public)
+                {
+                    if (menuAttr != null)
+                        context.ReportDiagnostic(Diagnostic.Create(MenuSig, method.Locations.FirstOrDefault() ?? method.Locations[0], method.Name));
+                    if (promptAttr != null)
+                        context.ReportDiagnostic(Diagnostic.Create(PromptSig, method.Locations.FirstOrDefault() ?? method.Locations[0], method.Name));
+                    if (modelPromptAttr != null)
+                        context.ReportDiagnostic(Diagnostic.Create(ModelPromptSig, method.Locations.FirstOrDefault() ?? method.Locations[0], method.Name));
+                    if (customStateAttr != null)
+                        context.ReportDiagnostic(Diagnostic.Create(CustomStateSig, method.Locations.FirstOrDefault() ?? method.Locations[0], method.Name));
+                }
             }
 
-            // MenuItem existence is OK here; individual MenuItem validation done in syntax-phase
-        }
-        else
-        {
-            // If method has MenuItem but no MenuState -> warn (if this is not root method for module).
-            if ((menuItemAttrs.Length > 0 || menuRowAttrs.Length > 0) && method.Name != "OnModuleRootAsync")
+            // MenuState signature checks
+            if (menuAttr != null)
+            {
+                // Check signature: must be StateResult or Task<StateResult>, taking SelectionStateContext [, CancellationToken]
+                CheckMethodSignature(context, method, "BotForge.Modules.Contexts.SelectionStateContext", MenuSig);
+            }
+
+            // PromptState signature checks
+            if (promptAttr != null)
+            {
+                // Check signature: must be StateResult or Task<StateResult>, taking PromptStateContext<T> [, CancellationToken]
+                CheckPromptMethodSignature(context, method, promptAttr, "BotForge.Modules.Contexts.PromptStateContext`1", PromptSig, PromptGenericMismatch);
+            }
+
+            // ModelPromptState signature checks
+            if (modelPromptAttr != null)
+            {
+                // Check signature: must be StateResult or Task<StateResult>, taking ModelPromptContext<T> [, CancellationToken]
+                CheckPromptMethodSignature(context, method, modelPromptAttr, "BotForge.Modules.Contexts.ModelPromptContext`1", ModelPromptSig, ModelPromptGenericMismatch);
+            }
+
+            // CustomState signature checks
+            if (customStateAttr != null)
+            {
+                // Check signature: must be StateResult or Task<StateResult>, taking ModuleStateContext [, CancellationToken]
+                CheckMethodSignature(context, method, "BotForge.Modules.Contexts.ModuleStateContext", CustomStateSig);
+            }
+
+            // Check MenuItems and MenuRows
+            var hasMenuOrCustomState = menuAttr != null || customStateAttr != null;
+            if (!hasMenuOrCustomState && (menuItemAttrs.Length > 0 || menuRowAttrs.Length > 0) && method.Name != "OnModuleRoot")
             {
                 context.ReportDiagnostic(Diagnostic.Create(MenuItemWithoutMenu, method.Locations.FirstOrDefault() ?? method.Locations[0], method.Name));
             }
 
-            // If method has keyboard control but no MenuState -> warn (if this is not root method for module).
-            if (keyboardAttrs.Length > 0 && method.Name != "OnModuleRootAsync")
+            // Check keyboard instructions
+            if (!hasMenuOrCustomState && keyboardAttrs.Length > 0 && method.Name != "OnModuleRoot")
             {
-                context.ReportDiagnostic(Diagnostic.Create(KeyboardInstructionWithoutMenu, method.Locations.FirstOrDefault() ?? method.Locations[0], promptAttr.AttributeClass.Name, method.Name));
+                foreach (var attr in keyboardAttrs)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(KeyboardInstructionWithoutMenu, method.Locations.FirstOrDefault() ?? method.Locations[0], attr.AttributeClass?.Name ?? "Keyboard", method.Name));
+                }
             }
         }
 
-        // PromptState checks
-        if (promptAttr != null)
+        private void CheckMethodSignature(SymbolAnalysisContext context, IMethodSymbol method, string expectedContextType, DiagnosticDescriptor diagnostic)
         {
-            // Return Task<StateResult>
-            if (!IsTaskOfStateResult(method.ReturnType, context.Compilation))
+            // Check return type: StateResult or Task<StateResult>
+            bool validReturnType = IsStateResult(method.ReturnType, context.Compilation) ||
+                                  IsTaskOfStateResult(method.ReturnType, context.Compilation);
+
+            if (!validReturnType)
             {
-                context.ReportDiagnostic(Diagnostic.Create(PromptSig, method.Locations.FirstOrDefault() ?? method.Locations[0], method.Name));
+                context.ReportDiagnostic(Diagnostic.Create(diagnostic, method.Locations.FirstOrDefault() ?? method.Locations[0], method.Name));
+                return;
             }
 
-            // Params: single PromptStateContext<T>
-            if (method.Parameters.Length != 1)
+            // Check parameters:
+            // 1. Single parameter with the expected context type, or
+            // 2. Two parameters with the expected context type and CancellationToken
+            bool validParameters = false;
+
+            if (method.Parameters.Length == 1)
             {
-                context.ReportDiagnostic(Diagnostic.Create(PromptSig, method.Locations.FirstOrDefault() ?? method.Locations[0], method.Name));
+                var contextType = context.Compilation.GetTypeByMetadataName(expectedContextType);
+                validParameters = contextType != null && SymbolEqualityComparer.Default.Equals(method.Parameters[0].Type, contextType);
             }
-            else
+            else if (method.Parameters.Length == 2)
             {
-                var promptCtxDef = context.Compilation.GetTypeByMetadataName("MyBots.Modules.Common.PromptStateContext`1");
-                if (!(method.Parameters[0].Type is INamedTypeSymbol paramType) || promptCtxDef is null || !SymbolEqualityComparer.Default.Equals(paramType.ConstructedFrom, promptCtxDef))
+                var contextType = context.Compilation.GetTypeByMetadataName(expectedContextType);
+                var cancellationTokenType = context.Compilation.GetTypeByMetadataName("System.Threading.CancellationToken");
+                validParameters = contextType != null && cancellationTokenType != null &&
+                                 SymbolEqualityComparer.Default.Equals(method.Parameters[0].Type, contextType) &&
+                                 SymbolEqualityComparer.Default.Equals(method.Parameters[1].Type, cancellationTokenType);
+            }
+
+            if (!validParameters)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(diagnostic, method.Locations.FirstOrDefault() ?? method.Locations[0], method.Name));
+            }
+        }
+
+        private void CheckPromptMethodSignature(SymbolAnalysisContext context, IMethodSymbol method, AttributeData attrData,
+                                               string expectedContextTypeBase, DiagnosticDescriptor sigDiagnostic,
+                                               DiagnosticDescriptor genericMismatchDiagnostic)
+        {
+            // Check return type: StateResult or Task<StateResult>
+            bool validReturnType = IsStateResult(method.ReturnType, context.Compilation) ||
+                                  IsTaskOfStateResult(method.ReturnType, context.Compilation);
+
+            if (!validReturnType)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(sigDiagnostic, method.Locations.FirstOrDefault() ?? method.Locations[0], method.Name));
+                return;
+            }
+
+            // Get the generic argument from the attribute
+            ITypeSymbol attrGenericArg = null;
+            if (attrData.AttributeClass is INamedTypeSymbol namedType && namedType.IsGenericType && namedType.TypeArguments.Length == 1)
+            {
+                attrGenericArg = namedType.TypeArguments[0];
+            }
+
+            // Check parameters
+            bool validParameters = false;
+            ITypeSymbol paramGenericArg = null;
+
+            var contextBaseDef = context.Compilation.GetTypeByMetadataName(expectedContextTypeBase);
+            var cancellationTokenType = context.Compilation.GetTypeByMetadataName("System.Threading.CancellationToken");
+
+            if (method.Parameters.Length >= 1 && contextBaseDef != null)
+            {
+                if (method.Parameters[0].Type is INamedTypeSymbol paramType &&
+                    paramType.IsGenericType &&
+                    SymbolEqualityComparer.Default.Equals(paramType.ConstructedFrom, contextBaseDef))
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(PromptSig, method.Locations.FirstOrDefault() ?? method.Locations[0], method.Name));
+                    paramGenericArg = paramType.TypeArguments[0];
+
+                    // Valid if 1 parameter of correct type, or 2 parameters with second being CancellationToken
+                    validParameters = method.Parameters.Length == 1 ||
+                                     (method.Parameters.Length == 2 &&
+                                      cancellationTokenType != null &&
+                                      SymbolEqualityComparer.Default.Equals(method.Parameters[1].Type, cancellationTokenType));
+                }
+            }
+
+            if (!validParameters)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(sigDiagnostic, method.Locations.FirstOrDefault() ?? method.Locations[0], method.Name));
+                return;
+            }
+
+            // Check if generic type arguments match
+            if (attrGenericArg != null && paramGenericArg != null)
+            {
+                if (!SymbolEqualityComparer.Default.Equals(attrGenericArg, paramGenericArg))
+                {
+                    // Check nullability difference
+                    if (SymbolEqualityComparer.Default.Equals(attrGenericArg.OriginalDefinition, paramGenericArg.OriginalDefinition)
+                        && attrGenericArg.NullableAnnotation != paramGenericArg.NullableAnnotation)
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(NullabilityMismatch,
+                            method.Locations.FirstOrDefault() ?? method.Locations[0],
+                            attrGenericArg.ToDisplayString(), paramGenericArg.ToDisplayString()));
+                    }
+                    else
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(genericMismatchDiagnostic,
+                            method.Locations.FirstOrDefault() ?? method.Locations[0],
+                            attrGenericArg.ToDisplayString(), paramGenericArg.ToDisplayString()));
+                    }
+                }
+            }
+        }
+
+        private static bool IsStateResult(ITypeSymbol type, Compilation compilation)
+        {
+            var stateResult = compilation.GetTypeByMetadataName("BotForge.Fsm.StateResult");
+            return stateResult != null && SymbolEqualityComparer.Default.Equals(type, stateResult);
+        }
+
+        private static bool IsTaskOfStateResult(ITypeSymbol returnType, Compilation compilation)
+        {
+            var taskT = compilation.GetTypeByMetadataName("System.Threading.Tasks.Task`1");
+            var stateResult = compilation.GetTypeByMetadataName("BotForge.Fsm.StateResult");
+            if (taskT is null || stateResult is null) return false;
+            if (returnType is INamedTypeSymbol nt && SymbolEqualityComparer.Default.Equals(nt.OriginalDefinition, taskT))
+            {
+                return nt.TypeArguments.Length == 1 && SymbolEqualityComparer.Default.Equals(nt.TypeArguments[0], stateResult);
+            }
+            return false;
+        }
+
+        // Syntax-level checks for nameof usage, localization keys, and MenuItem label resolution
+        private void AnalyzeAttributeSyntax(SyntaxNodeAnalysisContext context)
+        {
+            var attrSyntax = (AttributeSyntax)context.Node;
+            var model = context.SemanticModel;
+            if (!(model.GetSymbolInfo(attrSyntax).Symbol is IMethodSymbol attrSymbol)) return;
+
+            var attrClass = attrSymbol.ContainingType;
+            var attrFullName = attrClass.ToDisplayString();
+
+            if (attrFullName == "BotForge.Modules.Attributes.MenuItemAttribute" ||
+                attrFullName == "BotForge.Modules.Attributes.MenuRowAttribute")
+            {
+                var arguments = attrSyntax.ArgumentList?.Arguments ?? new SeparatedSyntaxList<AttributeArgumentSyntax>();
+                bool hasLabelStorage = HasLabelStorageInProject(context.Compilation);
+
+                foreach (var arg in arguments)
+                {
+                    bool isLabelValid = CheckAttributeArgumentLabelReference(context, model, arg);
+                    if (!isLabelValid && !hasLabelStorage)
+                    {
+                        // Suggest adding a label storage if none exists and the label reference is invalid
+                        context.ReportDiagnostic(Diagnostic.Create(SuggestAddLabelStorage, arg.GetLocation()));
+                    }
+                }
+            }
+
+            // Check resource keys for states
+            var stateAttrs = new[] {
+            "BotForge.Modules.Attributes.MenuAttribute",
+            "BotForge.Modules.Attributes.PromptAttribute`1",
+            "BotForge.Modules.Attributes.ModelPromptAttribute`1",
+            "BotForge.Modules.Attributes.CustomStateAttribute"
+        };
+
+            if (stateAttrs.Contains(attrFullName))
+            {
+                var arg = attrSyntax.ArgumentList?.Arguments.FirstOrDefault();
+                if (arg is null) return;
+
+                var op = model.GetOperation(arg.Expression);
+
+                // Check if we have resources in the project
+                bool hasResources = HasResourcesInProject(context.Compilation);
+
+                if (op is INameOfOperation nameofOp)
+                {
+                    // nameof points to a member; ensure member's type is string
+                    ISymbol sym = null;
+                    switch (nameofOp.Argument)
+                    {
+                        case IFieldReferenceOperation fr:
+                            sym = fr.Field;
+                            break;
+                        case IPropertyReferenceOperation pr:
+                            sym = pr.Property;
+                            break;
+                    }
+
+                    if (sym == null)
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(LocalizationKeyNotFound, arg.GetLocation(), arg.ToString()));
+                        if (!hasResources)
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(SuggestAddResources, arg.GetLocation(), arg.ToString()));
+                        }
+                        return;
+                    }
+
+                    ITypeSymbol memberType = null;
+                    switch (sym)
+                    {
+                        case IFieldSymbol f:
+                            memberType = f.Type;
+                            break;
+                        case IPropertySymbol p:
+                            memberType = p.Type;
+                            break;
+                    }
+
+                    if (memberType is null || memberType.SpecialType != SpecialType.System_String)
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(LocalizationKeyNotFound, arg.GetLocation(), arg.ToString()));
+                        if (!hasResources)
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(SuggestAddResources, arg.GetLocation(), arg.ToString()));
+                        }
+                        return;
+                    }
+
+                    // Optionally check that the member comes from a Resources class
+                    // (for this simple case, we'll accept any string member)
                 }
                 else
                 {
-                    var paramT = paramType.TypeArguments[0];
-                    // Get attribute generic arg
-                    var genericArg = promptAttr.ConstructorArguments.FirstOrDefault();
-                    // promptAttr is a generic attribute instance; its AttributeClass is constructed
-                    var attrNamed = promptAttr.AttributeClass;
-                    ITypeSymbol attrGenericArg = null;
-                    if (promptAttr.AttributeClass is INamedTypeSymbol nat && nat.IsGenericType && nat.TypeArguments.Length == 1)
+                    // For string literals, check if they could be found in resources
+                    if (op is ILiteralOperation literal && literal.ConstantValue.Value is string strValue)
                     {
-                        attrGenericArg = nat.TypeArguments[0];
-                    }
-                    else if (promptAttr.ConstructorArguments.Length > 0)
-                    {
-                        // If attribute stored type via typeof(T) -- but in your usage you used PromptState<string>(nameof(...)) so generic is in attribute type, not ctor args.
-                    }
-
-                    if (attrGenericArg != null)
-                    {
-                        if (!SymbolEqualityComparer.Default.Equals(attrGenericArg, paramT))
+                        if (!IsStringInResources(context.Compilation, strValue) && hasResources)
                         {
-                            // Check nullability difference
-                            if (SymbolEqualityComparer.Default.Equals(attrGenericArg.OriginalDefinition, paramT.OriginalDefinition)
-                                && attrGenericArg.NullableAnnotation != paramT.NullableAnnotation)
-                            {
-                                context.ReportDiagnostic(Diagnostic.Create(NullabilityMismatch, method.Locations.FirstOrDefault() ?? method.Locations[0], attrGenericArg.ToDisplayString(), paramT.ToDisplayString()));
-                            }
-                            else
-                            {
-                                context.ReportDiagnostic(Diagnostic.Create(PromptGenericMismatch, method.Locations.FirstOrDefault() ?? method.Locations[0], attrGenericArg.ToDisplayString(), paramT.ToDisplayString()));
-                            }
+                            context.ReportDiagnostic(Diagnostic.Create(LocalizationKeyNotFound, arg.GetLocation(), strValue));
+                        }
+                        else if (!hasResources)
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(SuggestAddResources, arg.GetLocation(), strValue));
+                        }
+                    }
+                    else
+                    {
+                        // Not nameof or string literal - require nameof only for keys
+                        context.ReportDiagnostic(Diagnostic.Create(LocalizationKeyNotFound, arg.GetLocation(), arg.ToString()));
+                        if (!hasResources)
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(SuggestAddResources, arg.GetLocation(), arg.ToString()));
                         }
                     }
                 }
             }
         }
-    }
 
-    private static bool IsTaskOfStateResult(ITypeSymbol returnType, Compilation compilation)
-    {
-        var taskT = compilation.GetTypeByMetadataName("System.Threading.Tasks.Task`1");
-        var stateResult = compilation.GetTypeByMetadataName("MyBots.Core.Fsm.States.StateResult");
-        if (taskT is null || stateResult is null) return false;
-        if (returnType is INamedTypeSymbol nt && SymbolEqualityComparer.Default.Equals(nt.OriginalDefinition, taskT))
+        private bool HasResourcesInProject(Compilation compilation)
         {
-            return nt.TypeArguments.Length == 1 && SymbolEqualityComparer.Default.Equals(nt.TypeArguments[0], stateResult);
-        }
-        return false;
-    }
+            // Check if there are any Resources.Designer.cs files or classes ending with "Resources"
+            // This is a simple heuristic that could be improved
+            var allTypes = compilation.SyntaxTrees
+                .SelectMany(tree => tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>())
+                .Select(cls => compilation.GetSemanticModel(cls.SyntaxTree).GetDeclaredSymbol(cls))
+                .Where(sym => sym != null);
 
-    // Syntax-level checks for nameof usage and MenuItem label resolution
-    private void AnalyzeAttributeSyntax(SyntaxNodeAnalysisContext context)
-    {
-        var attrSyntax = (AttributeSyntax)context.Node;
-        var model = context.SemanticModel;
-        if (!(model.GetSymbolInfo(attrSyntax).Symbol is IMethodSymbol attrSymbol)) return;
-
-        var attrClass = attrSymbol.ContainingType;
-        var attrFullName = attrClass.ToDisplayString();
-
-        if (attrFullName == "MyBots.Modules.Common.MenuItemAttribute")
-        {
-            // Expect single argument that is nameof(...)
-            var arg = attrSyntax.ArgumentList?.Arguments.FirstOrDefault();
-            if (arg is null)
-                return;
-            bool flowControl = CheckAttributeArgumentLabelReference(context, model, arg);
-            if (!flowControl)
-            {
-                return;
-            }
-
-            // OK — label exists and looks valid.
+            return allTypes.Any(t => t.Name.EndsWith("Resources") || t.Name == "Resources");
         }
 
-        if (attrFullName == "MyBots.Modules.Common.MenuRowAttribute")
+        private bool HasLabelStorageInProject(Compilation compilation)
         {
-            var arguments = attrSyntax.ArgumentList?.Arguments ?? new SeparatedSyntaxList<AttributeArgumentSyntax>();
+            // Check if there are any classes with [LabelStorage] attribute
+            var labelStorageAttr = compilation.GetTypeByMetadataName("BotForge.Messaging.LabelStorageAttribute");
+            if (labelStorageAttr == null) return false;
 
-            foreach (var arg in arguments)
+            var allTypes = compilation.SyntaxTrees
+                .SelectMany(tree => tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>())
+                .Select(cls => compilation.GetSemanticModel(cls.SyntaxTree).GetDeclaredSymbol(cls))
+                .Where(sym => sym != null);
+
+            return allTypes.Any(t => t.GetAttributes().Any(a =>
+                SymbolEqualityComparer.Default.Equals(a.AttributeClass, labelStorageAttr)));
+        }
+
+        private bool IsStringInResources(Compilation compilation, string value)
+        {
+            // Check if there are any string properties in resource classes with the given value
+            // This is an approximation as we can't easily load the actual resources
+            var allResourceTypes = compilation.SyntaxTrees
+                .SelectMany(tree => tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>())
+                .Select(cls => compilation.GetSemanticModel(cls.SyntaxTree).GetDeclaredSymbol(cls))
+                .Where(sym => sym != null && (sym.Name.EndsWith("Resources") || sym.Name == "Resources"));
+
+            foreach (var resourceType in allResourceTypes)
             {
-                bool flowControl = CheckAttributeArgumentLabelReference(context, model, arg);
-                if (!flowControl)
+                if (resourceType is ITypeSymbol typ && typ.GetMembers().OfType<IPropertySymbol>().Any(p => p.Name == value))
                 {
-                    return;
+                    return true;
                 }
             }
+
+            return false;
         }
 
-        // Check resource keys for MenuState/PromptState messageResourceKey and also for MenuItem labelKey (if they are nameof(...))
-        var targetAttrs = new[] { "MyBots.Modules.Common.MenuStateAttribute", "MyBots.Modules.Common.PromptStateAttribute`1" };
-        if (targetAttrs.Contains(attrFullName))
+        private static bool CheckAttributeArgumentLabelReference(SyntaxNodeAnalysisContext context, SemanticModel model, AttributeArgumentSyntax arg)
         {
-            var arg = attrSyntax.ArgumentList?.Arguments.FirstOrDefault();
-            if (arg is null) return;
-
             var op = model.GetOperation(arg.Expression);
             if (op is INameOfOperation nameofOp)
             {
-                // nameof points to a member; ensure member's type is string
-                ISymbol sym = null;
-                switch (nameofOp.Argument)
+                var namedSymbol = nameofOp.Argument is IOperation nameOfArgOp
+                    ? (nameOfArgOp is IFieldReferenceOperation fr ? fr.Field :
+                       nameOfArgOp is IPropertyReferenceOperation pr ? pr.Property :
+                       (ISymbol)null)
+                    : null;
+
+                if (namedSymbol is null)
                 {
-                    case IFieldReferenceOperation fr:
-                        sym = fr.Field;
-                        break;
-                    case IPropertyReferenceOperation pr:
-                        sym = pr.Property;
-                        break;
+                    context.ReportDiagnostic(Diagnostic.Create(MenuItemLabelNotFound, arg.GetLocation(), arg.ToString()));
+                    return false;
                 }
 
-                if (sym == null)
-                {
-                    context.ReportDiagnostic(Diagnostic.Create(LocalizationKeyNotFound, arg.GetLocation(), arg.ToString()));
-                    return;
-                }
-
+                // Verify symbol is field or property, public static readonly and of type ButtonLabel
                 ITypeSymbol memberType = null;
-                switch (sym) 
+                switch (namedSymbol)
                 {
                     case IFieldSymbol f:
                         memberType = f.Type;
@@ -293,88 +573,47 @@ public sealed class FsmStateAnalyzer : DiagnosticAnalyzer
                         break;
                 }
 
-                if (memberType is null || memberType.SpecialType != SpecialType.System_String)
+                var buttonLabelType = context.Compilation.GetTypeByMetadataName("BotForge.Messaging.ButtonLabel");
+                if (memberType is null || buttonLabelType is null || !SymbolEqualityComparer.Default.Equals(memberType, buttonLabelType))
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(LocalizationKeyNotFound, arg.GetLocation(), arg.ToString()));
-                    return;
+                    context.ReportDiagnostic(Diagnostic.Create(MenuItemLabelNotFound, arg.GetLocation(), arg.ToString()));
+                    return false;
                 }
 
-                // Optionally check that the member comes from a Resources.Designer class (resx auto-gen)
-                // We'll accept any string member declared in project.
+                // check modifiers and containing type attribute LabelStorage
+                bool isStatic = (namedSymbol is IFieldSymbol ff && ff.IsStatic) || (namedSymbol is IPropertySymbol pp && pp.IsStatic);
+                if (!isStatic)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(MenuItemLabelNotFound, arg.GetLocation(), arg.ToString()));
+                    return false;
+                }
+
+                // For field: check readonly
+                if (namedSymbol is IFieldSymbol fieldSym && !fieldSym.IsReadOnly)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(MenuItemLabelNotFound, arg.GetLocation(), arg.ToString()));
+                    return false;
+                }
+
+                var containing = namedSymbol.ContainingType;
+                var labelStorageAttrType = context.Compilation.GetTypeByMetadataName("BotForge.Messaging.LabelStorageAttribute");
+                var hasLabelsAttr = labelStorageAttrType != null && containing.GetAttributes()
+                    .Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, labelStorageAttrType));
+
+                if (!hasLabelsAttr)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(MenuItemLabelNotFound, arg.GetLocation(), arg.ToString()));
+                    return false;
+                }
             }
             else
             {
-                // Not nameof — require nameof only for keys per your requirement
-                context.ReportDiagnostic(Diagnostic.Create(LocalizationKeyNotFound, arg.GetLocation(), arg.ToString()));
+                // not nameof — warn
+                context.ReportDiagnostic(Diagnostic.Create(MenuItemLabelNotFound, arg.GetLocation(), arg.ToString()));
+                return false;
             }
+
+            return true;
         }
-    }
-
-    private static bool CheckAttributeArgumentLabelReference(SyntaxNodeAnalysisContext context, SemanticModel model, AttributeArgumentSyntax arg)
-    {
-        var op = model.GetOperation(arg.Expression);
-        if (op is INameOfOperation nameofOp)
-        {
-            var namedSymbol = nameofOp.Argument is IOperation nameOfArgOp
-                ? (nameOfArgOp is IFieldReferenceOperation fr ? fr.Field :
-                   nameOfArgOp is IPropertyReferenceOperation pr ? pr.Property :
-                   (ISymbol)null)
-                : null;
-
-            if (namedSymbol is null)
-            {
-                context.ReportDiagnostic(Diagnostic.Create(MenuItemLabelNotFound, arg.GetLocation(), arg.ToString()));
-                return false;
-            }
-
-            // Verify symbol is field or property, public static readonly and of type ButtonLabel
-            ITypeSymbol memberType = null;
-            switch (namedSymbol)
-            {
-                case IFieldSymbol f:
-                    memberType = f.Type;
-                    break;
-                case IPropertySymbol p:
-                    memberType = p.Type;
-                    break;
-            }
-
-            if (memberType is null || memberType.ToDisplayString() != "MyBots.Modules.Common.Interactivity.ButtonLabel")
-            {
-                context.ReportDiagnostic(Diagnostic.Create(MenuItemLabelNotFound, arg.GetLocation(), arg.ToString()));
-                return false;
-            }
-
-            // check modifiers and containing type attribute LabelsStorage
-            bool isStatic = (namedSymbol is IFieldSymbol ff && ff.IsStatic) || (namedSymbol is IPropertySymbol pp && pp.IsStatic);
-            if (!isStatic)
-            {
-                context.ReportDiagnostic(Diagnostic.Create(MenuItemLabelNotFound, arg.GetLocation(), arg.ToString()));
-                return false;
-            }
-
-            // For field: check readonly
-            if (namedSymbol is IFieldSymbol fieldSym && !fieldSym.IsReadOnly)
-            {
-                context.ReportDiagnostic(Diagnostic.Create(MenuItemLabelNotFound, arg.GetLocation(), arg.ToString()));
-                return false;
-            }
-
-            var containing = namedSymbol.ContainingType;
-            var hasLabelsAttr = containing.GetAttributes().Any(a => a.AttributeClass?.ToDisplayString() == "MyBots.Modules.Common.LabelsStorageAttribute");
-            if (!hasLabelsAttr)
-            {
-                context.ReportDiagnostic(Diagnostic.Create(MenuItemLabelNotFound, arg.GetLocation(), arg.ToString()));
-                return false;
-            }
-        }
-        else
-        {
-            // not nameof — warn
-            context.ReportDiagnostic(Diagnostic.Create(MenuItemLabelNotFound, arg.GetLocation(), arg.ToString()));
-            return false;
-        }
-
-        return true;
     }
 }

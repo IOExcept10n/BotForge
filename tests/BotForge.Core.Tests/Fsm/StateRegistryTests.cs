@@ -20,6 +20,6 @@ public class StateRegistryTests
 
     private class TestLayout : IStateLayout
     {
-        public Task SendLayoutMessageAsync(BotForge.Messaging.IReplyChannel channel, BotForge.Messaging.ChatId chatId, BotForge.Messaging.ReplyContext? overrideMessage = null, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task SendLayoutMessageAsync(BotForge.Messaging.IReplyChannel channel, BotForge.Messaging.UserIdentity user, BotForge.Localization.ILocalizationService localization, BotForge.Messaging.ReplyContext? overrideMessage = null, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 }

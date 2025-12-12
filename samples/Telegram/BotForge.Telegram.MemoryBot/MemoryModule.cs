@@ -18,52 +18,25 @@ internal class MemoryModule : ModuleBase
     [MenuItem(nameof(Labels.ShowCounter))]
     [MenuItem(nameof(Labels.IncrementCounter))]
     [MenuItem(nameof(Labels.ResetCounter))]
-    public override StateResult OnModuleRoot(SelectionStateContext ctx) => ctx.Selection() switch
+    public override StateResult OnModuleRoot(SelectionStateContext ctx)
     {
-        nameof(Labels.ShowCounter) => ShowCounter(ctx),
-        nameof(Labels.IncrementCounter) => IncrementCounter(ctx),
-        nameof(Labels.ResetCounter) => ResetCounter(ctx),
-        _ => InvalidInput(ctx) // Basically unreachable
-    };
+        // Gets actual counter value.
+        // If counter has not been deifned (transition to root state is always without data)
+        if (!ctx.TryGetData(out int counter))
+            counter = 0;
 
-    /// <summary>
-    /// Helper method to get the current counter value from state data.
-    /// </summary>
-    private static int GetCounter(SelectionStateContext ctx) => ctx.TryGetData(out int counter) ? counter : 0;
-
-    /// <summary>
-    /// Increments the counter and saves it to persistent storage.
-    /// </summary>
-    private static StateResult IncrementCounter(SelectionStateContext ctx)
-    {
-        // Get current counter from persisted state data
-        int counter = GetCounter(ctx);
-        counter++;
-
-        // Save the new counter value - this will be persisted automatically
-        return RetryWith(ctx, counter,
-            $"✅ Counter incremented!\n\n📊 Current value: {counter}\n\n" +
-            "💾 This value is stored in the database and will persist across bot restarts!");
+        // You can react on selected buttons using switch operator.
+        return ctx.Selection() switch
+        {
+            nameof(Labels.ShowCounter) => RetryWithMessage(ctx, GetCounterStats(counter)),
+            nameof(Labels.IncrementCounter) => RetryWith(ctx, ++counter, "✅ Counter incremented!\n\n" + GetCounterStats(counter)),
+            nameof(Labels.ResetCounter) => RetryWith(ctx, 0, "🔄 Counter reset to 0!"),
+            _ => InvalidInput(ctx) // Basically unreachable
+        };
     }
 
     /// <summary>
-    /// Resets the counter to zero.
+    /// Helper method to get the current counter stats string from counter value.
     /// </summary>
-    private static StateResult ResetCounter(SelectionStateContext ctx)
-    {
-        return RetryWith(ctx, 0, "🔄 Counter reset to 0!");
-    }
-
-    /// <summary>
-    /// Shows the current counter value.
-    /// </summary>
-    private static StateResult ShowCounter(SelectionStateContext ctx)
-    {
-        int counter = GetCounter(ctx);
-
-        return RetryWithMessage(ctx,
-            $"📊 Current counter value: {counter}\n\n" +
-            "💾 This value is stored in the database and persists across restarts!\n\n" +
-            "🔄 Try restarting the bot - your counter will still be here!");
-    }
+    private static string GetCounterStats(int counter) => $"📊 Current value: {counter}\n\n💾 This value is stored in the database and will persist across bot restarts!";
 }

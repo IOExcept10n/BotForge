@@ -10,6 +10,7 @@
     <File Path="Directory.Build.targets" />
   </Folder>
   <Folder Name="/src/">
+    <Project Path="src/BotForge.Analyzers.CodeFixes/BotForge.Analyzers.CodeFixes.csproj" />
     <Project Path="src/BotForge.Analyzers.Package/BotForge.Analyzers.Package.csproj" />
     <Project Path="src/BotForge.Analyzers/BotForge.Analyzers.csproj" />
     <Project Path="src/BotForge.Core/BotForge.Core.csproj" />

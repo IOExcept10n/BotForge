@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -121,31 +121,31 @@
     <value>Menu state method signature</value>
   </data>
   <data name="FSM001Description" xml:space="preserve">
-    <value>Method '{0}' has incorrect signature for [MenuState]. Expected: public instance Task&lt;StateResult&gt; Method(ModuleStateContext).</value>
+    <value>Method '{0}' has incorrect signature for [Menu]. Expected: (a)sync (StateResult|Task&lt;StateResult&gt;) Method(SelectionStateContext [, CancellationToken]).</value>
   </data>
   <data name="FSM002Title" xml:space="preserve">
     <value>Prompt state method signature</value>
   </data>
   <data name="FSM002Description" xml:space="preserve">
-    <value>Method '{0}' has incorrect signature for [PromptState&lt;T&gt;]. Expected: public instance Task&lt;StateResult&gt; Method(PromptStateContext&lt;T&gt;).</value>
+    <value>Method '{0}' has incorrect signature for [Prompt&lt;T&gt;]. Expected: (a)sync (StateResult|Task&lt;StateResult&gt;) Method(PromptStateContext&lt;T&gt; [, CancellationToken]).</value>
   </data>
   <data name="FSM003Title" xml:space="preserve">
     <value>Prompt state generic mismatch</value>
   </data>
   <data name="FSM003Description" xml:space="preserve">
-    <value>Generic argument of [PromptState&lt;{0}&gt;] does not match method parameter PromptStateContext&lt;{1}&gt;</value>
+    <value>Generic argument of [Prompt&lt;{0}&gt;] does not match method parameter PromptStateContext&lt;{1}&gt;</value>
   </data>
   <data name="FSM004Title" xml:space="preserve">
-    <value>MenuItem without MenuState</value>
+    <value>MenuItem or MenuRow without Menu/CustomState</value>
   </data>
   <data name="FSM004Description" xml:space="preserve">
-    <value>[MenuItem] used on method '{0}' without [MenuState]</value>
+    <value>[MenuItem] or [MenuRow] used on method '{0}' without [Menu] or [CustomState]</value>
   </data>
   <data name="FSM005Title" xml:space="preserve">
-    <value>MenuItem label not found</value>
+    <value>MenuItem or MenuRow label not found</value>
   </data>
   <data name="FSM005Description" xml:space="preserve">
-    <value>MenuItem label '{0}' is not a public static readonly ButtonLabel member of a class marked with [LabelsStorage]</value>
+    <value>MenuItem or MenuRow label '{0}' is not a public static readonly ButtonLabel member of a class marked with [LabelStorage]</value>
   </data>
   <data name="FSM006Title" xml:space="preserve">
     <value>Localization key not found</value>
@@ -159,13 +159,55 @@
   <data name="FSM007Description" xml:space="preserve">
     <value>Nullability mismatch between attribute generic argument and method parameter: '{0}' vs '{1}'</value>
   </data>
+  <data name="FSM008Title" xml:space="preserve">
+    <value>Keyboard instruction without Menu/CustomState</value>
+  </data>
+  <data name="FSM008Description" xml:space="preserve">
+    <value>Keyboard instruction [{0}] is used on method {1} without [Menu] or [CustomState]</value>
+  </data>
+  <data name="FSM009Title" xml:space="preserve">
+    <value>ModelPrompt state method signature</value>
+  </data>
+  <data name="FSM009Description" xml:space="preserve">
+    <value>Method '{0}' has incorrect signature for [ModelPrompt&lt;T&gt;]. Expected: (a)sync (StateResult|Task&lt;StateResult&gt;) Method(ModelPromptContext&lt;T&gt; [, CancellationToken]).</value>
+  </data>
+  <data name="FSM010Title" xml:space="preserve">
+    <value>CustomState method signature</value>
+  </data>
+  <data name="FSM010Description" xml:space="preserve">
+    <value>Method '{0}' has incorrect signature for [CustomState]. Expected: (a)sync (StateResult|Task&lt;StateResult&gt;) Method(ModuleStateContext [, CancellationToken]).</value>
+  </data>
+  <data name="FSM011Title" xml:space="preserve">
+    <value>ModelPrompt state generic mismatch</value>
+  </data>
+  <data name="FSM011Description" xml:space="preserve">
+    <value>Generic argument of [ModelPrompt&lt;{0}&gt;] does not match method parameter ModelPromptContext&lt;{1}&gt;</value>
+  </data>
+  <data name="FSM012Title" xml:space="preserve">
+    <value>Missing resource files</value>
+  </data>
+  <data name="FSM012Description" xml:space="preserve">
+    <value>Consider adding resource files for localization to support keys like '{0}'</value>
+  </data>
+  <data name="FSM013Title" xml:space="preserve">
+    <value>Missing label storage</value>
+  </data>
+  <data name="FSM013Description" xml:space="preserve">
+    <value>Consider adding a class with [LabelStorage] attribute to define button labels</value>
+  </data>
+  <data name="FSM014Title" xml:space="preserve">
+    <value>Multiple state attributes</value>
+  </data>
+  <data name="FSM014Description" xml:space="preserve">
+    <value>Method '{0}' has multiple state attributes. Only one of [Menu], [Prompt&lt;T&gt;], [ModelPrompt&lt;T&gt;] or [CustomState] should be used</value>
+  </data>
   <data name="AnalyzerDescription" xml:space="preserve">
-    <value>Menu state attributes must be declared correctly</value>
+    <value>BotForge state attributes must be declared correctly</value>
   </data>
   <data name="AnalyzerMessageFormat" xml:space="preserve">
-    <value>Do you need this?</value>
+    <value>State attribute usage requires correction</value>
   </data>
   <data name="AnalyzerTitle" xml:space="preserve">
-    <value>Menu analyzer</value>
+    <value>BotForge FSM Analyzer</value>
   </data>
 </root>

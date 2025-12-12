@@ -8,6 +8,8 @@
         <PackageId>*$(MSBuildProjectFile)*</PackageId>
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
+        <Nullable>disable</Nullable>
+        <ImplicitUsings>false</ImplicitUsings>
     </PropertyGroup>
 
     <ItemGroup>
@@ -15,7 +17,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
     </ItemGroup>
 
     <ItemGroup>
