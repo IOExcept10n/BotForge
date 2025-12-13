@@ -63,7 +63,7 @@ public static class ServiceExtensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IServiceCollection UseLocalization(ResourceManager resources) => services.AddSingleton<ILocalizationService, ResourceLocalizationService>(p => new(resources));
+        public IServiceCollection AddLocalization(ResourceManager resources) => services.AddSingleton<ILocalizationService, ResourceLocalizationService>(p => new(resources));
 
         /// <summary>
         /// Configures and registers the update processing pipeline as a singleton.

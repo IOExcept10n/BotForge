@@ -1,9 +1,12 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Operations;
 using System.Linq;
+using System.Reflection;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Operations;
 
 namespace BotForge.Analyzers
 {
@@ -11,6 +14,9 @@ namespace BotForge.Analyzers
     public sealed class FsmStateAnalyzer : DiagnosticAnalyzer
     {
         private const string Category = "Usage";
+
+        private ImmutableArray<INamedTypeSymbol> _resourceClasses = ImmutableArray<INamedTypeSymbol>.Empty;
+        private ImmutableArray<INamedTypeSymbol> _labelClasses = ImmutableArray<INamedTypeSymbol>.Empty;
 
         #region Diagnostic Descriptors
 
@@ -21,7 +27,9 @@ namespace BotForge.Analyzers
             messageFormat: "Method '{0}' has incorrect signature for [Menu]. Expected: (a)sync (StateResult|Task<StateResult>) Method(SelectionStateContext [, CancellationToken]).",
             category: Category,
             defaultSeverity: DiagnosticSeverity.Warning,
-            isEnabledByDefault: true);
+            isEnabledByDefault: true,
+            description: "The [MenuAttribute] is needed to automatically generate chatbot FSM states based on marked method. " +
+            "This method will be used as handler for created state, so the specific signature for handling is required.");
 
         private readonly static DiagnosticDescriptor PromptSig = new DiagnosticDescriptor(
             id: "FSM002",
@@ -29,7 +37,9 @@ namespace BotForge.Analyzers
             messageFormat: "Method '{0}' has incorrect signature for [Prompt<T>]. Expected: (a)sync (StateResult|Task<StateResult>) Method(PromptStateContext<T> [, CancellationToken]).",
             category: Category,
             defaultSeverity: DiagnosticSeverity.Warning,
-            isEnabledByDefault: true);
+            isEnabledByDefault: true,
+            description: "The [PromptAttribute] is needed to automatically generate chatbot FSM states based on marked method. " +
+            "This method will be used as handler for created state, so the specific signature for handling is required.");
 
         private readonly static DiagnosticDescriptor ModelPromptSig = new DiagnosticDescriptor(
             id: "FSM009",
@@ -37,7 +47,9 @@ namespace BotForge.Analyzers
             messageFormat: "Method '{0}' has incorrect signature for [ModelPrompt<T>]. Expected: (a)sync (StateResult|Task<StateResult>) Method(ModelPromptContext<T> [, CancellationToken]).",
             category: Category,
             defaultSeverity: DiagnosticSeverity.Warning,
-            isEnabledByDefault: true);
+            isEnabledByDefault: true,
+            description: "The [ModelPromptAttribute] is needed to automatically generate chatbot FSM states based on marked method. " +
+            "This method will be used as handler for created state, so the specific signature for handling is required.");
 
         private readonly static DiagnosticDescriptor CustomStateSig = new DiagnosticDescriptor(
             id: "FSM010",
@@ -45,7 +57,9 @@ namespace BotForge.Analyzers
             messageFormat: "Method '{0}' has incorrect signature for [CustomState]. Expected: (a)sync (StateResult|Task<StateResult>) Method(ModuleStateContext [, CancellationToken]).",
             category: Category,
             defaultSeverity: DiagnosticSeverity.Warning,
-            isEnabledByDefault: true);
+            isEnabledByDefault: true,
+            description: "The [CustomStateAttribute] is needed to automatically generate chatbot FSM states based on marked method. " +
+            "This method will be used as handler for created state, so the specific signature for handling is required.");
 
         // Type mismatch diagnostics
         private readonly static DiagnosticDescriptor PromptGenericMismatch = new DiagnosticDescriptor(
@@ -54,7 +68,10 @@ namespace BotForge.Analyzers
             messageFormat: "Generic argument of [Prompt<{0}>] does not match method parameter PromptStateContext<{1}>",
             category: Category,
             defaultSeverity: DiagnosticSeverity.Warning,
-            isEnabledByDefault: true);
+            isEnabledByDefault: true,
+            description: "When using [PromptAttribute], you create a method that requests user for data of specific type. " +
+            "This type is inferred based on attribute, and then cased as a method parameter. " +
+            "These types must match because they represent the same type requested from user.");
 
         private readonly static DiagnosticDescriptor ModelPromptGenericMismatch = new DiagnosticDescriptor(
             id: "FSM011",
@@ -62,7 +79,10 @@ namespace BotForge.Analyzers
             messageFormat: "Generic argument of [ModelPrompt<{0}>] does not match method parameter ModelPromptContext<{1}>",
             category: Category,
             defaultSeverity: DiagnosticSeverity.Warning,
-            isEnabledByDefault: true);
+            isEnabledByDefault: true,
+            description: "When using [PromptAttribute], you create a method that requests user for data of specific complex type. " +
+            "This type is inferred based on attribute, and then cased as a method parameter. " +
+            "These types must match because they represent the same type requested from user.");
 
         // Menu items and buttons diagnostics
         private readonly static DiagnosticDescriptor MenuItemWithoutMenu = new DiagnosticDescriptor(
@@ -71,7 +91,9 @@ namespace BotForge.Analyzers
             messageFormat: "[MenuItem] or [MenuRow] used on method '{0}' without [Menu] or [CustomState]",
             category: Category,
             defaultSeverity: DiagnosticSeverity.Warning,
-            isEnabledByDefault: true);
+            isEnabledByDefault: true,
+            description: "Attributes for generating quick response buttons, [MenuItemAttribute] and [MenuRowAttribute] are used with menu states to provide selection alternatives to user. " +
+            "Other state types do not implement choice but do ask user for specific data, so they basically don't need generated buttons.");
 
         private readonly static DiagnosticDescriptor MenuItemLabelNotFound = new DiagnosticDescriptor(
             id: "FSM005",
@@ -79,7 +101,10 @@ namespace BotForge.Analyzers
             messageFormat: "MenuItem or MenuRow label '{0}' is not a public static readonly ButtonLabel member of a class marked with [LabelStorage]",
             category: Category,
             defaultSeverity: DiagnosticSeverity.Warning,
-            isEnabledByDefault: true);
+            isEnabledByDefault: true,
+            description: "If you use a dedicated button labels helper class, you should use it to make references from button definitions to its members. " +
+            "Try referencing specific button label from your label storage by adding nameof operator, e.g. MenuItem(nameof(Labels.MyLabel)). " +
+            "Usage of this operator will help you separate architecture and provide concise references between your localizable texts and program logic.");
 
         // Resource and localization diagnostics
         private readonly static DiagnosticDescriptor LocalizationKeyNotFound = new DiagnosticDescriptor(
@@ -88,7 +113,10 @@ namespace BotForge.Analyzers
             messageFormat: "Localization key '{0}' not found in project resources or string members",
             category: Category,
             defaultSeverity: DiagnosticSeverity.Warning,
-            isEnabledByDefault: true);
+            isEnabledByDefault: true,
+            description: "If you use application resources in your code, it is recommended to provide keys to localized text instead of typing it directly. " +
+            "This helps you separate your app logic and static resources. Also you can provide a simple way to localize your application to user language. " +
+            "You can reference a static resource by adding a nameof operator, e.g. [Menu(nameof(MyResources.MyMenuLabel))].");
 
         private readonly static DiagnosticDescriptor SuggestAddResources = new DiagnosticDescriptor(
             id: "FSM012",
@@ -96,7 +124,10 @@ namespace BotForge.Analyzers
             messageFormat: "Consider adding resource files for localization to support keys like '{0}'",
             category: Category,
             defaultSeverity: DiagnosticSeverity.Info,
-            isEnabledByDefault: true);
+            isEnabledByDefault: true,
+            description: "The BotForge library supports localization using ResourceManager classes. " +
+            "You can add a RESX localization file to your project and then configure it by calling builder.Services.AddLocalization(MyResources.ResourceManager). " +
+            "Then, you will be able to reference your localization file by using a nameof operator, e.g. [Menu(nameof(MyResources.MyMenuLabel))].");
 
         private readonly static DiagnosticDescriptor SuggestAddLabelStorage = new DiagnosticDescriptor(
             id: "FSM013",
@@ -104,7 +135,10 @@ namespace BotForge.Analyzers
             messageFormat: "Consider adding a class with [LabelStorage] attribute to define button labels",
             category: Category,
             defaultSeverity: DiagnosticSeverity.Info,
-            isEnabledByDefault: true);
+            isEnabledByDefault: true,
+            description: "The BotForge library have support for helper classes where you can place all your static button labels data. " +
+            "You can create such a class, mark it with [LabelStorage] attribute and then add to it static readonly properties or fields with button labels. " +
+            "They will be located, used and localized automatically at runtime. This helps you with separating app logic and data.");
 
         // Type nullability diagnostics
         private readonly static DiagnosticDescriptor NullabilityMismatch = new DiagnosticDescriptor(
@@ -113,7 +147,9 @@ namespace BotForge.Analyzers
             messageFormat: "Nullability mismatch between attribute generic argument and method parameter: '{0}' vs '{1}'",
             category: Category,
             defaultSeverity: DiagnosticSeverity.Warning,
-            isEnabledByDefault: true);
+            isEnabledByDefault: true,
+            description: "Your prompt types are matching, but their nullability doesn't match. Consider having them both null-disallowing. " +
+            "Note that user cannot input nothing, so when your state enters, you will have either the text input of your requested type or file with specified ID.");
 
         // Keyboard diagnostics
         private readonly static DiagnosticDescriptor KeyboardInstructionWithoutMenu = new DiagnosticDescriptor(
@@ -122,7 +158,9 @@ namespace BotForge.Analyzers
             messageFormat: "Keyboard instruction [{0}] is used on method {1} without [Menu] or [CustomState]",
             category: Category,
             defaultSeverity: DiagnosticSeverity.Warning,
-            isEnabledByDefault: true);
+            isEnabledByDefault: true,
+            description: "Keyboard management attributes such as [RemoveKeyboardAttribute] and [InheritKeyboardAttribute] are supported only in states that provide to user helper keyboard. " +
+            "If your state is a prompt, it doesn't require a keyboard at all (or this keyboard will only have 'Cancel' key to cancel prompt), so they don't need keyboard management.");
 
         // Multiple state attributes
         private readonly static DiagnosticDescriptor MultipleStateAttributes = new DiagnosticDescriptor(
@@ -131,7 +169,9 @@ namespace BotForge.Analyzers
             messageFormat: "Method '{0}' has multiple state attributes. Only one of [Menu], [Prompt<T>], [ModelPrompt<T>] or [CustomState] should be used.",
             category: Category,
             defaultSeverity: DiagnosticSeverity.Warning,
-            isEnabledByDefault: true);
+            isEnabledByDefault: true,
+            description: "A single method can have only one state attribute because they are used to determine handler type. " +
+            "If you specify multiple attributes, only one will be selected, and their priority is not guaranteed.");
 
         #endregion
 
@@ -154,11 +194,39 @@ namespace BotForge.Analyzers
 
         public override void Initialize(AnalysisContext context)
         {
-            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
+            context.RegisterCompilationStartAction(compilationStartContext =>
+            {
+                compilationStartContext.RegisterSymbolAction(AnalyzeResourceClass, SymbolKind.NamedType);
+            });
+            
             context.RegisterSymbolAction(AnalyzeMethod, SymbolKind.Method);
             context.RegisterSyntaxNodeAction(AnalyzeAttributeSyntax, Microsoft.CodeAnalysis.CSharp.SyntaxKind.Attribute);
+        }
+
+        private void AnalyzeResourceClass(SymbolAnalysisContext context)
+        {
+            var symbol = (INamedTypeSymbol)context.Symbol;
+
+            var resourceAttributes = new[]
+            {
+                "System.CodeDom.Compiler.GeneratedCodeAttribute",
+                "System.Runtime.CompilerServices.CompilerGeneratedAttribute"
+            };
+
+            if (symbol.GetAttributes().Any(attr => resourceAttributes.Contains(attr.AttributeClass.OriginalDefinition.ToString())) && IsResourceClass(symbol))
+            {
+                // Collect resource classes.
+                _resourceClasses = _resourceClasses.Add(symbol);
+                return;
+            }
+
+            if (symbol.GetAttributes().Any(a => a.AttributeClass.OriginalDefinition.ToString() == "BotForge.Messaging.LabelStorageAttribute"))
+            {
+                // Collect label classes.
+                _labelClasses = _labelClasses.Add(symbol);
+            }
         }
 
         private void AnalyzeMethod(SymbolAnalysisContext context)
@@ -168,10 +236,10 @@ namespace BotForge.Analyzers
             var attrs = method.GetAttributes();
             if (attrs.Length == 0) return;
 
-            var menuAttr = attrs.FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == "BotForge.Modules.Attributes.MenuAttribute");
-            var promptAttr = attrs.FirstOrDefault(a => a.AttributeClass?.OriginalDefinition?.ToDisplayString() == "BotForge.Modules.Attributes.PromptAttribute`1");
-            var modelPromptAttr = attrs.FirstOrDefault(a => a.AttributeClass?.OriginalDefinition?.ToDisplayString() == "BotForge.Modules.Attributes.ModelPromptAttribute`1");
-            var customStateAttr = attrs.FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == "BotForge.Modules.Attributes.CustomStateAttribute");
+            var menuAttr = attrs.FirstOrDefault(a => GetFullMetadataName(a.AttributeClass) == "BotForge.Modules.Attributes.MenuAttribute");
+            var promptAttr = attrs.FirstOrDefault(a => GetFullMetadataName(a.AttributeClass) == "BotForge.Modules.Attributes.PromptAttribute`1");
+            var modelPromptAttr = attrs.FirstOrDefault(a => GetFullMetadataName(a.AttributeClass) == "BotForge.Modules.Attributes.ModelPromptAttribute`1");
+            var customStateAttr = attrs.FirstOrDefault(a => GetFullMetadataName(a.AttributeClass) == "BotForge.Modules.Attributes.CustomStateAttribute");
 
             var menuItemAttrs = attrs.Where(a => a.AttributeClass?.ToDisplayString() == "BotForge.Modules.Attributes.MenuItemAttribute").ToImmutableArray();
             var menuRowAttrs = attrs.Where(a => a.AttributeClass?.ToDisplayString() == "BotForge.Modules.Attributes.MenuRowAttribute").ToImmutableArray();
@@ -385,20 +453,22 @@ namespace BotForge.Analyzers
             if (!(model.GetSymbolInfo(attrSyntax).Symbol is IMethodSymbol attrSymbol)) return;
 
             var attrClass = attrSymbol.ContainingType;
-            var attrFullName = attrClass.ToDisplayString();
+            var attrFullName = GetFullMetadataName(attrClass);
 
             if (attrFullName == "BotForge.Modules.Attributes.MenuItemAttribute" ||
                 attrFullName == "BotForge.Modules.Attributes.MenuRowAttribute")
             {
                 var arguments = attrSyntax.ArgumentList?.Arguments ?? new SeparatedSyntaxList<AttributeArgumentSyntax>();
-                bool hasLabelStorage = HasLabelStorageInProject(context.Compilation);
+                bool hasLabelStorage = HasLabelStorageInProject();
 
                 foreach (var arg in arguments)
                 {
-                    bool isLabelValid = CheckAttributeArgumentLabelReference(context, model, arg);
-                    if (!isLabelValid && !hasLabelStorage)
+                    if (hasLabelStorage)
                     {
-                        // Suggest adding a label storage if none exists and the label reference is invalid
+                        CheckAttributeArgumentLabelReference(context, model, arg);
+                    }
+                    else
+                    {
                         context.ReportDiagnostic(Diagnostic.Create(SuggestAddLabelStorage, arg.GetLocation()));
                     }
                 }
@@ -406,11 +476,11 @@ namespace BotForge.Analyzers
 
             // Check resource keys for states
             var stateAttrs = new[] {
-            "BotForge.Modules.Attributes.MenuAttribute",
-            "BotForge.Modules.Attributes.PromptAttribute`1",
-            "BotForge.Modules.Attributes.ModelPromptAttribute`1",
-            "BotForge.Modules.Attributes.CustomStateAttribute"
-        };
+                "BotForge.Modules.Attributes.MenuAttribute",
+                "BotForge.Modules.Attributes.PromptAttribute`1", // Note that for generic types, result is TypeName<TArg>, not TypeName`1
+                "BotForge.Modules.Attributes.ModelPromptAttribute`1",
+                "BotForge.Modules.Attributes.CustomStateAttribute"
+            };
 
             if (stateAttrs.Contains(attrFullName))
             {
@@ -420,7 +490,7 @@ namespace BotForge.Analyzers
                 var op = model.GetOperation(arg.Expression);
 
                 // Check if we have resources in the project
-                bool hasResources = HasResourcesInProject(context.Compilation);
+                bool hasResources = HasResourcesInProject();
 
                 if (op is INameOfOperation nameofOp)
                 {
@@ -438,10 +508,13 @@ namespace BotForge.Analyzers
 
                     if (sym == null)
                     {
-                        context.ReportDiagnostic(Diagnostic.Create(LocalizationKeyNotFound, arg.GetLocation(), arg.ToString()));
-                        if (!hasResources)
+                        if (hasResources)
                         {
-                            context.ReportDiagnostic(Diagnostic.Create(SuggestAddResources, arg.GetLocation(), arg.ToString()));
+                            context.ReportDiagnostic(Diagnostic.Create(LocalizationKeyNotFound, arg.GetLocation(), arg.ToString().Replace("\"", "")));
+                        }
+                        else
+                        {
+                            context.ReportDiagnostic(Diagnostic.Create(SuggestAddResources, arg.GetLocation(), arg.ToString().Replace("\"", "")));
                         }
                         return;
                     }
@@ -459,10 +532,10 @@ namespace BotForge.Analyzers
 
                     if (memberType is null || memberType.SpecialType != SpecialType.System_String)
                     {
-                        context.ReportDiagnostic(Diagnostic.Create(LocalizationKeyNotFound, arg.GetLocation(), arg.ToString()));
+                        context.ReportDiagnostic(Diagnostic.Create(LocalizationKeyNotFound, arg.GetLocation(), arg.ToString().Replace("\"", "")));
                         if (!hasResources)
                         {
-                            context.ReportDiagnostic(Diagnostic.Create(SuggestAddResources, arg.GetLocation(), arg.ToString()));
+                            context.ReportDiagnostic(Diagnostic.Create(SuggestAddResources, arg.GetLocation(), arg.ToString().Replace("\"", "")));
                         }
                         return;
                     }
@@ -475,65 +548,67 @@ namespace BotForge.Analyzers
                     // For string literals, check if they could be found in resources
                     if (op is ILiteralOperation literal && literal.ConstantValue.Value is string strValue)
                     {
-                        if (!IsStringInResources(context.Compilation, strValue) && hasResources)
+                        if (!IsStringInResources(strValue) && hasResources)
                         {
-                            context.ReportDiagnostic(Diagnostic.Create(LocalizationKeyNotFound, arg.GetLocation(), strValue));
+                            context.ReportDiagnostic(Diagnostic.Create(LocalizationKeyNotFound, arg.GetLocation(), strValue.Replace("\"", "")));
                         }
                         else if (!hasResources)
                         {
-                            context.ReportDiagnostic(Diagnostic.Create(SuggestAddResources, arg.GetLocation(), strValue));
+                            context.ReportDiagnostic(Diagnostic.Create(SuggestAddResources, arg.GetLocation(), strValue.Replace("\"", "")));
                         }
                     }
                     else
                     {
                         // Not nameof or string literal - require nameof only for keys
-                        context.ReportDiagnostic(Diagnostic.Create(LocalizationKeyNotFound, arg.GetLocation(), arg.ToString()));
+                        context.ReportDiagnostic(Diagnostic.Create(LocalizationKeyNotFound, arg.GetLocation(), arg.ToString().Replace("\"", "")));
                         if (!hasResources)
                         {
-                            context.ReportDiagnostic(Diagnostic.Create(SuggestAddResources, arg.GetLocation(), arg.ToString()));
+                            context.ReportDiagnostic(Diagnostic.Create(SuggestAddResources, arg.GetLocation(), arg.ToString().Replace("\"", "")));
                         }
                     }
                 }
             }
         }
 
-        private bool HasResourcesInProject(Compilation compilation)
-        {
-            // Check if there are any Resources.Designer.cs files or classes ending with "Resources"
-            // This is a simple heuristic that could be improved
-            var allTypes = compilation.SyntaxTrees
-                .SelectMany(tree => tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>())
-                .Select(cls => compilation.GetSemanticModel(cls.SyntaxTree).GetDeclaredSymbol(cls))
-                .Where(sym => sym != null);
+        private bool HasResourcesInProject() => _resourceClasses.Any();
 
-            return allTypes.Any(t => t.Name.EndsWith("Resources") || t.Name == "Resources");
+        private static string GetFullMetadataName(INamedTypeSymbol type)
+        {
+            if (type == null) return null;
+
+            var parts = new Stack<string>();
+
+            INamespaceOrTypeSymbol current = type;
+            while (current is INamedTypeSymbol)
+            {
+                parts.Push(current.MetadataName);
+                current = current?.ContainingType ?? (INamespaceOrTypeSymbol)current.ContainingNamespace;
+            }
+
+            var ns = type.ContainingNamespace;
+            while (!ns.IsGlobalNamespace)
+            {
+                parts.Push(ns.Name);
+                ns = ns.ContainingNamespace;
+            }
+
+            return string.Join(".", parts);
         }
 
-        private bool HasLabelStorageInProject(Compilation compilation)
+        private static bool IsResourceClass(INamedTypeSymbol symbol)
         {
-            // Check if there are any classes with [LabelStorage] attribute
-            var labelStorageAttr = compilation.GetTypeByMetadataName("BotForge.Messaging.LabelStorageAttribute");
-            if (labelStorageAttr == null) return false;
-
-            var allTypes = compilation.SyntaxTrees
-                .SelectMany(tree => tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>())
-                .Select(cls => compilation.GetSemanticModel(cls.SyntaxTree).GetDeclaredSymbol(cls))
-                .Where(sym => sym != null);
-
-            return allTypes.Any(t => t.GetAttributes().Any(a =>
-                SymbolEqualityComparer.Default.Equals(a.AttributeClass, labelStorageAttr)));
+            // Check if the class contains generated resource manager.
+            return symbol.IsValueType == false &&
+                   symbol.TypeKind == TypeKind.Class &&
+                   symbol.AssociatedSymbol == null && // Avoid associated symbols
+                   symbol.GetMembers().Any(m => m.Name == "ResourceManager");
         }
 
-        private bool IsStringInResources(Compilation compilation, string value)
-        {
-            // Check if there are any string properties in resource classes with the given value
-            // This is an approximation as we can't easily load the actual resources
-            var allResourceTypes = compilation.SyntaxTrees
-                .SelectMany(tree => tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>())
-                .Select(cls => compilation.GetSemanticModel(cls.SyntaxTree).GetDeclaredSymbol(cls))
-                .Where(sym => sym != null && (sym.Name.EndsWith("Resources") || sym.Name == "Resources"));
+        private bool HasLabelStorageInProject() => _labelClasses.Any();
 
-            foreach (var resourceType in allResourceTypes)
+        private bool IsStringInResources(string value)
+        {
+            foreach (var resourceType in _resourceClasses)
             {
                 if (resourceType is ITypeSymbol typ && typ.GetMembers().OfType<IPropertySymbol>().Any(p => p.Name == value))
                 {
@@ -555,12 +630,6 @@ namespace BotForge.Analyzers
                        (ISymbol)null)
                     : null;
 
-                if (namedSymbol is null)
-                {
-                    context.ReportDiagnostic(Diagnostic.Create(MenuItemLabelNotFound, arg.GetLocation(), arg.ToString()));
-                    return false;
-                }
-
                 // Verify symbol is field or property, public static readonly and of type ButtonLabel
                 ITypeSymbol memberType = null;
                 switch (namedSymbol)
@@ -576,7 +645,7 @@ namespace BotForge.Analyzers
                 var buttonLabelType = context.Compilation.GetTypeByMetadataName("BotForge.Messaging.ButtonLabel");
                 if (memberType is null || buttonLabelType is null || !SymbolEqualityComparer.Default.Equals(memberType, buttonLabelType))
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(MenuItemLabelNotFound, arg.GetLocation(), arg.ToString()));
+                    context.ReportDiagnostic(Diagnostic.Create(MenuItemLabelNotFound, arg.GetLocation(), arg.ToString().Replace("\"", "")));
                     return false;
                 }
 
@@ -584,14 +653,14 @@ namespace BotForge.Analyzers
                 bool isStatic = (namedSymbol is IFieldSymbol ff && ff.IsStatic) || (namedSymbol is IPropertySymbol pp && pp.IsStatic);
                 if (!isStatic)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(MenuItemLabelNotFound, arg.GetLocation(), arg.ToString()));
+                    context.ReportDiagnostic(Diagnostic.Create(MenuItemLabelNotFound, arg.GetLocation(), arg.ToString().Replace("\"", "")));
                     return false;
                 }
 
                 // For field: check readonly
                 if (namedSymbol is IFieldSymbol fieldSym && !fieldSym.IsReadOnly)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(MenuItemLabelNotFound, arg.GetLocation(), arg.ToString()));
+                    context.ReportDiagnostic(Diagnostic.Create(MenuItemLabelNotFound, arg.GetLocation(), arg.ToString().Replace("\"", "")));
                     return false;
                 }
 
@@ -602,14 +671,14 @@ namespace BotForge.Analyzers
 
                 if (!hasLabelsAttr)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(MenuItemLabelNotFound, arg.GetLocation(), arg.ToString()));
+                    context.ReportDiagnostic(Diagnostic.Create(MenuItemLabelNotFound, arg.GetLocation(), arg.ToString().Replace("\"", "")));
                     return false;
                 }
             }
             else
             {
                 // not nameof — warn
-                context.ReportDiagnostic(Diagnostic.Create(MenuItemLabelNotFound, arg.GetLocation(), arg.ToString()));
+                context.ReportDiagnostic(Diagnostic.Create(MenuItemLabelNotFound, arg.GetLocation(), arg.ToString().Replace("\"", "")));
                 return false;
             }
 

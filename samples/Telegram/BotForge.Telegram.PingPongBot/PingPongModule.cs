@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using BotForge.Fsm;
 using BotForge.Modules;
 using BotForge.Modules.Attributes;
@@ -11,4 +12,7 @@ internal class PingPongModule : ModuleBase
     // Module root is an entry point of each module. You can use this function to direct user using menu buttons.
     [MenuItem("Ping")]
     public override StateResult OnModuleRoot(SelectionStateContext ctx) => RetryWithMessage(ctx, "Pong!");
+
+    [Menu("jl")]
+    public async Task<StateResult> TestAsync(SelectionStateContext ctx) => InvalidInput(ctx);
 }

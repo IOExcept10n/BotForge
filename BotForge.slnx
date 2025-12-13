@@ -25,6 +25,7 @@
     <Project Path="src/integration/BotForge.Telegram/BotForge.Telegram.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/BotForge.Analyzers.Tests/BotForge.Analyzers.Tests.csproj" />
     <Project Path="tests/BotForge.Core.Tests/BotForge.Core.Tests.csproj" />
     <Project Path="tests/BotForge.Modules.Tests/BotForge.Modules.Tests.csproj" />
     <Project Path="tests/BotForge.Telegram.Tests/BotForge.Telegram.Tests.csproj" />
