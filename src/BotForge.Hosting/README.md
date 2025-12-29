@@ -1,34 +1,33 @@
-# BotForge.Hosting
+﻿# BotForge.Hosting
+[![NuGet - BotForge.Hosting](https://img.shields.io/nuget/v/BotForge.Hosting.svg?label=BotForge.Hosting)](https://www.nuget.org/packages/BotForge.Hosting/)
 
-Package that adds extensions for setting up a hosted application with [BotForge framework](https://github.com/IOExcept10n/BotForge). It contains some middlewares for debugging and provides the simplest way to create a new bot app.
+Package that adds extensions for setting up a hosted application with BotForge framework. It contains some middlewares for debugging and provides the simplest way to create a new bot app.
 
-## Installation
+Installation
 - .NET target: net10.0
-- Install: `dotnet add package BotForge.Hosting`
+- Install: dotnet add package BotForge.Hosting
 
-## Quick start
-```cs
-using BotForge.Hosting;
-using BotForge;
+Quick start
+    using BotForge.Hosting;
+    using BotForge;
 
-var builder = BotApp.CreateBuilder(args);
+    var builder = BotApp.CreateBuilder(args);
 
-// Core (configure if needed)
-builder.Services
-    .AddDefaultStorages()
-    .AddDefaultUpdateHandlers()
-    .ConfigureUpdatePipeline(p => { /* pipeline config */ });
+    // Core
+    builder.Services
+        .AddDefaultStorages()
+        .AddDefaultUpdateHandlers()
+        .ConfigureUpdatePipeline(p => { /* pipeline config */ });
 
-// Optional helpers
-builder
-    .SkipModuleSelection()         // Use when your app has a single module
-    .UseWelcomeMessage("Welcome"); // Simple welcome when roles are not configured
+    // Optional helpers
+    builder
+        .SkipModuleSelection()         // Use when your app has a single module
+        .UseWelcomeMessage("Welcome"); // Simple welcome when roles are not configured
 
-var app = builder.Build();
-await app.RunAsync();
-```
+    var app = builder.Build();
+    await app.RunAsync();
 
 Highlights
-- `BotApp.CreateBuilder(...)` for convenient host creation
-- IBotBuilder extensions for common scenarios (`SkipModuleSelection`, `UseWelcomeMessage`)
+- BotApp.CreateBuilder(...) for convenient host creation
+- IBotBuilder extensions for common scenarios (SkipModuleSelection, UseWelcomeMessage)
 - Works with Modules, Persistence and integrations (Telegram/Discord)
