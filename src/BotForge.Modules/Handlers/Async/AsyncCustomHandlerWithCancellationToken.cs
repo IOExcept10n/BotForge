@@ -14,6 +14,11 @@ internal class AsyncCustomHandlerWithCancellationToken<TModule>(MethodInfo metho
 
         var moduleContext = await GetModuleStateContextAsync(ctx, cancellationToken).ConfigureAwait(false);
 
+        if (CheckBack(moduleContext, module, out var back))
+            return back;
+        if (CheckCancel(moduleContext, module, out var cancel))
+            return cancel;
+
         return await _expression(module, moduleContext, cancellationToken).ConfigureAwait(false);
     }
 }

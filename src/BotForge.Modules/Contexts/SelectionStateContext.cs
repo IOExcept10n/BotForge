@@ -13,14 +13,14 @@ namespace BotForge.Modules.Contexts;
 /// <param name="User">The identity of the user.</param>
 /// <param name="Chat">The chat identifier.</param>
 /// <param name="UserRole">The role of the user.</param>
-/// <param name="SelectionButtons">The collection of buttons available for selection.</param>
+/// <param name="MenuButtons">The collection of buttons available for selection.</param>
 /// <param name="Message">The message that initiated state handling.</param>
 /// <param name="CurrentState">The current state record of the context.</param>
 /// <param name="Services">The service provider for dependency injection.</param>
 public record SelectionStateContext(UserIdentity User,
                                     ChatId Chat,
                                     Role UserRole,
-                                    IEnumerable<(string Name, ButtonLabel Button)> SelectionButtons,
+                                    IEnumerable<(string Name, ButtonLabel Button)> MenuButtons,
                                     IMessage Message,
                                     StateRecord CurrentState,
                                     IServiceProvider Services) : ModuleStateContext(User, Chat, UserRole, Message, CurrentState, Services)
@@ -37,7 +37,7 @@ public record SelectionStateContext(UserIdentity User,
         }
 
         var localization = Services.GetRequiredService<ILocalizationService>();
-        foreach (var (name, button) in SelectionButtons)
+        foreach (var (name, button) in MenuButtons)
         {
             if (button.Localize(localization, User.TargetLocale) == textMessage.Text)
             {

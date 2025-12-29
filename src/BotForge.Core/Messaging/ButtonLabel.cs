@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using BotForge.Localization;
 
 namespace BotForge.Messaging;
@@ -8,9 +9,14 @@ namespace BotForge.Messaging;
 /// <summary>
 /// Represents information about label on interactive menu button for chatbot.
 /// </summary>
+/// <remarks>
+/// The best approach for using these buttons is store all button labels in a separate class marked with [<see cref="LabelStorageAttribute"/>].
+/// In this case all buttons will be automatically loaded at startup and program can reference them by name keys using the <see langword="nameof"/> operator.
+/// Note that this class can infer <see cref="TitleKey"/> from caller member, so its usage in label storages is usually very simple.
+/// </remarks>
 /// <param name="Emoji">Emoji to display on button.</param>
 /// <param name="TitleKey">Key to translated title to display on button.</param>
-public sealed record ButtonLabel(Emoji Emoji, string TitleKey)
+public sealed record ButtonLabel(Emoji Emoji, [CallerMemberName] string TitleKey = "")
     : IParsable<ButtonLabel>, IEqualityOperators<ButtonLabel, ButtonLabel, bool>
 {
     /// <summary>

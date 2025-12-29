@@ -62,6 +62,11 @@ public static class ServiceExtensions
             return services;
         }
 
+        /// <summary>
+        /// Adds a resource-based localization provider and sets it as a default localization service.
+        /// </summary>
+        /// <param name="resources">A <see cref="ResourceManager"/> instance to get localized resources from.</param>
+        /// <returns>The original <see cref="IServiceCollection"/> for chaining.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IServiceCollection AddLocalization(ResourceManager resources) => services.AddSingleton<ILocalizationService, ResourceLocalizationService>(p => new(resources));
 
@@ -79,6 +84,13 @@ public static class ServiceExtensions
         public IServiceCollection ConfigureUpdatePipeline(Action<IUpdatePipelineBuilder> configure)
             => services.AddSingleton<UpdateProcessingPipeline>(p => new(p, configure));
 
+        /// <summary>
+        /// Configures and registers the command handling mechanism as a singleton.
+        /// The provided <paramref name="configure"/> action is invoked with 
+        /// an <see cref="ICommandRegistryBuilder"/> to set up commands.
+        /// </summary>
+        /// <param name="configure">An action that builds the command registry.</param>
+        /// <returns>The original <see cref="IServiceCollection"/> for chaining.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IServiceCollection ConfigureCommands(Action<ICommandRegistryBuilder> configure)
             => services.AddSingleton(p =>
@@ -88,6 +100,14 @@ public static class ServiceExtensions
                 return builder.Build();
             });
 
+        /// <summary>
+        /// Attempts to configure and register the command handling mechanism as a singleton.
+        /// The provided <paramref name="configure"/> action is invoked with 
+        /// an <see cref="ICommandRegistryBuilder"/> to set up commands, but only if
+        /// an implementation does not already exist in the service collection.
+        /// </summary>
+        /// <param name="configure">An action that builds the command registry.</param>
+        /// <returns>The original <see cref="IServiceCollection"/> for chaining.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IServiceCollection TryConfigureCommands(Action<ICommandRegistryBuilder> configure)
         {

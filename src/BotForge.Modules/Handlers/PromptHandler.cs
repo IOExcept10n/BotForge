@@ -16,8 +16,10 @@ internal class PromptHandler<TModule, TData>(MethodInfo method, PromptAttribute<
         using var module = CreateModule(ctx);
 
         var moduleContext = await GetModuleStateContextAsync(ctx, cancellationToken).ConfigureAwait(false);
+
         if (CheckCancel(moduleContext, module, out var back))
             return back;
+
         if (!moduleContext.TryToPromptContext<TData>(_allowTextInput, _allowFileInput, out var inputContext))
             return module.InvalidInput(moduleContext);
 

@@ -3,15 +3,31 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BotForge.Persistence;
 
-public class BotForgeDbContext : DbContext
+/// <summary>
+/// Provides a basic DB context for DB-based persistence in BotForge framework apps.
+/// </summary>
+/// <remarks>
+/// Initializes a new instance of the <see cref="BotForgeDbContext"/> class with the provided <see cref="DbContextOptions"/>.
+/// </remarks>
+/// <param name="options">The options for <see cref="DbContext"/>.</param>
+public class BotForgeDbContext(DbContextOptions options) : DbContext(options)
 {
+    /// <summary>
+    /// A set of users logged into bot.
+    /// </summary>
     public DbSet<BotUser> Users => Set<BotUser>();
+
+    /// <summary>
+    /// A set of roles defined in bot application.
+    /// </summary>
     public DbSet<BotRole> Roles => Set<BotRole>();
+
+    /// <summary>
+    /// A set of user states info.
+    /// </summary>
     public DbSet<UserState> States => Set<UserState>();
 
-    public BotForgeDbContext(DbContextOptions options)
-        : base(options) { }
-
+    /// <inheritdoc/>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/samples/" />
   <Folder Name="/samples/Telegram/">
+    <Project Path="samples/Telegram/BotForge.Telegram.InformationalBot/BotForge.Telegram.InformationalBot.csproj" Id="dabdb685-11df-4da1-9a53-a38035db619f" />
     <Project Path="samples/Telegram/BotForge.Telegram.MemoryBot/BotForge.Telegram.MemoryBot.csproj" Id="bbaa536c-5958-470b-9752-a98c444a83a1" />
     <Project Path="samples/Telegram/BotForge.Telegram.PingPongBot/BotForge.Telegram.PingPongBot.csproj" />
   </Folder>

@@ -7,9 +7,14 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BotForge.Modules.Handlers;
 
-internal abstract class ModuleHandlerBase<TModule> : IStateHandler where TModule : ModuleBase
+internal interface IModuleHandlerBase : IStateHandler
 {
     public string ModuleName { get; set; }
+}
+
+internal abstract class ModuleHandlerBase<TModule> : IModuleHandlerBase where TModule : ModuleBase
+{
+    public string ModuleName { get; set; } = string.Empty;
 
     public async Task<StateResult> ExecuteAsync(MessageStateContext ctx, CancellationToken cancellationToken = default)
     {
@@ -40,7 +45,7 @@ internal abstract class ModuleHandlerBase<TModule> : IStateHandler where TModule
     protected static bool CheckBack(ModuleStateContext context, ModuleBase module, [NotNullWhen(true)] out StateResult? back)
     {
         var labels = context.Services.GetRequiredService<ILabelStore>();
-        if (context.Matches(labels.CancelButton))
+        if (context.Matches(labels.BackButton))
         {
             back = module.Back(context);
             return true;
@@ -52,7 +57,7 @@ internal abstract class ModuleHandlerBase<TModule> : IStateHandler where TModule
     protected static bool CheckCancel(ModuleStateContext context, ModuleBase module, [NotNullWhen(true)] out StateResult? back)
     {
         var labels = context.Services.GetRequiredService<ILabelStore>();
-        if (context.Matches(labels.BackButton))
+        if (context.Matches(labels.CancelButton))
         {
             back = module.Back(context);
             return true;

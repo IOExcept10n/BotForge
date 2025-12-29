@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Back" xml:space="preserve">
+    <value>Назад</value>
+  </data>
+  <data name="BaseModuleInvalidInput" xml:space="preserve">
+    <value>Неверный ввод! Пожалуйста, проверьте ваше сообщение и отправьте ещё раз.</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Отмена</value>
+  </data>
+  <data name="Condition" xml:space="preserve">
+    <value>Условия</value>
+  </data>
+  <data name="ConvertPrice" xml:space="preserve">
+    <value>Конвертировать валюты</value>
+  </data>
+  <data name="Currency" xml:space="preserve">
+    <value>Валюта</value>
+  </data>
+  <data name="CurrentWeather" xml:space="preserve">
+    <value>Текущая погода в городе</value>
+  </data>
+  <data name="ErrorFetchingForecast" xml:space="preserve">
+    <value>Ошибка при получении прогноза погоды</value>
+  </data>
+  <data name="ErrorFetchingWeather" xml:space="preserve">
+    <value>Ошибка при получении информации о погоде</value>
+  </data>
+  <data name="Forecast" xml:space="preserve">
+    <value>5-дневный прогноз погоды для города</value>
+  </data>
+  <data name="GetCurrentWeather" xml:space="preserve">
+    <value>Получить текущую погоду</value>
+  </data>
+  <data name="GetExchangeRates" xml:space="preserve">
+    <value>Получить курс обмена</value>
+  </data>
+  <data name="GetLatestNews" xml:space="preserve">
+    <value>Получить последние новости</value>
+  </data>
+  <data name="GetWeatherForecast" xml:space="preserve">
+    <value>Получить прогноз погоды</value>
+  </data>
+  <data name="Humidity" xml:space="preserve">
+    <value>Влажность</value>
+  </data>
+  <data name="LocaleEn" xml:space="preserve">
+    <value>Английский</value>
+  </data>
+  <data name="LocaleRu" xml:space="preserve">
+    <value>Русский</value>
+  </data>
+  <data name="LocaleSet" xml:space="preserve">
+    <value>Язык успешно установлен!</value>
+  </data>
+  <data name="LocaleSystem" xml:space="preserve">
+    <value>Язык по умолчанию (как задано в Telegram)</value>
+  </data>
+  <data name="MaxTemperature" xml:space="preserve">
+    <value>Максимальная температура</value>
+  </data>
+  <data name="MinTemperature" xml:space="preserve">
+    <value>Минимальная температура</value>
+  </data>
+  <data name="ModuleSelectRootMenu" xml:space="preserve">
+    <value>Выберите вариант:</value>
+  </data>
+  <data name="News" xml:space="preserve">
+    <value>Новости</value>
+  </data>
+  <data name="SelectNewLocale" xml:space="preserve">
+    <value>Выберите новый язык</value>
+  </data>
+  <data name="SetLocale" xml:space="preserve">
+    <value>Выберите язык</value>
+  </data>
+  <data name="Temperature" xml:space="preserve">
+    <value>Температура</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>Неизвестно</value>
+  </data>
+  <data name="UnknownError" xml:space="preserve">
+    <value>Произошла неизвестная ошибка. Если вы разработчик бота, проверьте логи для подробностей ошибки.</value>
+  </data>
+  <data name="Weather" xml:space="preserve">
+    <value>Погода</value>
+  </data>
+  <data name="WeatherDataNotAvailable" xml:space="preserve">
+    <value>Извините, но данные о погоде недоступны.</value>
+  </data>
+  <data name="ActualExchangeRates" xml:space="preserve">
+    <value>Актуальные курсы обмена:</value>
+  </data>
+  <data name="CurrencyNotSupported" xml:space="preserve">
+    <value>Код валюты не поддерживается</value>
+  </data>
+  <data name="InputFromCode" xml:space="preserve">
+    <value>Введите код валюты, из которой хотите перевести</value>
+  </data>
+  <data name="InputToCode" xml:space="preserve">
+    <value>Введите код валюты, в которую хотите перевести</value>
+  </data>
+  <data name="InputAmount" xml:space="preserve">
+    <value>Введите сумму для конвертирования</value>
+  </data>
+  <data name="InputWeatherLocation" xml:space="preserve">
+    <value>Введите локацию для получения данных о погоде</value>
+  </data>
+  <data name="NoNews" xml:space="preserve">
+    <value>На данный момент не найдено новостей.</value>
+  </data>
+  <data name="LatestNews" xml:space="preserve">
+    <value>Последние новости</value>
+  </data>
+  <data name="ErrorFetchingNews" xml:space="preserve">
+    <value>Ошибка при получении новостей: {0}</value>
+  </data>
+  <data name="Preferences" xml:space="preserve">
+    <value>Настройки</value>
+  </data>
+  <data name="Welcome" xml:space="preserve">
+    <value>Добро пожаловать в _InformationalBot_!
+
+Он создан с помощью *BotForge Framework* и может предоставить информацию о последних новостях, курсах валют, а также дать прогнозы погоды.</value>
+  </data>
+</root>

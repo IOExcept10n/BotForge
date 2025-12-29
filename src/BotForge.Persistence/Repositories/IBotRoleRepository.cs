@@ -3,6 +3,9 @@ using BotForge.Persistence.Models;
 
 namespace BotForge.Persistence.Repositories;
 
+/// <summary>
+/// Represents a repository of roles defined in BotForge bot app.
+/// </summary>
 public interface IBotRoleRepository : IRepository<long, BotRole>
 {
     /// <summary>

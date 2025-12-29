@@ -20,6 +20,10 @@ internal class AsyncModelBindingHandler<TModule, TModel>(MethodInfo method, IReg
         using var module = CreateModule(ctx);
 
         var moduleContext = await GetModuleStateContextAsync(ctx, cancellationToken).ConfigureAwait(false);
+
+        if (CheckCancel(moduleContext, module, out var cancel))
+            return cancel;
+
         var bindingContext = new ModelBindContext(
                     moduleContext.User,
                     moduleContext.Chat,

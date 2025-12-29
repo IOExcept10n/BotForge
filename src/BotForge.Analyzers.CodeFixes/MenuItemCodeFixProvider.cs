@@ -13,21 +13,27 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace BotForge.Analyzers.CodeFixes
 {
+    /// <summary>
+    /// Provides code fixes for menu item attributes in FSM states.
+    /// </summary>
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(MenuItemCodeFixProvider)), Shared]
     public class MenuItemCodeFixProvider : CodeFixProvider
     {
-        public sealed override ImmutableArray<string> FixableDiagnosticIds => 
+        /// <inheritdoc/>
+        public sealed override ImmutableArray<string> FixableDiagnosticIds =>
             ImmutableArray.Create(
                 "FSM004", // MenuItemWithoutMenu
                 "FSM008", // KeyboardInstructionWithoutMenu
                 "FSM014"  // MultipleStateAttributes
             );
 
+        /// <inheritdoc/>
         public sealed override FixAllProvider GetFixAllProvider()
         {
             return WellKnownFixAllProviders.BatchFixer;
         }
 
+        /// <inheritdoc/>
         public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);

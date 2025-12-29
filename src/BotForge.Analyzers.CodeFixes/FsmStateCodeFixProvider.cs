@@ -9,15 +9,18 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.Rename;
-using BotForge.Analyzers;
 
 namespace BotForge.Analyzers.CodeFixes
 {
+    /// <summary>
+    /// Provides code fixes for fsm states diagnostics.
+    /// </summary>
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(FsmStateCodeFixProvider)), Shared]
     public class FsmStateCodeFixProvider : CodeFixProvider
     {
-        // List diagnostic IDs that this provider can fix
+        /// <summary>
+        /// List diagnostic IDs that this provider can fix
+        /// </summary>
         public sealed override ImmutableArray<string> FixableDiagnosticIds =>
             ImmutableArray.Create(
                 "FSM001", // MenuSig
@@ -28,13 +31,15 @@ namespace BotForge.Analyzers.CodeFixes
                 "FSM011"  // ModelPromptGenericMismatch
             );
 
+        /// <inheritdoc/>
         public sealed override FixAllProvider GetFixAllProvider()
         {
             // Not providing a batch fixer to keep fixes focused and predictable
             return WellKnownFixAllProviders.BatchFixer;
         }
 
-        public sealed override async Task RegisterCodeFixesAsync(CodeFixContext context)
+        /// <inheritdoc/>
+        public async sealed override Task RegisterCodeFixesAsync(CodeFixContext context)
         {
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
             var semanticModel = await context.Document.GetSemanticModelAsync(context.CancellationToken).ConfigureAwait(false);

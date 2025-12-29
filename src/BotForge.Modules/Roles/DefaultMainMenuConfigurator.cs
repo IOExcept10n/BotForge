@@ -18,7 +18,7 @@ internal class DefaultMainMenuConfigurator(IRegistry<StateDefinition> registry, 
         var definition = new StateDefinition(StateRecord.StartStateId, StateRecord.StartStateId, role.Name, new MenuStateLayout()
         {
             MessageKey = catalog.GetWelcomeMessage(role),
-            Buttons = new([.. from module in descriptors select (IEnumerable<ButtonLabel>)[module.ModuleButton]])
+            Buttons = new([.. from module in descriptors where module.Display orderby module.Order select (IEnumerable<ButtonLabel>)[module.ModuleButton]])
         });
         _registry.Register(definition);
         var state = new State(definition, new MainMenuHandler(descriptors));

@@ -1,3 +1,4 @@
+using BotForge.Localization;
 using BotForge.Messaging;
 using BotForge.Telegram.Integration.Models;
 using Telegram.Bot;
@@ -6,8 +7,10 @@ using Telegram.Bot.Types;
 
 namespace BotForge.Telegram.Integration;
 
-internal class TelegramUpdateChannel : IUpdateChannel, IUpdateHandler
+internal class TelegramUpdateChannel(IUserLocaleProvider localeProvider) : IUpdateChannel, IUpdateHandler
 {
+    private readonly IUserLocaleProvider _localeProvider = localeProvider;
+
     public event EventHandler<UpdateEventArgs> OnUpdate = delegate { };
 
     public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, HandleErrorSource source, CancellationToken cancellationToken)
@@ -16,9 +19,6 @@ internal class TelegramUpdateChannel : IUpdateChannel, IUpdateHandler
         return Task.CompletedTask;
     }
 
-    public Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
-    {
-        OnUpdate(botClient, new(update.ToBotForge()));
-        return Task.CompletedTask;
-    }
+    public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+        => OnUpdate(botClient, new(await update.ToBotForgeAsync(_localeProvider, cancellationToken).ConfigureAwait(false)));
 }

@@ -2,6 +2,7 @@ using System.Globalization;
 using BotForge.Messaging;
 using Telegram.Bot.Types;
 using BotForge.Telegram.Integration.Models;
+using BotForge.Localization;
 
 namespace BotForge.Telegram.Integration;
 
@@ -13,23 +14,33 @@ public static class TelegramUpdateParser
     /// <summary>
     /// Converts a Telegram <see cref="Update"/> to a BotForge <see cref="IUpdate"/>.
     /// </summary>
-    public static TelegramUpdate Parse(Update raw)
+    public static async Task<TelegramUpdate> ParseAsync(Update raw, IUserLocaleProvider? localeProvider, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(raw);
+
         DateTimeOffset Timestamp;
         UpdateType Type;
         UserIdentity Sender;
         IMessage? Message;
         IInteraction? Interaction;
 
-        static UserIdentity FromTelegramUser(User? u)
+        static async Task<UserIdentity> FromTelegramUserAsync(User? u, IUserLocaleProvider? localeProvider, CancellationToken cancellationToken)
         {
             if (u is null)
                 return new UserIdentity(0);
 
             var display = string.IsNullOrEmpty(u.FirstName) ? u.Username : (u.FirstName + (string.IsNullOrEmpty(u.LastName) ? string.Empty : " " + u.LastName));
             CultureInfo? locale = null;
-            try { if (!string.IsNullOrEmpty(u.LanguageCode)) locale = new CultureInfo(u.LanguageCode); } catch (CultureNotFoundException) { locale = null; }
-            return new UserIdentity(u.Id, u.Username, display, 0, locale);
+            try { if (!string.IsNullOrEmpty(u.LanguageCode)) locale = CultureInfo.CreateSpecificCulture(u.LanguageCode); } catch (CultureNotFoundException) { locale = null; }
+
+            var prototype = new UserIdentity(u.Id, u.Username, display, 0, locale);
+
+            if (localeProvider == null)
+                return prototype;
+
+            var preferredLocale = await localeProvider.GetPreferredLocaleAsync(prototype, cancellationToken).ConfigureAwait(false);
+
+            return prototype with { PreferredLocale = preferredLocale };
         }
 
         static MessageContent MapContent(Message m)
@@ -60,7 +71,7 @@ public static class TelegramUpdateParser
         {
             var m = raw.Message;
             Timestamp = new(m.Date);
-            Sender = FromTelegramUser(m.From);
+            Sender = await FromTelegramUserAsync(m.From, localeProvider, cancellationToken).ConfigureAwait(false);
             Message = new TelegramMessage(Sender, new Messaging.ChatId(m.Chat?.Id ?? 0), MapContent(m));
 
             // Command parsing: keep Message, but mark update as Command and provide Interaction context.
@@ -91,7 +102,7 @@ public static class TelegramUpdateParser
         {
             var m = raw.EditedMessage;
             Timestamp = new(m.EditDate ?? m.Date);
-            Sender = FromTelegramUser(m.From);
+            Sender = await FromTelegramUserAsync(m.From, localeProvider, cancellationToken).ConfigureAwait(false);
             Message = new TelegramMessage(Sender, new Messaging.ChatId(m.Chat?.Id ?? 0), MapContent(m));
             Type = UpdateType.MessageEdited;
             return new TelegramUpdate(Timestamp, Type, Sender, Message, null, raw);
@@ -102,7 +113,7 @@ public static class TelegramUpdateParser
         {
             var m = raw.ChannelPost;
             Timestamp = new(m.Date);
-            Sender = FromTelegramUser(m.From);
+            Sender = await FromTelegramUserAsync(m.From, localeProvider, cancellationToken).ConfigureAwait(false);
             Message = new TelegramMessage(Sender, new Messaging.ChatId(m.Chat?.Id ?? 0), MapContent(m));
             Type = UpdateType.MessageCreated;
             return new TelegramUpdate(Timestamp, Type, Sender, Message, null, raw);
@@ -112,7 +123,7 @@ public static class TelegramUpdateParser
         {
             var m = raw.EditedChannelPost;
             Timestamp = new(m.EditDate ?? m.Date);
-            Sender = FromTelegramUser(m.From);
+            Sender = await FromTelegramUserAsync(m.From, localeProvider, cancellationToken).ConfigureAwait(false);
             Message = new TelegramMessage(Sender, new Messaging.ChatId(m.Chat?.Id ?? 0), MapContent(m));
             Type = UpdateType.MessageEdited;
             return new TelegramUpdate(Timestamp, Type, Sender, Message, null, raw);
@@ -123,7 +134,7 @@ public static class TelegramUpdateParser
         {
             var cb = raw.CallbackQuery;
             Timestamp = cb.Message is not null ? new(cb.Message.Date) : DateTimeOffset.UtcNow;
-            Sender = FromTelegramUser(cb.From);
+            Sender = await FromTelegramUserAsync(cb.From, localeProvider, cancellationToken).ConfigureAwait(false);
             Type = UpdateType.CallbackQuery;
             Interaction = new TelegramInteraction(Sender, InteractionType.CallbackQuery, commandName: null, options: null, query: cb.Data, raw: cb);
             return new TelegramUpdate(Timestamp, Type, Sender, null, Interaction, raw);
@@ -134,7 +145,7 @@ public static class TelegramUpdateParser
         {
             var iq = raw.InlineQuery;
             Timestamp = DateTimeOffset.UtcNow;
-            Sender = FromTelegramUser(iq.From);
+            Sender = await FromTelegramUserAsync(iq.From, localeProvider, cancellationToken).ConfigureAwait(false);
             Type = UpdateType.Interaction;
             Interaction = new TelegramInteraction(Sender, InteractionType.Command, commandName: null, options: null, query: iq.Query, raw: iq);
             return new TelegramUpdate(Timestamp, Type, Sender, null, Interaction, raw);
@@ -145,7 +156,7 @@ public static class TelegramUpdateParser
         {
             var cir = raw.ChosenInlineResult;
             Timestamp = DateTimeOffset.UtcNow;
-            Sender = FromTelegramUser(cir.From);
+            Sender = await FromTelegramUserAsync(cir.From, localeProvider, cancellationToken).ConfigureAwait(false);
             Type = UpdateType.Interaction;
             Interaction = new TelegramInteraction(Sender, InteractionType.Command, commandName: null, options: null, query: cir.ResultId, raw: cir);
             return new TelegramUpdate(Timestamp, Type, Sender, null, Interaction, raw);
@@ -155,7 +166,7 @@ public static class TelegramUpdateParser
         if (raw.MyChatMember is not null || raw.ChatMember is not null || raw.Poll is not null || raw.PollAnswer is not null)
         {
             Timestamp = DateTimeOffset.UtcNow;
-            Sender = raw.MyChatMember?.From is not null ? FromTelegramUser(raw.MyChatMember.From) : new UserIdentity(0);
+            Sender = raw.MyChatMember?.From is not null ? await FromTelegramUserAsync(raw.MyChatMember.From, localeProvider, cancellationToken).ConfigureAwait(false) : new UserIdentity(0);
             Type = UpdateType.System;
             return new TelegramUpdate(Timestamp, Type, Sender, null, null, raw);
         }

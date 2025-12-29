@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Globalization;
 using System.Reflection;
 using System.Text.Json;
 using BotForge.Fsm;
@@ -20,6 +19,10 @@ internal class AsyncModelBindingHandlerWithCancellationToken<TModule, TModel>(Me
         using var module = CreateModule(ctx);
 
         var moduleContext = await GetModuleStateContextAsync(ctx, cancellationToken).ConfigureAwait(false);
+
+        if (CheckCancel(moduleContext, module, out var cancel))
+            return cancel;
+
         var bindingContext = new ModelBindContext(
                     moduleContext.User,
                     moduleContext.Chat,

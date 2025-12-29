@@ -64,6 +64,13 @@ public record ModelBindingBuilder(ModelBindingDescriptor Descriptor, ModelProper
     }
 
     /// <summary>
+    /// Gets a value of currently input property represented by <see cref="InputProperty"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of the requested value. Should be compatible with the type of the <see cref="InputProperty"/>.</typeparam>
+    /// <returns>Value of the property that has been input at the current input iteration.</returns>
+    public T GetValidatedProperty<T>() => (T)InputProperty.Property.GetValue(Model)!;
+
+    /// <summary>
     /// Builds and retrieves the model instance of type T.
     /// </summary>
     /// <typeparam name="T">The type to which the model is being converted.</typeparam>

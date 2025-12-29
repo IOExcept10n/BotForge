@@ -1,16 +1,23 @@
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 
 namespace BotForge.Modules;
 
+/// <summary>
+/// Provides utitilies to parse strings as objects that implement <see cref="IParsable{TSelf}"/>.
+/// </summary>
 public static class ParsableInvoker
 {
     private static readonly ConcurrentDictionary<Type, Func<string, IFormatProvider?, (bool success, object? value)>> _cache = [];
 
+    /// <summary>
+    /// Tries to parse a string as text.
+    /// </summary>
+    /// <param name="targetType">Target type to parse string representation for.</param>
+    /// <param name="s">A string representation to an object to parse.</param>
+    /// <param name="provider">An instance of the <see cref="IFormatProvider"/> to get numbers, dates and other data forms format info.</param>
+    /// <returns>A tuple that provides info about whether the conversion succeded and value with results of the conversion.</returns>
     public static (bool success, object? value) TryParseAsObject(Type targetType, string s, IFormatProvider? provider = null)
     {
         ArgumentNullException.ThrowIfNull(targetType);

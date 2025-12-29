@@ -2,6 +2,7 @@ using System.Globalization;
 using BotForge.Localization;
 using BotForge.Messaging;
 using Telegram.Bot;
+using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace BotForge.Telegram.Integration;
@@ -15,7 +16,7 @@ internal class TelegramReplyChannel(ITelegramBotClient client, ILocalizationServ
     }
 
     public async Task SendAsync(UserIdentity user, ReplyContext ctx, CancellationToken ct = default) =>
-        await client.SendMessage(user.Id, ctx.Message ?? string.Empty, replyMarkup: ToMarkup(ctx.Keyboard, user.TargetLocale), cancellationToken: ct).ConfigureAwait(false);
+        await client.SendMessage(user.Id, (ctx.Message ?? string.Empty), parseMode: ParseMode.Markdown, replyMarkup: ToMarkup(ctx.Keyboard, user.TargetLocale), cancellationToken: ct).ConfigureAwait(false);
 
     private ReplyMarkup? ToMarkup(ReplyKeyboard? keyboard, CultureInfo culture)
     {

@@ -22,8 +22,21 @@ public record ModuleStateContext(UserIdentity User,
                                  StateRecord CurrentState,
                                  IServiceProvider Services) : RoleStateContext(User, UserRole, Message, CurrentState, Services)
 {
+    /// <summary>
+    /// Converts the instance of the <see cref="ModuleStateContext"/> to <see cref="SelectionStateContext"/> by passing the set of buttons that provide menu options.
+    /// </summary>
+    /// <param name="selectionButtons">A set of buttons to select from which.</param>
+    /// <returns>An instance of the <see cref="SelectionStateContext"/> that contains info about provided buttons.</returns>
     public SelectionStateContext ToSelectionContext(IEnumerable<(string Name, ButtonLabel Button)> selectionButtons) => new(User, Chat, UserRole, selectionButtons, Message, CurrentState, Services);
 
+    /// <summary>
+    /// Tries to convert user input to <see cref="PromptStateContext{T}"/>, based on input options.
+    /// </summary>
+    /// <typeparam name="T">Type of the input value.</typeparam>
+    /// <param name="allowTextInput">A flag indicating whether the state allows text message input.</param>
+    /// <param name="allowFileInput">A flag indicating whether the state allows file message input.</param>
+    /// <param name="context">A resulting context that contains info about input value of a specific type.</param>
+    /// <returns><see langword="true"/> if prompted value is correct and conversion succeeded; otherwise <see langword="false"/>.</returns>
     public bool TryToPromptContext<T>(bool allowTextInput, bool allowFileInput, [NotNullWhen(true)] out PromptStateContext<T>? context) where T : IParsable<T>
     {
         context = null;

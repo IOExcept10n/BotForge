@@ -63,10 +63,10 @@ internal class ModuleRegistryBuilder(ILabelStore labelStore, IRegistry<StateDefi
                 {
                     state = candidate.State switch
                     {
-                        MenuAttribute menu => Register(moduleName, menu, candidate.Method, MakeMenuHandler(moduleType, typeof(AsyncMenuHandlerWithCancellationToken<>), candidate)),
-                        PromptAttribute prompt => Register(moduleName, prompt, candidate.Method, MakePromptHandler(moduleType, typeof(AsyncPromptHandlerWithCancellationToken<,>), candidate, prompt)),
-                        ModelPromptAttribute modelPrompt => Register(moduleName, modelPrompt, candidate.Method, MakeBindingHandler(moduleType, typeof(AsyncModelBindingHandlerWithCancellationToken<,>), candidate, modelPrompt)),
-                        CustomStateAttribute custom => Register(moduleName, custom, candidate.Method, MakeCustomHandler(moduleType, typeof(AsyncCustomHandlerWithCancellationToken<>), candidate)),
+                        MenuAttribute menu when GetMenuAttributes(candidate.Method) is var attributes => Register(moduleName, menu, candidate.Method, MakeMenuHandler(moduleType, moduleName, typeof(AsyncMenuHandlerWithCancellationToken<>), candidate, attributes.OfType<MenuRowAttribute>()), attributes),
+                        PromptAttribute prompt => Register(moduleName, prompt, candidate.Method, MakePromptHandler(moduleType, moduleName, typeof(AsyncPromptHandlerWithCancellationToken<,>), candidate, prompt)),
+                        ModelPromptAttribute modelPrompt => Register(moduleName, modelPrompt, candidate.Method, MakeBindingHandler(moduleType, moduleName, typeof(AsyncModelBindingHandlerWithCancellationToken<,>), candidate, modelPrompt)),
+                        CustomStateAttribute custom => Register(moduleName, custom, candidate.Method, MakeCustomHandler(moduleType, moduleName, typeof(AsyncCustomHandlerWithCancellationToken<>), candidate)),
                         _ => throw new InvalidOperationException(
                             "Cannot register method because of unrecognizable state definition." +
                             "Write your own implementation of the IModuleRegistryBuilder to use custom state definitions."),
@@ -76,10 +76,10 @@ internal class ModuleRegistryBuilder(ILabelStore labelStore, IRegistry<StateDefi
                 {
                     state = candidate.State switch
                     {
-                        MenuAttribute menu => Register(moduleName, menu, candidate.Method, MakeMenuHandler(moduleType, typeof(AsyncMenuHandler<>), candidate)),
-                        PromptAttribute prompt => Register(moduleName, prompt, candidate.Method, MakePromptHandler(moduleType, typeof(AsyncPromptHandler<,>), candidate, prompt)),
-                        ModelPromptAttribute modelPrompt => Register(moduleName, modelPrompt, candidate.Method, MakeBindingHandler(moduleType, typeof(AsyncModelBindingHandler<,>), candidate, modelPrompt)),
-                        CustomStateAttribute custom => Register(moduleName, custom, candidate.Method, MakeCustomHandler(moduleType, typeof(AsyncCustomHandler<>), candidate)),
+                        MenuAttribute menu when GetMenuAttributes(candidate.Method) is var attributes => Register(moduleName, menu, candidate.Method, MakeMenuHandler(moduleType, moduleName, typeof(AsyncMenuHandler<>), candidate, attributes.OfType<MenuRowAttribute>()), attributes),
+                        PromptAttribute prompt => Register(moduleName, prompt, candidate.Method, MakePromptHandler(moduleType, moduleName, typeof(AsyncPromptHandler<,>), candidate, prompt)),
+                        ModelPromptAttribute modelPrompt => Register(moduleName, modelPrompt, candidate.Method, MakeBindingHandler(moduleType, moduleName, typeof(AsyncModelBindingHandler<,>), candidate, modelPrompt)),
+                        CustomStateAttribute custom => Register(moduleName, custom, candidate.Method, MakeCustomHandler(moduleType, moduleName, typeof(AsyncCustomHandler<>), candidate)),
                         _ => throw new InvalidOperationException(
                             "Cannot register method because of unrecognizable state definition." +
                             "Write your own implementation of the IModuleRegistryBuilder to use custom state definitions."),
@@ -90,10 +90,10 @@ internal class ModuleRegistryBuilder(ILabelStore labelStore, IRegistry<StateDefi
             {
                 state = candidate.State switch
                 {
-                    MenuAttribute menu => Register(moduleName, menu, candidate.Method, MakeMenuHandler(moduleType, typeof(MenuHandler<>), candidate)),
-                    PromptAttribute prompt => Register(moduleName, prompt, candidate.Method, MakePromptHandler(moduleType, typeof(PromptHandler<,>), candidate, prompt)),
-                    ModelPromptAttribute modelPrompt => Register(moduleName, modelPrompt, candidate.Method, MakeBindingHandler(moduleType, typeof(ModelBindingHandler<,>), candidate, modelPrompt)),
-                    CustomStateAttribute custom => Register(moduleName, custom, candidate.Method, MakeCustomHandler(moduleType, typeof(CustomHandler<>), candidate)),
+                    MenuAttribute menu when GetMenuAttributes(candidate.Method) is var attributes => Register(moduleName, menu, candidate.Method, MakeMenuHandler(moduleType, moduleName, typeof(MenuHandler<>), candidate, attributes.OfType<MenuRowAttribute>()), attributes),
+                    PromptAttribute prompt => Register(moduleName, prompt, candidate.Method, MakePromptHandler(moduleType, moduleName, typeof(PromptHandler<,>), candidate, prompt)),
+                    ModelPromptAttribute modelPrompt => Register(moduleName, modelPrompt, candidate.Method, MakeBindingHandler(moduleType, moduleName, typeof(ModelBindingHandler<,>), candidate, modelPrompt)),
+                    CustomStateAttribute custom => Register(moduleName, custom, candidate.Method, MakeCustomHandler(moduleType, moduleName, typeof(CustomHandler<>), candidate)),
                     _ => throw new InvalidOperationException(
                         "Cannot register method because of unrecognizable state definition." +
                         "Write your own implementation of the IModuleRegistryBuilder to use custom state definitions."),
@@ -104,8 +104,8 @@ internal class ModuleRegistryBuilder(ILabelStore labelStore, IRegistry<StateDefi
             _stateRegistry.Register(state.Definition);
             _stateHandlerRegistry.Register(state);
         }
-
-        var descriptor = new ModuleDescriptor(moduleName, moduleType, _labelStore.GetLabel(moduleAttribute?.LabelKey ?? moduleName), roles, states[$"{moduleName}:root"], states.ToFrozenDictionary());
+        
+        var descriptor = new ModuleDescriptor(moduleName, moduleType, _labelStore.GetLabel(moduleAttribute?.LabelKey ?? moduleName), roles, states[$"{moduleName}:root"], moduleAttribute?.Order ?? 0, moduleAttribute?.Display ?? true, states.ToFrozenDictionary());
         configure?.Invoke(descriptor);
         _registry.Register(descriptor);
         return this;
@@ -130,30 +130,46 @@ internal class ModuleRegistryBuilder(ILabelStore labelStore, IRegistry<StateDefi
         return this;
     }
 
-    private IStateHandler MakeMenuHandler(Type moduleType, Type menuHandlerType, (MethodInfo Method, FsmStateAttribute State) candidate)
-            => (IStateHandler)Activator.CreateInstance(menuHandlerType.MakeGenericType(moduleType), [candidate.Method, _labelStore])!;
-
-    private static IStateHandler MakePromptHandler(Type moduleType, Type promptHandlerType, (MethodInfo Method, FsmStateAttribute State) candidate, PromptAttribute prompt)
-        => (IStateHandler)Activator.CreateInstance(promptHandlerType.MakeGenericType(moduleType, prompt.InputType), [candidate.Method, prompt])!;
-
-    private IStateHandler MakeBindingHandler(Type moduleType, Type bindingHandlerType, (MethodInfo Method, FsmStateAttribute State) candidate, ModelPromptAttribute modelPrompt)
-        => (IStateHandler)Activator.CreateInstance(bindingHandlerType.MakeGenericType(moduleType, modelPrompt.InputType), [candidate.Method, _bindingRegistry])!;
-
-    private static IStateHandler MakeCustomHandler(Type moduleType, Type handlerType, (MethodInfo Method, FsmStateAttribute State) candidate)
-        => (IStateHandler)Activator.CreateInstance(handlerType.MakeGenericType(moduleType), [candidate.Method])!;
-
-    private State Register(string moduleName, MenuAttribute menuAttribute, MethodInfo method, IStateHandler handler)
+    private IStateHandler MakeMenuHandler(Type moduleType, string moduleName, Type menuHandlerType, (MethodInfo Method, FsmStateAttribute State) candidate, IEnumerable<MenuRowAttribute> rowAttributes)
     {
-        var buttons = from row in method.GetCustomAttributes<MenuRowAttribute>() select from item in row.LabelKeys select _labelStore.GetLabel(item);
+        var handler = (IModuleHandlerBase)Activator.CreateInstance(menuHandlerType.MakeGenericType(moduleType), [candidate.Method, _labelStore, rowAttributes])!;
+        handler.ModuleName = moduleName;
+        return handler;
+    }
+
+    private static IStateHandler MakePromptHandler(Type moduleType, string moduleName, Type promptHandlerType, (MethodInfo Method, FsmStateAttribute State) candidate, PromptAttribute prompt)
+    {
+        var handler = (IModuleHandlerBase)Activator.CreateInstance(promptHandlerType.MakeGenericType(moduleType, prompt.InputType), [candidate.Method, prompt])!;
+        handler.ModuleName = moduleName;
+        return handler;
+    }
+
+    private IStateHandler MakeBindingHandler(Type moduleType, string moduleName, Type bindingHandlerType, (MethodInfo Method, FsmStateAttribute State) candidate, ModelPromptAttribute modelPrompt)
+    {
+        var handler = (IModuleHandlerBase)Activator.CreateInstance(bindingHandlerType.MakeGenericType(moduleType, modelPrompt.InputType), [candidate.Method, _bindingRegistry])!;
+        handler.ModuleName = moduleName;
+        return handler;
+    }
+
+    private static IStateHandler MakeCustomHandler(Type moduleType, string moduleName, Type handlerType, (MethodInfo Method, FsmStateAttribute State) candidate)
+    {
+        var handler = (IModuleHandlerBase)Activator.CreateInstance(handlerType.MakeGenericType(moduleType), [candidate.Method])!;
+        handler.ModuleName = moduleName;
+        return handler;
+    }
+
+    private State Register(string moduleName, MenuAttribute menuAttribute, MethodInfo method, IStateHandler handler, List<Attribute> attributesList)
+    {
+        var buttons = from row in attributesList.OfType<MenuRowAttribute>() select from item in row.LabelKeys select _labelStore.GetLabel(item);
         if (menuAttribute.BackButton)
             buttons = buttons.Append([_labelStore.BackButton]);
-        
+
         var layout = new MenuStateLayout
         {
             MessageKey = menuAttribute.PromptLocalizationKey,
             Buttons = new(buttons),
-            InheritKeyboard = method.GetCustomAttribute<InheritKeyboardAttribute>() != null,
-            DisableKeyboard = method.GetCustomAttribute<RemoveKeyboardAttribute>() != null,
+            InheritKeyboard = attributesList.OfType<InheritKeyboardAttribute>().Any(),
+            DisableKeyboard = attributesList.OfType<RemoveKeyboardAttribute>().Any(),
         };
 
         var definition = new StateDefinition(
@@ -164,6 +180,22 @@ internal class ModuleRegistryBuilder(ILabelStore labelStore, IRegistry<StateDefi
             layout);
 
         return new(definition, handler);
+    }
+
+    private static List<Attribute> GetMenuAttributes(MethodInfo method)
+    {
+        var methodAttributes = method.GetCustomAttributes<Attribute>(inherit: true);
+
+        // Special case for root module state. It has a synchronous variation that has no separate state.
+        // So we need to transfer all attributes from it to an asynchronous implementation.
+        if (method.Name == nameof(ModuleBase.OnModuleRootAsync))
+        {
+            var syncMethod = method.ReflectedType!.GetMethod(nameof(ModuleBase.OnModuleRoot))!;
+            methodAttributes = methodAttributes.Concat(syncMethod.GetCustomAttributes<Attribute>(inherit: true));
+        }
+
+        var attributesList = methodAttributes.ToList();
+        return attributesList;
     }
 
     private State Register(string moduleName, PromptAttribute promptAttribute, MethodInfo method, IStateHandler handler)

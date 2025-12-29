@@ -14,7 +14,6 @@ namespace BotForge.Modules.Contexts;
 /// However, for example, you can override method <see cref="ModuleBase.ValidateModelAsync(ModelBindContext, ModelBindingBuilder, ICollection{ValidationResult})"/> that relies on this context,
 /// to customize model binding process.
 /// </remarks>
-/// <typeparam name="T">The type of model being bound.</typeparam>
 /// <param name="User">The identity of the user.</param>
 /// <param name="Chat">The chat identifier.</param>
 /// <param name="Role">The role of the user.</param>

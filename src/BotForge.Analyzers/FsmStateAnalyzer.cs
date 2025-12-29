@@ -2,21 +2,29 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
+using System.Threading;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 
 namespace BotForge.Analyzers
 {
+    /// <summary>
+    /// Represents an analyzer of the BotForge FSM state attributes.
+    /// </summary>
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public sealed class FsmStateAnalyzer : DiagnosticAnalyzer
     {
         private const string Category = "Usage";
 
-        private ImmutableArray<INamedTypeSymbol> _resourceClasses = ImmutableArray<INamedTypeSymbol>.Empty;
-        private ImmutableArray<INamedTypeSymbol> _labelClasses = ImmutableArray<INamedTypeSymbol>.Empty;
+        private class AnalysisData
+        {
+            public bool IsInitialized { get; set; }
+            public ImmutableArray<INamedTypeSymbol> ResourceClasses { get; set; } = ImmutableArray<INamedTypeSymbol>.Empty;
+            public ImmutableArray<INamedTypeSymbol> LabelClasses { get; set; } = ImmutableArray<INamedTypeSymbol>.Empty;
+        }
 
         #region Diagnostic Descriptors
 
@@ -102,7 +110,7 @@ namespace BotForge.Analyzers
             category: Category,
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: "If you use a dedicated button labels helper class, you should use it to make references from button definitions to its members. " +
+            description: "If you have a dedicated button labels helper class, you should use it to make references from button definitions to its members. " +
             "Try referencing specific button label from your label storage by adding nameof operator, e.g. MenuItem(nameof(Labels.MyLabel)). " +
             "Usage of this operator will help you separate architecture and provide concise references between your localizable texts and program logic.");
 
@@ -114,7 +122,7 @@ namespace BotForge.Analyzers
             category: Category,
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
-            description: "If you use application resources in your code, it is recommended to provide keys to localized text instead of typing it directly. " +
+            description: "If you have application resources in your code, it is recommended to provide keys to localized text instead of typing it directly. " +
             "This helps you separate your app logic and static resources. Also you can provide a simple way to localize your application to user language. " +
             "You can reference a static resource by adding a nameof operator, e.g. [Menu(nameof(MyResources.MyMenuLabel))].");
 
@@ -175,6 +183,7 @@ namespace BotForge.Analyzers
 
         #endregion
 
+        /// <inheritdoc/>
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
             ImmutableArray.Create(
                 MenuSig,
@@ -192,45 +201,68 @@ namespace BotForge.Analyzers
                 SuggestAddLabelStorage,
                 MultipleStateAttributes);
 
+        /// <inheritdoc/>
         public override void Initialize(AnalysisContext context)
         {
             context.EnableConcurrentExecution();
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
 
-            context.RegisterCompilationStartAction(compilationStartContext =>
-            {
-                compilationStartContext.RegisterSymbolAction(AnalyzeResourceClass, SymbolKind.NamedType);
-            });
-            
-            context.RegisterSymbolAction(AnalyzeMethod, SymbolKind.Method);
-            context.RegisterSyntaxNodeAction(AnalyzeAttributeSyntax, Microsoft.CodeAnalysis.CSharp.SyntaxKind.Attribute);
+            var analysisData = new AnalysisData();
+
+            context.RegisterSymbolAction(ctx => AnalyzeMethod(ctx, analysisData), SymbolKind.Method);
+            context.RegisterSyntaxNodeAction(ctx => AnalyzeAttributeSyntax(ctx, analysisData), SyntaxKind.Attribute);
         }
 
-        private void AnalyzeResourceClass(SymbolAnalysisContext context)
+        private static void InitializeAnalysisData(Compilation compilation, AnalysisData data, CancellationToken cancellationToken)
         {
-            var symbol = (INamedTypeSymbol)context.Symbol;
+            // Get all the named type symbols from the compilation
+            foreach (var syntaxTree in compilation.SyntaxTrees)
+            {
+#pragma warning disable RS1030 // We must use this because there's no other way to scan the whole assembly before scanning other code. We need to know semantic models that are not available at the scanning moment
+                var model = compilation.GetSemanticModel(syntaxTree);
+                var root = syntaxTree.GetRoot(cancellationToken);
 
+                // Find all classes in the syntax tree
+                var classDeclarations = root.DescendantNodes()
+                    .OfType<ClassDeclarationSyntax>(); // Assuming you are looking for class definitions
+
+                foreach (var classDeclaration in classDeclarations)
+                {
+                    if (model.GetDeclaredSymbol(classDeclaration, cancellationToken) is INamedTypeSymbol symbol)
+                    {
+                        AnalyzeClass(symbol, data);
+                    }
+                }
+            }
+
+            data.IsInitialized = true;
+        }
+
+        private static void AnalyzeClass(INamedTypeSymbol symbol, AnalysisData analysisData)
+        {
             var resourceAttributes = new[]
             {
-                "System.CodeDom.Compiler.GeneratedCodeAttribute",
-                "System.Runtime.CompilerServices.CompilerGeneratedAttribute"
-            };
+        "System.CodeDom.Compiler.GeneratedCodeAttribute",
+        "System.Runtime.CompilerServices.CompilerGeneratedAttribute"
+    };
 
             if (symbol.GetAttributes().Any(attr => resourceAttributes.Contains(attr.AttributeClass.OriginalDefinition.ToString())) && IsResourceClass(symbol))
             {
-                // Collect resource classes.
-                _resourceClasses = _resourceClasses.Add(symbol);
+                analysisData.ResourceClasses = analysisData.ResourceClasses.Add(symbol);
                 return;
             }
 
             if (symbol.GetAttributes().Any(a => a.AttributeClass.OriginalDefinition.ToString() == "BotForge.Messaging.LabelStorageAttribute"))
             {
-                // Collect label classes.
-                _labelClasses = _labelClasses.Add(symbol);
+                analysisData.LabelClasses = analysisData.LabelClasses.Add(symbol);
             }
         }
 
-        private void AnalyzeMethod(SymbolAnalysisContext context)
+        private void AnalyzeMethod(SymbolAnalysisContext context, AnalysisData analysisData)
         {
+            if (!analysisData.IsInitialized)
+                InitializeAnalysisData(context.Compilation, analysisData, context.CancellationToken);
+
             var method = (IMethodSymbol)context.Symbol;
 
             var attrs = method.GetAttributes();
@@ -302,13 +334,13 @@ namespace BotForge.Analyzers
 
             // Check MenuItems and MenuRows
             var hasMenuOrCustomState = menuAttr != null || customStateAttr != null;
-            if (!hasMenuOrCustomState && (menuItemAttrs.Length > 0 || menuRowAttrs.Length > 0) && method.Name != "OnModuleRoot")
+            if (!hasMenuOrCustomState && (menuItemAttrs.Length > 0 || menuRowAttrs.Length > 0) && method.Name != "OnModuleRoot" && method.Name != "OnModuleRootAsync")
             {
                 context.ReportDiagnostic(Diagnostic.Create(MenuItemWithoutMenu, method.Locations.FirstOrDefault() ?? method.Locations[0], method.Name));
             }
 
             // Check keyboard instructions
-            if (!hasMenuOrCustomState && keyboardAttrs.Length > 0 && method.Name != "OnModuleRoot")
+            if (!hasMenuOrCustomState && keyboardAttrs.Length > 0 && method.Name != "OnModuleRoot" && method.Name != "OnModuleRootAsync")
             {
                 foreach (var attr in keyboardAttrs)
                 {
@@ -317,7 +349,7 @@ namespace BotForge.Analyzers
             }
         }
 
-        private void CheckMethodSignature(SymbolAnalysisContext context, IMethodSymbol method, string expectedContextType, DiagnosticDescriptor diagnostic)
+        private static void CheckMethodSignature(SymbolAnalysisContext context, IMethodSymbol method, string expectedContextType, DiagnosticDescriptor diagnostic)
         {
             // Check return type: StateResult or Task<StateResult>
             bool validReturnType = IsStateResult(method.ReturnType, context.Compilation) ||
@@ -354,7 +386,7 @@ namespace BotForge.Analyzers
             }
         }
 
-        private void CheckPromptMethodSignature(SymbolAnalysisContext context, IMethodSymbol method, AttributeData attrData,
+        private static void CheckPromptMethodSignature(SymbolAnalysisContext context, IMethodSymbol method, AttributeData attrData,
                                                string expectedContextTypeBase, DiagnosticDescriptor sigDiagnostic,
                                                DiagnosticDescriptor genericMismatchDiagnostic)
         {
@@ -446,8 +478,11 @@ namespace BotForge.Analyzers
         }
 
         // Syntax-level checks for nameof usage, localization keys, and MenuItem label resolution
-        private void AnalyzeAttributeSyntax(SyntaxNodeAnalysisContext context)
+        private void AnalyzeAttributeSyntax(SyntaxNodeAnalysisContext context, AnalysisData analysisData)
         {
+            if (!analysisData.IsInitialized)
+                InitializeAnalysisData(context.Compilation, analysisData, context.CancellationToken);
+
             var attrSyntax = (AttributeSyntax)context.Node;
             var model = context.SemanticModel;
             if (!(model.GetSymbolInfo(attrSyntax).Symbol is IMethodSymbol attrSymbol)) return;
@@ -459,7 +494,7 @@ namespace BotForge.Analyzers
                 attrFullName == "BotForge.Modules.Attributes.MenuRowAttribute")
             {
                 var arguments = attrSyntax.ArgumentList?.Arguments ?? new SeparatedSyntaxList<AttributeArgumentSyntax>();
-                bool hasLabelStorage = HasLabelStorageInProject();
+                bool hasLabelStorage = HasLabelStorageInProject(analysisData);
 
                 foreach (var arg in arguments)
                 {
@@ -490,7 +525,7 @@ namespace BotForge.Analyzers
                 var op = model.GetOperation(arg.Expression);
 
                 // Check if we have resources in the project
-                bool hasResources = HasResourcesInProject();
+                bool hasResources = HasResourcesInProject(analysisData);
 
                 if (op is INameOfOperation nameofOp)
                 {
@@ -548,7 +583,7 @@ namespace BotForge.Analyzers
                     // For string literals, check if they could be found in resources
                     if (op is ILiteralOperation literal && literal.ConstantValue.Value is string strValue)
                     {
-                        if (!IsStringInResources(strValue) && hasResources)
+                        if (!IsStringInResources(strValue, analysisData) && hasResources)
                         {
                             context.ReportDiagnostic(Diagnostic.Create(LocalizationKeyNotFound, arg.GetLocation(), strValue.Replace("\"", "")));
                         }
@@ -570,7 +605,9 @@ namespace BotForge.Analyzers
             }
         }
 
-        private bool HasResourcesInProject() => _resourceClasses.Any();
+        private static bool HasLabelStorageInProject(AnalysisData analysisData) => analysisData.LabelClasses.Any();
+
+        private static bool HasResourcesInProject(AnalysisData analysisData) => analysisData.ResourceClasses.Any();
 
         private static string GetFullMetadataName(INamedTypeSymbol type)
         {
@@ -604,11 +641,9 @@ namespace BotForge.Analyzers
                    symbol.GetMembers().Any(m => m.Name == "ResourceManager");
         }
 
-        private bool HasLabelStorageInProject() => _labelClasses.Any();
-
-        private bool IsStringInResources(string value)
+        private static bool IsStringInResources(string value, AnalysisData analysisData)
         {
-            foreach (var resourceType in _resourceClasses)
+            foreach (var resourceType in analysisData.ResourceClasses)
             {
                 if (resourceType is ITypeSymbol typ && typ.GetMembers().OfType<IPropertySymbol>().Any(p => p.Name == value))
                 {
