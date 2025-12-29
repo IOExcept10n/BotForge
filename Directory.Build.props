@@ -13,7 +13,7 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageVersion>0.5.0</PackageVersion>
-    <PackageIcon>"$(SolutionDir)res\icon128.png"</PackageIcon>
+    <PackageIcon>icon128.png</PackageIcon>
     <PackageReleaseNotes>Initial pre-release</PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Copyright>Copyright (c) Ivan Olyanishin 2025</Copyright>
@@ -37,5 +37,11 @@
   <!-- Make internals visible to tests automatically -->
   <ItemGroup>
     <InternalsVisibleTo Include="*.Tests" />
+  </ItemGroup>
+
+  <!--Include icon and README to project package-->
+  <ItemGroup>
+      <None Include="res\icon128.png" Pack="true" PackagePath=""/>
+      <None Include="README.md" Pack="true" PackagePath=""/>
   </ItemGroup>
 </Project>

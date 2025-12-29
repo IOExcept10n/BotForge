@@ -6,10 +6,10 @@ using BotForge.Modules.Attributes;
 using BotForge.Modules.Contexts;
 using BotForge.Modules.Roles;
 
-namespace MyCoolBot.Modules;
+namespace telegrambot.Modules;
 
-[Module("🧩 Sample module", AllowedRoleTypes = [typeof(UnknownRole)])]
-internal sealed class SampleModule : ModuleBase
+[Module("Nothing", Display = false)]
+internal sealed class ShopModule : ModuleBase
 {
     [MenuItem("Guess a number")]
     [MenuItem("Register")]

@@ -3,10 +3,11 @@
     <!--NuGet props-->
     <PackageId>BotForge.Modules</PackageId>
     <Description>Package that adds modules system for automatic state generation for BotForge framework. Also it adds a role model to authenticate users.</Description>
-    <PackageTags>($PackageTags), BotForge.Modules, Modules, Roles, Authentication</PackageTags>
+    <PackageTags>$(PackageTags), BotForge.Modules, Modules, Roles, Authentication</PackageTags>
   </PropertyGroup>
     
   <ItemGroup>
     <ProjectReference Include="..\BotForge.Core\BotForge.Core.csproj" />
+    <PackageReference Include="BotForge.Analyzers" Version="1.0.0" PrivateAssets="none" />
   </ItemGroup>
 </Project>

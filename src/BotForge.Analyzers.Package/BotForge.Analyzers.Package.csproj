@@ -11,9 +11,11 @@
 
   <PropertyGroup>
     <PackageId>BotForge.Analyzers</PackageId>
+    <PackageVersion>1.0.0</PackageVersion>
+    <PackageIcon></PackageIcon> <!--Set to nothing because it seems that netstandart doesn't support icons at all.-->
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>Analyzer package for BotForge framework</Description>
-    <PackageTags>($PackageTags), BotForge.Analyzers, Analyzers</PackageTags>
+    <PackageTags>$(PackageTags), BotForge.Analyzers, Analyzers</PackageTags>
     <DevelopmentDependency>true</DevelopmentDependency>
     <NoPackageAnalysis>true</NoPackageAnalysis>
 
@@ -21,15 +23,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Remove="E:\Work\Projects\My Projects\Utilities\BotForge\res\icon128.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\BotForge.Analyzers\BotForge.Analyzers.csproj" />
     <ProjectReference Include="..\BotForge.Analyzers.CodeFixes\BotForge.Analyzers.CodeFixes.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="tools\*.ps1" CopyToOutputDirectory="PreserveNewest" Pack="true" PackagePath="" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Update="tools\*.ps1" CopyToOutputDirectory="PreserveNewest" Pack="true" PackagePath="" />
+    </ItemGroup>
 
-  <Target Name="_AddAnalyzersToOutput">
+    <Target Name="_AddAnalyzersToOutput">
     <ItemGroup>
       <TfmSpecificPackageFile Include="$(OutputPath)\BotForge.Analyzers.dll" PackagePath="analyzers/dotnet/cs" />
       <TfmSpecificPackageFile Include="$(OutputPath)\BotForge.Analyzers.CodeFixes.dll" PackagePath="analyzers/dotnet/cs" />

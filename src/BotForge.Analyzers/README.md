@@ -1,6 +1,6 @@
 # BotForge.Analyzers
 
-Roslyn analyzers for the BotForge framework to help enforce best practices and avoid common mistakes when developing chatbots using BotForge.
+Roslyn analyzers for the [BotForge framework](https://github.com/IOExcept10n/BotForge) to help enforce best practices and avoid common mistakes when developing chatbots using BotForge.
 
 ## Features
 

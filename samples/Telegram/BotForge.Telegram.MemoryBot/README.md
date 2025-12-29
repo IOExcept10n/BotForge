@@ -2,6 +2,10 @@
 
 This sample demonstrates BotForge's persistence functionality with a simple counter bot.
 
+## Run
+1. Set your bot token in configuration (e.g., `appsettings.json` -> `ApiKeys:Telegram`) or pass it directly.
+2. Run the project.
+
 ## Features Demonstrated
 
 - ✅ **Automatic State Persistence**: User state is automatically saved to a SQLite database
