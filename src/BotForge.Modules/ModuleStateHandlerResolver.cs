@@ -3,7 +3,7 @@ using BotForge.Fsm;
 
 namespace BotForge.Modules;
 
-internal class ModuleStateHandlerResolver(IRegistry<State> states) : IStateHandlerResolver
+internal sealed class ModuleStateHandlerResolver(IRegistry<State> states) : IStateHandlerResolver
 {
     private readonly IRegistry<State> _states = states;
 

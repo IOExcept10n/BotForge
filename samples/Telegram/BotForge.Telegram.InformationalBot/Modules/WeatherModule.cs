@@ -8,7 +8,7 @@ using BotForge.Messaging;
 
 namespace BotForge.Telegram.InformationalBot.Modules;
 
-internal class WeatherModule(IWeatherService weather) : ModuleBase
+internal sealed class WeatherModule(IWeatherService weather) : ModuleBase
 {
     [MenuItem(nameof(Labels.GetCurrentWeather))]
     [MenuItem(nameof(Labels.GetWeatherForecast))]

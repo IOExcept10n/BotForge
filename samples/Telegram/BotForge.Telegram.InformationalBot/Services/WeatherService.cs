@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace BotForge.Telegram.InformationalBot.Services;
 
-internal class WeatherService(HttpClient httpClient, IConfiguration configuration, ILocalizationService localization) : IWeatherService
+internal sealed class WeatherService(HttpClient httpClient, IConfiguration configuration, ILocalizationService localization) : IWeatherService
 {
     private readonly HttpClient _httpClient = httpClient;
     private readonly ILocalizationService _localization = localization;
@@ -59,40 +59,40 @@ internal class WeatherService(HttpClient httpClient, IConfiguration configuratio
         }
     }
 
-    private class WeatherResponse
+    private sealed class WeatherResponse
     {
         public required CurrentInfo Current { get; set; }
     }
 
-    private class CurrentInfo
+    private sealed class CurrentInfo
     {
         public required ConditionInfo Condition { get; set; }
         public float Temp_C { get; set; }
         public int Humidity { get; set; }
     }
 
-    private class ConditionInfo
+    private sealed class ConditionInfo
     {
         public required string Text { get; set; }
     }
 
-    private class ForecastResponse
+    private sealed class ForecastResponse
     {
         public required ForecastInfo Forecast { get; set; }
     }
 
-    private class ForecastInfo
+    private sealed class ForecastInfo
     {
         public required ForecastDayInfo[] Forecastday { get; set; }
     }
 
-    private class ForecastDayInfo
+    private sealed class ForecastDayInfo
     {
         public required string Date { get; set; }
         public required DayInfo Day { get; set; }
     }
 
-    private class DayInfo
+    private sealed class DayInfo
     {
         public required ConditionInfo Condition { get; set; }
         public float MaxTemp_C { get; set; }

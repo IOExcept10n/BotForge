@@ -1,5 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  <PropertyGroup>
+    <!--NuGet props-->
+    <PackageId>BotForge.Modules</PackageId>
+    <Description>Package that adds modules system for automatic state generation for BotForge framework. Also it adds a role model to authenticate users.</Description>
+    <PackageTags>($PackageTags), BotForge.Modules, Modules, Roles, Authentication</PackageTags>
+  </PropertyGroup>
+    
   <ItemGroup>
     <ProjectReference Include="..\BotForge.Core\BotForge.Core.csproj" />
   </ItemGroup>

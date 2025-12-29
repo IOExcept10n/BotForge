@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Resources;
-
 namespace BotForge.Analyzers.Tests.Helpers;
 
-internal class Stub
+internal static class Stub
 {
     public const string Stubs = """
 namespace BotForge.Fsm
@@ -68,8 +63,8 @@ namespace BotForge.Modules.Attributes
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
     public abstract class PromptAttribute : FsmStateAttribute
     {
-        protected PromptAttribute(Type inputType, string promptLocalizationKey) : base(promptLocalizationKey) 
-        { 
+        protected PromptAttribute(Type inputType, string promptLocalizationKey) : base(promptLocalizationKey)
+        {
             InputType = inputType;
         }
 
@@ -195,7 +190,6 @@ namespace TestNamespace
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
-
         private static global::System.Resources.ResourceManager resourceMan;
 
         private static global::System.Globalization.CultureInfo resourceCulture;

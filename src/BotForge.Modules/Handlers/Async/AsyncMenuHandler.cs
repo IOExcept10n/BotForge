@@ -6,7 +6,7 @@ using BotForge.Modules.Contexts;
 
 namespace BotForge.Modules.Handlers.Async;
 
-internal class AsyncMenuHandler<TModule>(MethodInfo method, ILabelStore labelStore, IEnumerable<MenuRowAttribute> buttonRows) : ModuleHandlerBase<TModule> where TModule : ModuleBase
+internal sealed class AsyncMenuHandler<TModule>(MethodInfo method, ILabelStore labelStore, IEnumerable<MenuRowAttribute> buttonRows) : ModuleHandlerBase<TModule> where TModule : ModuleBase
 {
     private readonly Func<TModule, SelectionStateContext, Task<StateResult>> _expression = method.CreateDelegate<Func<TModule, SelectionStateContext, Task<StateResult>>>();
     private readonly List<(string, ButtonLabel)> _buttons = [.. from menuRow in buttonRows from key in menuRow.LabelKeys select (key, labelStore.GetLabel(key))];

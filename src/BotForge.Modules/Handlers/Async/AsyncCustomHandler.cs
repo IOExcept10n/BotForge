@@ -4,7 +4,7 @@ using BotForge.Modules.Contexts;
 
 namespace BotForge.Modules.Handlers.Async;
 
-internal class AsyncCustomHandler<TModule>(MethodInfo method) : ModuleHandlerBase<TModule> where TModule : ModuleBase
+internal sealed class AsyncCustomHandler<TModule>(MethodInfo method) : ModuleHandlerBase<TModule> where TModule : ModuleBase
 {
     private readonly Func<TModule, ModuleStateContext, Task<StateResult>> _expression = method.CreateDelegate<Func<TModule, ModuleStateContext, Task<StateResult>>>();
 

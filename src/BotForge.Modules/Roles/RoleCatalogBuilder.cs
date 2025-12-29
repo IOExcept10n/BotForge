@@ -26,7 +26,7 @@ internal class RoleCatalogBuilder(IRegistry<ModuleDescriptor> moduleRegistry, IM
         return this;
     }
 
-    private class RoleCatalog(IRegistry<ModuleDescriptor> moduleRegistry) : IRoleCatalog
+    private sealed class RoleCatalog(IRegistry<ModuleDescriptor> moduleRegistry) : IRoleCatalog
     {
         private readonly IRegistry<ModuleDescriptor> _moduleRegistry = moduleRegistry;
         private readonly Dictionary<Role, List<ModuleDescriptor>> _availableModules = [];

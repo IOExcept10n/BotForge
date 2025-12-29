@@ -1,21 +1,20 @@
-using System.Xml;
 using BotForge.Messaging;
 using BotForge.Persistence.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace BotForge.Persistence.Repositories;
 
-internal class BotUserRepository(BotForgeDbContext context) : Repository<BotForgeDbContext, Guid, BotUser>(context), IBotUserRepository
+internal sealed class BotUserRepository(BotForgeDbContext context) : Repository<BotForgeDbContext, Guid, BotUser>(context), IBotUserRepository
 {
     private const int ConcurrencyRetryCount = 1;
 
-    public virtual async Task<BotUser?> GetByPlatformIdAsync(long platformId, CancellationToken cancellationToken = default)
+    public async Task<BotUser?> GetByPlatformIdAsync(long platformId, CancellationToken cancellationToken = default)
     {
         return await DbSet.Include(u => u.Role).Include(u => u.State)
             .FirstOrDefaultAsync(u => u.PlatformUserId == platformId, cancellationToken).ConfigureAwait(false);
     }
 
-    public virtual async Task<BotUser?> GetByUsernameAsync(string username, int discriminator = 0, CancellationToken cancellationToken = default)
+    public async Task<BotUser?> GetByUsernameAsync(string username, int discriminator = 0, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(username))
             return null;
@@ -30,7 +29,7 @@ internal class BotUserRepository(BotForgeDbContext context) : Repository<BotForg
             .FirstOrDefaultAsync(u => u.Username == username && u.Discriminator == discriminator, cancellationToken).ConfigureAwait(false);
     }
 
-    public virtual async Task<BotUser> GetOrRegisterAsync(UserIdentity user, CancellationToken cancellationToken = default)
+    public async Task<BotUser> GetOrRegisterAsync(UserIdentity user, CancellationToken cancellationToken = default)
     {
         var now = DateTimeOffset.UtcNow;
 

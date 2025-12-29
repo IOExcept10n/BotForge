@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BotForge.Persistence.Services;
 
-internal class PersistentRoleStorage(IBotRoleRepository roles, IBotUserRepository users, IRoleCatalog roleCatalog) : IRoleProvider, IRoleManager
+internal sealed class PersistentRoleStorage(IBotRoleRepository roles, IBotUserRepository users, IRoleCatalog roleCatalog) : IRoleProvider, IRoleManager
 {
     private readonly IBotRoleRepository _roles = roles;
     private readonly IBotUserRepository _users = users;

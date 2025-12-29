@@ -5,7 +5,7 @@ using BotForge.Modules.Contexts;
 
 namespace BotForge.Modules.Handlers.Async;
 
-internal class AsyncPromptHandlerWithCancellationToken<TModule, TData>(MethodInfo method, PromptAttribute<TData> attribute) : ModuleHandlerBase<TModule> where TModule : ModuleBase where TData : IParsable<TData>
+internal sealed class AsyncPromptHandlerWithCancellationToken<TModule, TData>(MethodInfo method, PromptAttribute<TData> attribute) : ModuleHandlerBase<TModule> where TModule : ModuleBase where TData : IParsable<TData>
 {
     private readonly Func<TModule, PromptStateContext<TData>, CancellationToken, Task<StateResult>> _expression = method.CreateDelegate<Func<TModule, PromptStateContext<TData>, CancellationToken, Task<StateResult>>>();
     private readonly bool _allowTextInput = attribute.AllowTextInput;

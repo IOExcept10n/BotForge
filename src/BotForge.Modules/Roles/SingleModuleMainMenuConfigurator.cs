@@ -4,7 +4,7 @@ using BotForge.Modules.Layouts;
 
 namespace BotForge.Modules.Roles;
 
-internal class SingleModuleMainMenuConfigurator(ILabelStore labels, IRegistry<StateDefinition> registry, IRegistry<State> stateHandlerRegistry) : IMainMenuConfigurator
+internal sealed class SingleModuleMainMenuConfigurator(ILabelStore labels, IRegistry<StateDefinition> registry, IRegistry<State> stateHandlerRegistry) : IMainMenuConfigurator
 {
     private readonly ILabelStore _labels = labels;
     private readonly IRegistry<StateDefinition> _registry = registry;

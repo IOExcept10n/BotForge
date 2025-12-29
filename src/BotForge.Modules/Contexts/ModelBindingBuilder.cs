@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 using System.Text.Json;
 using BotForge.Messaging;
 using BotForge.Modules.Roles;
@@ -57,7 +58,13 @@ public record ModelBindingBuilder(ModelBindingDescriptor Descriptor, ModelProper
             ModelBuilderData data = new(Descriptor.RequestedModelType.FullName!, nextProperty?.Name, ToJsonElement(Model), nextProperty == null);
             return new(false, validationResults, data);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is ArgumentException
+                                      or TargetException
+                                      or MethodAccessException
+                                      or TargetInvocationException
+                                      or JsonException
+                                      or IndexOutOfRangeException
+                                      or NullReferenceException)
         {
             return new(true, [new(ex.Message)]);
         }

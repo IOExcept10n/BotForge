@@ -7,7 +7,7 @@ using BotForge.Telegram.InformationalBot.Services;
 
 namespace BotForge.Telegram.InformationalBot.Modules;
 
-internal class NewsModule(INewsService newsService) : ModuleBase
+internal sealed class NewsModule(INewsService newsService) : ModuleBase
 {
     private readonly INewsService _newsService = newsService;
 

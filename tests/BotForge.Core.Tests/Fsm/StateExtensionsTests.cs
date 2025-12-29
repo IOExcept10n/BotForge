@@ -23,7 +23,7 @@ public class StateExtensionsTests
         var res = new StateResult("s", string.Empty);
         var newRes = StateExtensions.WithData(res, new { A = 1 });
 
-        Assert.Contains("\"A\":1", newRes.NextStateData);
+        Assert.Contains("\"A\":1", newRes.NextStateData, StringComparison.Ordinal);
     }
 
     [Fact]

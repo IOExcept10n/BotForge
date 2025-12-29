@@ -41,11 +41,11 @@ public record ModuleStateContext(UserIdentity User,
     {
         context = null;
 
-        (Optional<T> data, bool invalidContent) = Message.Content switch
+        (OptionalValue<T> data, bool invalidContent) = Message.Content switch
         {
             TextMessageContent text when allowTextInput && T.TryParse(text.Text, null, out var d) => (d, false),
-            FileMessageContent when allowFileInput => (Optional<T>.None, false),
-            _ => (Optional<T>.None, true),
+            FileMessageContent when allowFileInput => (OptionalValue.None<T>(), false),
+            _ => (OptionalValue.None<T>(), true),
         };
 
         if (invalidContent)

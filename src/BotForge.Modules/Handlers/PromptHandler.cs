@@ -5,7 +5,7 @@ using BotForge.Modules.Contexts;
 
 namespace BotForge.Modules.Handlers;
 
-internal class PromptHandler<TModule, TData>(MethodInfo method, PromptAttribute<TData> attribute) : ModuleHandlerBase<TModule> where TModule : ModuleBase where TData : IParsable<TData>
+internal sealed class PromptHandler<TModule, TData>(MethodInfo method, PromptAttribute<TData> attribute) : ModuleHandlerBase<TModule> where TModule : ModuleBase where TData : IParsable<TData>
 {
     private readonly Func<TModule, PromptStateContext<TData>, StateResult> _expression = method.CreateDelegate<Func<TModule, PromptStateContext<TData>, StateResult>>();
     private readonly bool _allowTextInput = attribute.AllowTextInput;

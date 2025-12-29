@@ -13,7 +13,7 @@ using BotForge.Modules.Roles;
 
 namespace BotForge.Modules;
 
-internal class ModuleRegistryBuilder(ILabelStore labelStore, IRegistry<StateDefinition> stateRegistry, IRegistry<State> stateHandlerRegistry, IRegistry<ModelBindingDescriptor> bindingRegistry) : IModuleRegistryBuilder
+internal sealed class ModuleRegistryBuilder(ILabelStore labelStore, IRegistry<StateDefinition> stateRegistry, IRegistry<State> stateHandlerRegistry, IRegistry<ModelBindingDescriptor> bindingRegistry) : IModuleRegistryBuilder
 {
     private const string ModuleSuffix = nameof(Module);
 

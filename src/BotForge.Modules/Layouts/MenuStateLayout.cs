@@ -3,7 +3,7 @@ using BotForge.Messaging;
 
 namespace BotForge.Modules.Layouts;
 
-internal class MenuStateLayout : StateLayout
+internal sealed class MenuStateLayout : StateLayout
 {
     public ReplyKeyboard? Buttons { get; init; }
 

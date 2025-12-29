@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace BotForge.Hosting;
 
-internal class BotBuilder : IBotBuilder
+internal sealed class BotBuilder : IBotBuilder
 {
     private readonly HostApplicationBuilder _builder;
 

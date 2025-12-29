@@ -8,7 +8,7 @@ using BotForge.Modules.Contexts;
 namespace BotForge.Telegram.InformationalBot.Modules;
 
 [Module(nameof(Labels.Preferences), Order = 1)]
-internal class PreferencesModule(IUserLocaleProvider localeProvider) : ModuleBase
+internal sealed class PreferencesModule(IUserLocaleProvider localeProvider) : ModuleBase
 {
     private readonly IUserLocaleProvider _localeProvider = localeProvider;
 

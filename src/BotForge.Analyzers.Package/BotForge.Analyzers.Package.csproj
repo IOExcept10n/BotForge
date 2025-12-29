@@ -11,16 +11,9 @@
 
   <PropertyGroup>
     <PackageId>BotForge.Analyzers</PackageId>
-    <PackageVersion>1.0.0.0</PackageVersion>
-    <Authors>IOExcept10n</Authors>
-    <PackageProjectUrl>https://github.com/IOExcept10n/BotForge/blob/main/src/BotForge.Analyzers</PackageProjectUrl>
-    <PackageIconUrl>https://raw.githubusercontent.com/IOExcept10n/BotForge/main/res/icon.png</PackageIconUrl>
-    <RepositoryUrl>https://github.com/IOExcept10n/BotForge</RepositoryUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Description>Analyzer package for BotForge framework</Description>
-    <PackageReleaseNotes>Initial release of BotForge.Analyzers</PackageReleaseNotes>
-    <Copyright>Copyright © 2025 Ivan Olyanishin</Copyright>
-    <PackageTags>BotForge.Analyzers, analyzers</PackageTags>
+    <PackageTags>($PackageTags), BotForge.Analyzers, Analyzers</PackageTags>
     <DevelopmentDependency>true</DevelopmentDependency>
     <NoPackageAnalysis>true</NoPackageAnalysis>
 

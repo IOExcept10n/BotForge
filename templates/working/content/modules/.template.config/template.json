@@ -1,0 +1,30 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "Ivan Olyanishin",
+    "classifications": [ "Common", "Code", "BotForge", "Module", "Chatbot", "Bot" ],
+    "identity": "BotForge.SampleModule",
+    "name": "Example module: module with registration and number guesser game",
+    "shortName": "botmodule",
+    "tags": {
+      "language": "C#",
+      "type": "item"
+    },
+    "symbols": {
+      "ClassName":{
+        "type": "parameter",
+        "description": "The name of the code file and class.",
+        "datatype": "text",
+        "replaces": "SampleModule",
+        "fileRename": "SampleModule",
+        "defaultValue": "SampleModule"
+      },
+      "NamespaceName":{
+        "type": "parameter",
+        "description": "The name of the namespace for the project.",
+        "datatype": "text",
+        "replaces": "MyCoolBot",
+        "fileRename": "MyCoolBot",
+        "defaultValue": "MyCoolBot"
+      }
+    }
+  }

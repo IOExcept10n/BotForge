@@ -5,7 +5,7 @@ using Moq;
 
 namespace BotForge.Tests.Fsm;
 
-public class UpdateProcessingPipelineConcurrencyTests
+public sealed class UpdateProcessingPipelineConcurrencyTests
 {
     [Fact]
     public async Task HandlesConcurrentUpdatesForSameUser()
@@ -69,7 +69,7 @@ public class UpdateProcessingPipelineConcurrencyTests
         Assert.All(tasks, t => Assert.True(t.IsCompletedSuccessfully));
     }
 
-    private record TestUpdate(long UserId) : IUpdate
+    private sealed record TestUpdate(long UserId) : IUpdate
     {
         public DateTimeOffset Timestamp => DateTimeOffset.UtcNow;
         public UpdateType Type => UpdateType.MessageCreated;
@@ -79,7 +79,7 @@ public class UpdateProcessingPipelineConcurrencyTests
         public object? RawUpdate => null;
     }
 
-    private class TestMessage : IMessage
+    private sealed class TestMessage : IMessage
     {
         public UserIdentity From { get; }
         public ChatId ChatId { get; }
@@ -89,7 +89,7 @@ public class UpdateProcessingPipelineConcurrencyTests
         { From = from; Content = content; ChatId = new ChatId(1); }
     }
 
-    private class ServiceProviderStub : IServiceProvider
+    private sealed class ServiceProviderStub : IServiceProvider
     {
         private readonly object? _svc;
 

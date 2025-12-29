@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BotForge.Persistence.Services;
 
-internal class PersistentUserLocaleProvider(IBotUserRepository users) : IUserLocaleProvider
+internal sealed class PersistentUserLocaleProvider(IBotUserRepository users) : IUserLocaleProvider
 {
     private readonly IBotUserRepository _users = users;
 

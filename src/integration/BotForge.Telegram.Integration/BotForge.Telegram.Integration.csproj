@@ -1,6 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
+  <PropertyGroup>
+    <!--NuGet props-->
+    <PackageId>BotForge.Telegram.Integration</PackageId>
+    <Description>An integration package with Telegram.Bot wrappers for BotForge framework. It provides a way to map Telegram updates to BotForge updates that are ready for pipeline handling. You may need it to create your custom Telegram handling logic, but for general bots you may need BotForge.Telegram package which includes modular infrastructure and hosting features.</Description>
+    <PackageTags>($PackageTags), BotForge.Telegram, Telegram, Hosting, App</PackageTags>
+  </PropertyGroup>
+
+    <ItemGroup>
     <ProjectReference Include="..\..\BotForge.Core\BotForge.Core.csproj" />
   </ItemGroup>
 

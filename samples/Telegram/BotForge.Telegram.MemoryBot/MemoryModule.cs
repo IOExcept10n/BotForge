@@ -10,7 +10,7 @@ namespace BotForge.Telegram.MemoryBot;
 /// The counter persists across bot restarts thanks to the persistence layer.
 /// The state data is automatically persisted by BotForge's persistence system.
 /// </summary>
-internal class MemoryModule : ModuleBase
+internal sealed class MemoryModule : ModuleBase
 {
     /// <summary>
     /// Root state handler - shows welcome message and current counter.

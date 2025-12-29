@@ -4,9 +4,9 @@ using BotForge.Persistence.Models;
 
 namespace BotForge.Persistence.Repositories;
 
-internal class BotRoleRepository(BotForgeDbContext context) : Repository<BotForgeDbContext, long, BotRole>(context), IBotRoleRepository
+internal sealed class BotRoleRepository(BotForgeDbContext context) : Repository<BotForgeDbContext, long, BotRole>(context), IBotRoleRepository
 {
-    public virtual async Task<BotRole> RegisterAsync(Role role, CancellationToken cancellationToken)
+    public async Task<BotRole> RegisterAsync(Role role, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(role);
 
@@ -20,7 +20,7 @@ internal class BotRoleRepository(BotForgeDbContext context) : Repository<BotForg
         return entity;
     }
 
-    public virtual async Task<BotRole> GetRoleAsync(Role role, CancellationToken cancellationToken)
+    public async Task<BotRole> GetRoleAsync(Role role, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(role);
         var existing = await DbSet.FirstOrDefaultAsync(r => r.Name == role.Name, cancellationToken).ConfigureAwait(false);

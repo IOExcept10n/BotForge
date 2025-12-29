@@ -10,6 +10,7 @@
         <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
         <Nullable>disable</Nullable>
         <ImplicitUsings>false</ImplicitUsings>
+        <NoWarn>$(NoWarn);RS2007</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>

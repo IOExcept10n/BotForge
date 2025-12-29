@@ -1,7 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using System.Globalization;
 using System.Reflection;
-using System.Text;
 using System.Text.Json;
 using BotForge.Fsm;
 using BotForge.Localization;
@@ -11,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BotForge.Modules.Handlers;
 
-internal class ModelBindingHandler<TModule, TModel>(MethodInfo method, IRegistry<ModelBindingDescriptor> modelRegistry) : ModuleHandlerBase<TModule> where TModule : ModuleBase where TModel : new()
+internal sealed class ModelBindingHandler<TModule, TModel>(MethodInfo method, IRegistry<ModelBindingDescriptor> modelRegistry) : ModuleHandlerBase<TModule> where TModule : ModuleBase where TModel : new()
 {
     private readonly Func<TModule, ModelPromptContext<TModel>, StateResult> _expression = method.CreateDelegate<Func<TModule, ModelPromptContext<TModel>, StateResult>>();
     private readonly ModelBindingDescriptor _modelDescriptor = GetDescriptor(modelRegistry);

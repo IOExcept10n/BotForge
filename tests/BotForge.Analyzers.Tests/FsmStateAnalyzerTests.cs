@@ -4,7 +4,7 @@ using BotForge.Analyzers.CodeFixes;
 namespace BotForge.Analyzers.Tests;
 
 [TestClass]
-public class FsmStateAnalyzerTests
+public sealed class FsmStateAnalyzerTests
 {
     private const string BaseBotForgeUsings = @"
 using System;

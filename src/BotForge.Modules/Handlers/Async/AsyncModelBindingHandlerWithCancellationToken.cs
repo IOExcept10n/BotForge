@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BotForge.Modules.Handlers.Async;
 
-internal class AsyncModelBindingHandlerWithCancellationToken<TModule, TModel>(MethodInfo method, IRegistry<ModelBindingDescriptor> modelRegistry) : ModuleHandlerBase<TModule> where TModule : ModuleBase where TModel : new()
+internal sealed class AsyncModelBindingHandlerWithCancellationToken<TModule, TModel>(MethodInfo method, IRegistry<ModelBindingDescriptor> modelRegistry) : ModuleHandlerBase<TModule> where TModule : ModuleBase where TModel : new()
 {
     private readonly Func<TModule, ModelPromptContext<TModel>, CancellationToken, Task<StateResult>> _expression = method.CreateDelegate<Func<TModule, ModelPromptContext<TModel>, CancellationToken, Task<StateResult>>>();
     private readonly ModelBindingDescriptor _modelDescriptor = GetDescriptor(modelRegistry);

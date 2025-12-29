@@ -3,7 +3,7 @@ using BotForge.Messaging;
 
 namespace BotForge.Modules.Layouts;
 
-internal class PromptStateLayout(ButtonLabel cancelButton) : StateLayout
+internal sealed class PromptStateLayout(ButtonLabel cancelButton) : StateLayout
 {
     public bool AllowCancel { get; set; }
 

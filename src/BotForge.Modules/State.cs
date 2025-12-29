@@ -2,4 +2,4 @@ using BotForge.Fsm;
 
 namespace BotForge.Modules;
 
-internal record State(StateDefinition Definition, IStateHandler Handler);
+internal sealed record State(StateDefinition Definition, IStateHandler Handler);

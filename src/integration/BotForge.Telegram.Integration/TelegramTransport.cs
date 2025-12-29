@@ -5,7 +5,7 @@ using Telegram.Bot.Polling;
 
 namespace BotForge.Telegram.Integration;
 
-internal class TelegramTransport(ITelegramBotClient client, IReplyChannel replyChannel, IUpdateChannel updateChannel) : ITransport
+internal sealed class TelegramTransport(ITelegramBotClient client, IReplyChannel replyChannel, IUpdateChannel updateChannel) : ITransport
 {
     public object RawClient { get; } = client;
 

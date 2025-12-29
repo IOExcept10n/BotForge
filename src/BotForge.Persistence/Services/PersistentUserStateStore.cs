@@ -6,7 +6,7 @@ using BotForge.Persistence.Repositories;
 
 namespace BotForge.Persistence.Services;
 
-internal class PersistentUserStateStore(IBotUserRepository users, IRoleCatalog roleCatalog) : IUserStateStore
+internal sealed class PersistentUserStateStore(IBotUserRepository users, IRoleCatalog roleCatalog) : IUserStateStore
 {
     private readonly IBotUserRepository _users = users;
     private readonly IRoleCatalog _roleCatalog = roleCatalog;

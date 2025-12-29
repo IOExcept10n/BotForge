@@ -32,7 +32,7 @@ internal sealed class RolesSeedHostedService(IServiceProvider services) : IHoste
             {
                 throw;
             }
-            catch
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 // ignore individual failures but continue seeding remaining roles
             }

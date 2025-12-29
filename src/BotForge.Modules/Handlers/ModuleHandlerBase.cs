@@ -21,14 +21,14 @@ internal abstract class ModuleHandlerBase<TModule> : IModuleHandlerBase where TM
         var result = await ExecuteInternalAsync(ctx, cancellationToken).ConfigureAwait(false);
         if (result.NextStateId == StateRecord.StartStateId)
         {
-            result = result with { NextStateId = $"{(await ctx.Services.GetRequiredService<IRoleProvider>().GetRoleAsync(ctx.Message.From)).Name}:{StateRecord.StartStateId}" };
+            result = result with { NextStateId = $"{(await ctx.Services.GetRequiredService<IRoleProvider>().GetRoleAsync(ctx.Message.From, cancellationToken).ConfigureAwait(false)).Name}:{StateRecord.StartStateId}" };
         }
         return result;
     }
 
     protected abstract Task<StateResult> ExecuteInternalAsync(MessageStateContext ctx, CancellationToken cancellationToken = default);
 
-    protected async Task<ModuleStateContext> GetModuleStateContextAsync(MessageStateContext ctx, CancellationToken cancellationToken = default)
+    protected static async Task<ModuleStateContext> GetModuleStateContextAsync(MessageStateContext ctx, CancellationToken cancellationToken = default)
     {
         var user = ctx.Message.From;
         var role = await ctx.Services.GetRequiredService<IRoleProvider>().GetRoleAsync(user, cancellationToken).ConfigureAwait(false);

@@ -20,7 +20,7 @@ public record PromptStateContext<T>(
     ChatId Chat,
     Role UserRole,
     IMessage Message,
-    Optional<T> Input,
+    OptionalValue<T> Input,
     StateRecord CurrentState,
     IServiceProvider Services) :
     ModuleStateContext(User, Chat, UserRole, Message, CurrentState, Services)

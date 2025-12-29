@@ -5,8 +5,10 @@ namespace BotForge.Modules.Contexts;
 /// </summary>
 /// <param name="RequestedModelType">The type of the model being requested for binding.</param>
 /// <param name="ModelProperties">The properties of the model that can be bound.</param>
-public record ModelBindingDescriptor(Type RequestedModelType, ModelProperty[] ModelProperties)
+public record ModelBindingDescriptor(Type RequestedModelType, IReadOnlyList<ModelProperty> ModelProperties)
 {
+    private readonly ModelProperty[] _modelProperties = [..ModelProperties];
+
     /// <summary>
     /// Gets the next property in the binding descriptor after the current property.
     /// </summary>
@@ -14,12 +16,12 @@ public record ModelBindingDescriptor(Type RequestedModelType, ModelProperty[] Mo
     /// <returns>The next model property if available; otherwise, null.</returns>
     public ModelProperty? NextProperty(ModelProperty current)
     {
-        int index = Array.IndexOf(ModelProperties, current);
-        if (index == ModelProperties.Length - 1)
+        int index = Array.IndexOf(_modelProperties, current);
+        if (index == _modelProperties.Length - 1)
             return null;
         if (index < 0)
-            return ModelProperties[0];
-        return ModelProperties[index + 1];
+            return _modelProperties[0];
+        return _modelProperties[index + 1];
     }
 
     /// <summary>
@@ -27,5 +29,5 @@ public record ModelBindingDescriptor(Type RequestedModelType, ModelProperty[] Mo
     /// </summary>
     /// <param name="propertyName">The name of the property to find.</param>
     /// <returns>The associated model property if found; otherwise, null.</returns>
-    public ModelProperty? PropertyByName(string? propertyName) => Array.Find(ModelProperties, x => x.Name == propertyName);
+    public ModelProperty? PropertyByName(string? propertyName) => Array.Find(_modelProperties, x => x.Name == propertyName);
 }

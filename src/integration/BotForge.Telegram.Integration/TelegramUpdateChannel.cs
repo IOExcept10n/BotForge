@@ -7,7 +7,7 @@ using Telegram.Bot.Types;
 
 namespace BotForge.Telegram.Integration;
 
-internal class TelegramUpdateChannel(IUserLocaleProvider localeProvider) : IUpdateChannel, IUpdateHandler
+internal sealed class TelegramUpdateChannel(IUserLocaleProvider localeProvider) : IUpdateChannel, IUpdateHandler
 {
     private readonly IUserLocaleProvider _localeProvider = localeProvider;
 

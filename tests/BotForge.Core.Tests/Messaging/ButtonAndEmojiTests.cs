@@ -8,7 +8,6 @@ public class ButtonAndEmojiTests
     [Fact]
     public void ButtonLabel_Parse_WithEmoji()
     {
-        var heart = Emoji.HeartDecoration; // some known emoji
         string text = EmojiStrings.HEART_DECORATION + " Title";
         var label = ButtonLabel.Parse(text, null);
 

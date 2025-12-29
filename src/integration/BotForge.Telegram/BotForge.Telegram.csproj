@@ -1,6 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
+  <PropertyGroup>
+    <!--NuGet props-->
+    <PackageId>BotForge.Telegram</PackageId>
+    <Description>An infrastructure package that allows you to simply create Telegram bots using BotForge framework. It includes the most common BotForge packages set to begin making bot apps.</Description>
+    <PackageTags>($PackageTags), BotForge.Telegram, Telegram, Hosting, App</PackageTags>
+  </PropertyGroup>
+
+    <ItemGroup>
     <ProjectReference Include="..\..\BotForge.Core\BotForge.Core.csproj" />
     <ProjectReference Include="..\..\BotForge.Hosting\BotForge.Hosting.csproj" />
     <ProjectReference Include="..\..\BotForge.Modules\BotForge.Modules.csproj" />

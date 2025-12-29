@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace BotForge.Hosting;
 
-internal partial class BotHost(ITransport transport, UpdateProcessingPipeline pipeline, ILogger<BotHost> logger) : BackgroundService
+internal sealed partial class BotHost(ITransport transport, UpdateProcessingPipeline pipeline, ILogger<BotHost> logger) : BackgroundService
 {
     private readonly ITransport _transport = transport;
     private readonly ILogger<BotHost> _logger = logger;

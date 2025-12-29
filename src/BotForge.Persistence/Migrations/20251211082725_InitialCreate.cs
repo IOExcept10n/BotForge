@@ -11,6 +11,7 @@ namespace BotForge.Persistence.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            ArgumentNullException.ThrowIfNull(migrationBuilder);
             migrationBuilder.CreateTable(
                 name: "Roles",
                 columns: table => new
@@ -99,13 +100,14 @@ namespace BotForge.Persistence.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Username_Discriminator",
                 table: "Users",
-                columns: new[] { "Username", "Discriminator" },
+                columns: ["Username", "Discriminator"],
                 unique: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            ArgumentNullException.ThrowIfNull(migrationBuilder);
             migrationBuilder.DropTable(
                 name: "States");
 

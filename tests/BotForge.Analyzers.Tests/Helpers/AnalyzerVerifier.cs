@@ -7,7 +7,7 @@ using System.Collections.Immutable;
 
 namespace BotForge.Analyzers.Tests.Helpers;
 
-public static class AnalyzerVerifier<TAnalyzer, TCodeFix>
+internal static class AnalyzerVerifier<TAnalyzer, TCodeFix>
     where TAnalyzer : DiagnosticAnalyzer, new()
     where TCodeFix : CodeFixProvider, new()
 {
@@ -56,7 +56,7 @@ public static class AnalyzerVerifier<TAnalyzer, TCodeFix>
         return test.RunAsync();
     }
 
-    public class Test<T> : CSharpAnalyzerTest<T, DefaultVerifier>
+    internal class Test<T> : CSharpAnalyzerTest<T, DefaultVerifier>
         where T : DiagnosticAnalyzer, new()
     {
         public Test()
@@ -88,12 +88,10 @@ public static class AnalyzerVerifier<TAnalyzer, TCodeFix>
         }
     }
 
-    public class Test<TDiagnosticAnalyzer, TCodeFixProvider> : CSharpCodeFixTest<TDiagnosticAnalyzer, TCodeFixProvider, DefaultVerifier>
+    internal class Test<TDiagnosticAnalyzer, TCodeFixProvider> : CSharpCodeFixTest<TDiagnosticAnalyzer, TCodeFixProvider, DefaultVerifier>
         where TDiagnosticAnalyzer : DiagnosticAnalyzer, new()
         where TCodeFixProvider : CodeFixProvider, new()
     {
-        public int? CodeActionIndex { get; set; }
-
         public Test()
         {
             SolutionTransforms.Add((solution, projectId) =>
@@ -127,7 +125,6 @@ public static class AnalyzerVerifier<TAnalyzer, TCodeFix>
             if (CodeActionIndex.HasValue)
             {
                 CodeActionValidationMode = CodeActionValidationMode.None;
-                CodeActionIndex = CodeActionIndex;
             }
 
             await base.RunImplAsync(cancellationToken).ConfigureAwait(false);
@@ -135,14 +132,14 @@ public static class AnalyzerVerifier<TAnalyzer, TCodeFix>
     }
 }
 
-public static class AnalyzerVerifier<TAnalyzer>
+internal static class AnalyzerVerifier<TAnalyzer>
     where TAnalyzer : DiagnosticAnalyzer, new()
 {
     public static DiagnosticResult Diagnostic(string diagnosticId)
         => CSharpAnalyzerVerifier<TAnalyzer, DefaultVerifier>.Diagnostic(diagnosticId);
 
     public static DiagnosticResult Diagnostic(DiagnosticDescriptor descriptor)
-        => new DiagnosticResult(descriptor);
+        => new(descriptor);
 
     public static Task VerifyAnalyzerAsync(string source, params DiagnosticResult[] expected)
     {

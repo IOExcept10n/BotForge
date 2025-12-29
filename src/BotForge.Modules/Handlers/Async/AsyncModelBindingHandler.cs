@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Globalization;
 using System.Reflection;
 using System.Text.Json;
 using BotForge.Fsm;
@@ -10,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BotForge.Modules.Handlers.Async;
 
-internal class AsyncModelBindingHandler<TModule, TModel>(MethodInfo method, IRegistry<ModelBindingDescriptor> modelRegistry) : ModuleHandlerBase<TModule> where TModule : ModuleBase where TModel : new()
+internal sealed class AsyncModelBindingHandler<TModule, TModel>(MethodInfo method, IRegistry<ModelBindingDescriptor> modelRegistry) : ModuleHandlerBase<TModule> where TModule : ModuleBase where TModel : new()
 {
     private readonly Func<TModule, ModelPromptContext<TModel>, Task<StateResult>> _expression = method.CreateDelegate<Func<TModule, ModelPromptContext<TModel>, Task<StateResult>>>();
     private readonly ModelBindingDescriptor _modelDescriptor = GetDescriptor(modelRegistry);

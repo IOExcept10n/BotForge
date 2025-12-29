@@ -5,7 +5,7 @@ namespace BotForge.Telegram.InformationalBot;
 // This is a sample button label storage class.
 // You can separate these labels to different classes and mark each with [LabelStorage] – all of them will be loaded at startup.
 [LabelStorage]
-internal class Labels
+internal static class Labels
 {
     #region Module buttons
 

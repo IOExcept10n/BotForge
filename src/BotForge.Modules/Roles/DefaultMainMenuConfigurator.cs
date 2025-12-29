@@ -1,4 +1,3 @@
-using System.Globalization;
 using BotForge.Fsm;
 using BotForge.Localization;
 using BotForge.Messaging;
@@ -7,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BotForge.Modules.Roles;
 
-internal class DefaultMainMenuConfigurator(IRegistry<StateDefinition> registry, IRegistry<State> stateHandlerRegistry) : IMainMenuConfigurator
+internal sealed class DefaultMainMenuConfigurator(IRegistry<StateDefinition> registry, IRegistry<State> stateHandlerRegistry) : IMainMenuConfigurator
 {
     private readonly IRegistry<StateDefinition> _registry = registry;
     private readonly IRegistry<State> _stateHandlerRegistry = stateHandlerRegistry;

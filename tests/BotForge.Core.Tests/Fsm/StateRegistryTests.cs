@@ -1,9 +1,8 @@
 using BotForge.Fsm;
-using Xunit;
 
 namespace BotForge.Tests.Fsm;
 
-public class StateRegistryTests
+public sealed class StateRegistryTests
 {
     [Fact]
     public void RegisterAndGet_StateDefinition_IsRetrievable()
@@ -18,7 +17,7 @@ public class StateRegistryTests
         Assert.Same(def, fetched);
     }
 
-    private class TestLayout : IStateLayout
+    private sealed class TestLayout : IStateLayout
     {
         public Task SendLayoutMessageAsync(BotForge.Messaging.IReplyChannel channel, BotForge.Messaging.UserIdentity user, BotForge.Localization.ILocalizationService localization, BotForge.Messaging.ReplyContext? overrideMessage = null, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }

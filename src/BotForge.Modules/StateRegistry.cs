@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace BotForge.Modules;
 
-internal class StateRegistry : IRegistry<State>
+internal sealed class StateRegistry : IRegistry<State>
 {
     private readonly Dictionary<string, State> _registry = [];
 

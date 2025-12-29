@@ -1,11 +1,9 @@
 ; Unshipped analyzer release
 ; https://github.com/dotnet/roslyn-analyzers/blob/main/src/Microsoft.CodeAnalysis.Analyzers/ReleaseTrackingAnalyzers.Help.md
 
+## Release 0.5
+
 ### New Rules
-
----
-
-### Diagnostic Summaries
 
 | Rule ID | Category | Severity | Description |
 |---------|----------|----------|-------------|

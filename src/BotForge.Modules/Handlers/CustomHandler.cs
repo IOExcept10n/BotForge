@@ -4,7 +4,7 @@ using BotForge.Modules.Contexts;
 
 namespace BotForge.Modules.Handlers;
 
-internal class CustomHandler<TModule>(MethodInfo method) : ModuleHandlerBase<TModule> where TModule : ModuleBase
+internal sealed class CustomHandler<TModule>(MethodInfo method) : ModuleHandlerBase<TModule> where TModule : ModuleBase
 {
     private readonly Func<TModule, ModuleStateContext, StateResult> _expression = method.CreateDelegate<Func<TModule, ModuleStateContext, StateResult>>();
 

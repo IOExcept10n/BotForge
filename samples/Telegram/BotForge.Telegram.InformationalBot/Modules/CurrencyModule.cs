@@ -7,7 +7,7 @@ using BotForge.Telegram.InformationalBot.Services;
 
 namespace BotForge.Telegram.InformationalBot.Modules;
 
-internal class CurrencyModule(ICurrencyService currency) : ModuleBase
+internal sealed class CurrencyModule(ICurrencyService currency) : ModuleBase
 {
     private readonly ICurrencyService _currency = currency;
 

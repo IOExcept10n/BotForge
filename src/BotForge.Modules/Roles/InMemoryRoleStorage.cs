@@ -4,7 +4,7 @@ using BotForge.Messaging;
 
 namespace BotForge.Modules.Roles;
 
-internal class InMemoryRoleStorage(IRoleCatalog roleCatalog) : IRoleProvider, IRoleManager
+internal sealed class InMemoryRoleStorage(IRoleCatalog roleCatalog) : IRoleProvider, IRoleManager
 {
     private readonly ConcurrentDictionary<long, Role> _rolesMap = [];
     private readonly IRoleCatalog _roleCatalog = roleCatalog;

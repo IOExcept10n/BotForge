@@ -20,7 +20,7 @@ public class CommandRegistryTests
         Assert.Same(handler, fetched);
     }
 
-    private class TestCommandHandler : ICommandHandler
+    private sealed class TestCommandHandler : ICommandHandler
     {
         public string CommandName { get; }
 

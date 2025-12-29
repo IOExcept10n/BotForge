@@ -1,18 +1,36 @@
 namespace BotForge.Modules;
 
 /// <summary>
+/// Provides helper static methods for creation of <see cref="OptionalValue{T}"/> instances.
+/// </summary>
+public static class OptionalValue
+{
+    /// <summary>
+    /// Gets an instance representing no value.
+    /// </summary>
+    public static OptionalValue<T> None<T>() => default;
+
+    /// <summary>
+    /// Creates an instance of <see cref="OptionalValue{T}"/> containing a specified value.
+    /// </summary>
+    /// <param name="value">The value to encapsulate.</param>
+    /// <returns>An instance of <see cref="OptionalValue{T}"/> containing the specified value.</returns>
+    public static OptionalValue<T> Some<T>(T value) => new(value);
+}
+
+/// <summary>
 /// Represents an optional value, allowing the representation of a value that may or may not exist.
 /// </summary>
 /// <typeparam name="T">The type of the optional value.</typeparam>
-public readonly record struct Optional<T>
+public readonly record struct OptionalValue<T>
 {
     private readonly T _value;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Optional{T}"/> struct with a specified value.
+    /// Initializes a new instance of the <see cref="OptionalValue{T}"/> struct with a specified value.
     /// </summary>
     /// <param name="value">The value to encapsulate.</param>
-    public Optional(T value)
+    public OptionalValue(T value)
     {
         _value = value!;
         HasValue = true;
@@ -22,18 +40,6 @@ public readonly record struct Optional<T>
     /// Gets a value indicating whether the value exists.
     /// </summary>
     public bool HasValue { get; }
-
-    /// <summary>
-    /// Gets an instance representing no value.
-    /// </summary>
-    public static Optional<T> None => default;
-
-    /// <summary>
-    /// Creates an instance of <see cref="Optional{T}"/> containing a specified value.
-    /// </summary>
-    /// <param name="value">The value to encapsulate.</param>
-    /// <returns>An instance of <see cref="Optional{T}"/> containing the specified value.</returns>
-    public static Optional<T> Some(T value) => new(value);
 
     /// <summary>
     /// Retrieves the encapsulated value, throwing an exception if no value exists.
@@ -104,15 +110,28 @@ public readonly record struct Optional<T>
 
     // Operators
     /// <summary>
-    /// Implicitly converts a value of type T to an instance of <see cref="Optional{T}"/>.
+    /// Implicitly converts a value of type T to an instance of <see cref="OptionalValue{T}"/>.
     /// </summary>
     /// <param name="value">The value to convert.</param>
-    public static implicit operator Optional<T>(T value) => new(value);
+    public static implicit operator OptionalValue<T>(T value) => new(value);
 
     /// <summary>
-    /// Explicitly converts an instance of <see cref="Optional{T}"/> to its encapsulated value.
+    /// Explicitly converts an instance of <see cref="OptionalValue{T}"/> to its encapsulated value.
     /// </summary>
-    /// <param name="optional">The <see cref="Optional{T}"/> to convert.</param>
+    /// <param name="optional">The <see cref="OptionalValue{T}"/> to convert.</param>
     /// <returns>The encapsulated value.</returns>
-    public static explicit operator T(Optional<T> optional) => optional.ValueOrThrow();
+    public static explicit operator T(OptionalValue<T> optional) => optional.ValueOrThrow();
+
+    /// <summary>
+    /// Implicitly converts a value of type T to an instance of <see cref="OptionalValue{T}"/>.
+    /// </summary>
+    /// <param name="value">The value to convert.</param>
+    public OptionalValue<T> ToOptionalValue(T value) => new(value);
+
+    /// <summary>
+    /// Explicitly converts an instance of <see cref="OptionalValue{T}"/> to its encapsulated value.
+    /// </summary>
+    /// <param name="optional">The <see cref="OptionalValue{T}"/> to convert.</param>
+    /// <returns>The encapsulated value.</returns>
+    public T FromOptionalValue(OptionalValue<T> optional) => optional.ValueOrThrow();
 }

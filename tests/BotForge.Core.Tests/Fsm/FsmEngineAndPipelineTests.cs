@@ -24,7 +24,7 @@ public class FsmEngineAndPipelineTests
     [Fact]
     public async Task UpdateProcessingPipeline_IgnoresNullSender()
     {
-        var pipeline = new UpdateProcessingPipeline(new ServiceProviderStub(null));
+        using var pipeline = new UpdateProcessingPipeline(new ServiceProviderStub(null));
 
         var update = new TestUpdate(UpdateType.MessageCreated, null, null);
         await pipeline.HandleUpdateAsync(update);

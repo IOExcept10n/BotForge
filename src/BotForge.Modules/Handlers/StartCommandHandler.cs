@@ -16,6 +16,7 @@ public class StartCommandHandler : ICommandHandler
     /// <inheritdoc/>
     public async Task<StateResult> HandleCommand(InteractionStateContext ctx, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(ctx);
         var roleService = ctx.Services.GetRequiredService<IRoleProvider>();
         var role = await roleService.GetRoleAsync(ctx.Interaction.From, cancellationToken).ConfigureAwait(false);
         var stateRegistry = ctx.Services.GetRequiredService<IRegistry<StateDefinition>>();

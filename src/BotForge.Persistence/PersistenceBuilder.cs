@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BotForge.Persistence;
 
-internal class PersistenceBuilder : IPersistenceBuilder
+internal sealed class PersistenceBuilder : IPersistenceBuilder
 {
     private readonly PersistenceOptions _options;
 

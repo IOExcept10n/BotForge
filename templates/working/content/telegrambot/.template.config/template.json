@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Ivan Olyanishin",
+  "classifications": [ "Common", "Console", "BotForge", "Chatbot", "App" ],
+  "identity": "ExampleTemplate.AsyncProject",
+  "name": "Example templates: async project",
+  "shortName": "tg-bot",
+  "sourceName":"telegrambot",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  }
+}
