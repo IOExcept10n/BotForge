@@ -7,20 +7,11 @@
 BotForge is a modular .NET chatbot framework powered by a finite state machine (FSM) architecture.
 It started as an internal tool for a university hackathon and evolved into an open-source project for developers who want structured, modular, and declarative bot logic.
 
-Status
+## Status
 - Active development
 - Pre-release packages published on NuGet
 
-NuGet packages
-- BotForge.Analyzers: https://www.nuget.org/packages/BotForge.Analyzers/
-- BotForge.Core: https://www.nuget.org/packages/BotForge.Core/
-- BotForge.Hosting: https://www.nuget.org/packages/BotForge.Hosting/
-- BotForge.Modules: https://www.nuget.org/packages/BotForge.Modules/
-- BotForge.Persistence: https://www.nuget.org/packages/BotForge.Persistence/
-- BotForge.Telegram.Integration: https://www.nuget.org/packages/BotForge.Telegram.Integration/
-- BotForge.Telegram: https://www.nuget.org/packages/BotForge.Telegram/
-
-Getting started (Telegram, minimal)
+## Getting started (Telegram, minimal)
 1) Install
    `dotnet add package BotForge.Telegram`
 
@@ -50,25 +41,34 @@ class PingPongModule : ModuleBase
 }
 ```
 
-Project goals
+## NuGet packages
+- [**BotForge.Analyzers**](https://www.nuget.org/packages/BotForge.Analyzers/)
+- [**BotForge.Core**](https://www.nuget.org/packages/BotForge.Core/)
+- [**BotForge.Hosting**](https://www.nuget.org/packages/BotForge.Hosting/)
+- [**BotForge.Modules**](https://www.nuget.org/packages/BotForge.Modules/)
+- [**BotForge.Persistence**](https://www.nuget.org/packages/BotForge.Persistence/)
+- [**BotForge.Telegram.Integration**](https://www.nuget.org/packages/BotForge.Telegram.Integration/)
+- [**BotForge.Telegram**](https://www.nuget.org/packages/BotForge.Telegram/)
+
+## Project goals
 - Provide a clean FSM architecture for complex conversational flows
 - Offer a modular system with declarative state definitions and role-based access
 - Deliver Telegram integration with room for other platforms in the future
 - Simplify bot development through hosting support, dependency injection, and extensibility
 
-Solution structure
-- BotForge.Core: Core FSM engine and dispatching logic
-- BotForge.Hosting: Integration with IHostApplicationBuilder and DI container
-- BotForge.Modules: Modular system and declarative FSM attributes
-- BotForge.Persistence: EF Core-based FSM state storage
-- BotForge.Telegram.Integration: Low-level transport mapping for Telegram.Bot
-- BotForge.Telegram: Ready-to-use Telegram setup on top of Hosting + Modules + Integration
-- BotForge.Analyzers: Roslyn analyzers (and code fixes via meta-package) for FSM attribute validation
+## Solution structure
+- **BotForge.Core**: Core FSM engine and dispatching logic
+- **BotForge.Hosting**: Integration with `IHostApplicationBuilder` and DI container
+- **BotForge.Modules**: Modular system and declarative FSM attributes
+- **BotForge.Persistence**: EF Core-based FSM state storage
+- **BotForge.Telegram.Integration**: Low-level transport mapping for Telegram.Bot
+- **BotForge.Telegram**: Ready-to-use Telegram setup on top of Hosting + Modules + Integration
+- **BotForge.Analyzers**: Roslyn analyzers (and code fixes via meta-package) for FSM attribute validation
 
-Roadmap
+## Roadmap
 See docs/roadmap.md for detailed progress and upcoming milestones.
 
-Build
+## Build
 ```sh
 git clone https://github.com/IOExcept10n/BotForge.git
 cd BotForge
@@ -77,14 +77,14 @@ dotnet build
 dotnet test
 ```
 
-Samples
-- Telegram Ping-Pong bot: samples/Telegram/BotForge.Telegram.PingPongBot
-- Telegram Informational bot: samples/Telegram/BotForge.Telegram.InformationalBot
-- Telegram Persistence demo: samples/Telegram/BotForge.Telegram.MemoryBot
+## Samples
+- Telegram Ping-Pong bot: [samples/Telegram/BotForge.Telegram.PingPongBot](./samples/Telegram/BotForge.Telegram.PingPongBot/README.md)
+- Telegram Informational bot: [samples/Telegram/BotForge.Telegram.InformationalBot](./samples/Telegram/BotForge.Telegram.InformationalBot/README.md)
+- Telegram Persistence demo: [samples/Telegram/BotForge.Telegram.MemoryBot](./samples/Telegram/BotForge.Telegram.MemoryBot/README.md)
 
-License
+## License
 This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
 
-Author
+## Author
 Developed by @IOExcept10n (https://github.com/IOExcept10n).
 Originated as a Telegram bot for a university hackathon project.
